@@ -1,0 +1,30 @@
+api_version = "2026-01"
+
+[[extensions]]
+name = "t:name"
+handle = "brand-discount"
+type = "function"
+uid = "b37b951e-6129-3b50-31d8-c34d7c6c16863fa59906"
+description = "t:description"
+
+  # Input variables for all targets in this extension. Sourced from a JSON
+  # metafield on the function owner (the discount, per Shopify Functions docs).
+  # The metafield JSON has top-level keys matching GraphQL variable names —
+  # currently { "brandTags": [...] } consumed by cart_lines_discounts_generate_run.graphql.
+  [extensions.input.variables]
+  namespace = "$app:brand-discount"
+  key = "input_variables"
+
+  [[extensions.targeting]]
+  target = "cart.lines.discounts.generate.run"
+  input_query = "src/cart_lines_discounts_generate_run.graphql"
+  export = "cart-lines-discounts-generate-run"
+
+  [[extensions.targeting]]
+  target = "cart.delivery-options.discounts.generate.run"
+  input_query = "src/cart_delivery_options_discounts_generate_run.graphql"
+  export = "cart-delivery-options-discounts-generate-run"
+
+  [extensions.build]
+  command = ""
+  path = "dist/function.wasm"

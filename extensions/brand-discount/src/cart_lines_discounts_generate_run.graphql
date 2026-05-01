@@ -1,0 +1,37 @@
+# $brandTags is sourced from the discount-owner $app:brand-discount.input_variables
+# metafield (see shopify.extension.toml [extensions.input.variables]).
+#
+# Type is nullable list ([String!]) with default [], not non-null ([String!]!).
+# Shopify's input-variable resolver explicitly passes `null` to declared variables
+# when the source metafield is missing — and a non-null variable rejects null at
+# the variable-validation phase BEFORE any defaults can apply, aborting the entire
+# function with InvalidVariableValueError (STDIN never built). Making the variable
+# nullable lets validation pass; the JS handler then treats null and [] identically
+# as "no brand tags configured for this discount → no-op."
+query RunInput($brandTags: [String!] = []) {
+  cart {
+    buyerIdentity {
+      customer {
+        brandDiscounts: metafield(namespace: "custom", key: "brand_discounts") {
+          value
+        }
+      }
+    }
+    lines {
+      id
+      merchandise {
+        ... on ProductVariant {
+          product {
+            brandTagMatches: hasTags(tags: $brandTags) {
+              tag
+              hasTag
+            }
+          }
+        }
+      }
+    }
+  }
+  discount {
+    discountClasses
+  }
+}

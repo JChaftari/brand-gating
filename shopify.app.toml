@@ -1,0 +1,31 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f9f32ac3ca8e90585fc52b8fda97b2d1"
+name = "brand-gating"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-07"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+#
+# Minimum scopes. Per metafieldsSet docs ("same access level needed to mutate the
+# owner resource") and Shopify staff guidance, shop-owned metafields require no
+# dedicated scope, and resource-owned metafields are covered by the resource scope.
+#
+# read/write_products  → collectionCreate / collectionUpdate for brand collections
+# read/write_customers → customer.brand_discounts metafield (embedded UI extension)
+# read/write_discounts → discountNodes query + per-discount input_variables metafield writes
+# read_files           → ResourcePicker for selecting brand images from Shopify Files
+scopes = "read_products,write_products,read_customers,write_customers,read_discounts,write_discounts,read_files"
+
+[access.admin]
+embedded_app_direct_api_access = true
+
+[auth]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]

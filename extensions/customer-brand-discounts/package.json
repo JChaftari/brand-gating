@@ -1,0 +1,14 @@
+{
+  "name": "customer-brand-discounts",
+  "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "shopify": "npm exec -- shopify"
+  },
+  "dependencies": {
+    "preact": "^10.10.0",
+    "@shopify/ui-extensions": "^2026.1.0"
+  }
+}

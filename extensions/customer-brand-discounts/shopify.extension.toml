@@ -1,0 +1,15 @@
+api_version = "2026-01"
+uid = "06c0de74-dddc-7655-228d-e64a64cc7e15398d70d8"
+
+[[extensions]]
+type = "ui_extension"
+name = "t:name"
+handle = "customer-brand-discounts"
+description = "t:description"
+
+# Target: a card-style block on the customer detail page in Shopify admin.
+# Reads custom.brand_discounts (customer metafield) and custom.brand_list
+# (shop metafield) via Direct API Access through useApi().
+[[extensions.targeting]]
+module = "./src/BlockExtension.jsx"
+target = "admin.customer-details.block.render"

@@ -1,0 +1,8 @@
+roles = ["frontend"]
+
+[commands]
+# The Shopify CLI injects PORT (and HOST for the dev tunnel) as env vars on the
+# spawned process. vite.config.js reads process.env.PORT, so no --port flag is
+# needed here. Avoid the {{port}} placeholder — it is not substituted reliably
+# across CLI versions.
+dev = "npm run dev"
