@@ -16,7 +16,11 @@ doc: `docs/APP_STORE_READINESS.md`.
   webhooks.
 - `functions/webhooks/compliance.js` — Cloudflare Pages Function receiving
   `customers/data_request`, `customers/redact`, `shop/redact`; HMAC-verified,
-  401 on invalid, stateless.
+  401 on invalid, stateless. Live at
+  `brand-gating.pages.dev/webhooks/compliance` (Pages production branch is now
+  `public-release`).
+- `scripts/check-compliance-webhook.mjs` — sends signed sample webhooks to the
+  live endpoint to verify it (expects 200s and a 401 control).
 
 ### Changed
 - Public app requests no `read_files` scope (unused).

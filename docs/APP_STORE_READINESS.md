@@ -53,7 +53,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 
 | # | Requirement | Status | Notes |
 |---|---|---|---|
-| 1 | Compliance webhooks with HMAC (401 on invalid) | 🟡 | `functions/webhooks/compliance.js` built and tested locally (10/10 cases). Needs `brand-gating.pages.dev` building from `public-release` + the secret set, then a live test. |
+| 1 | Compliance webhooks with HMAC (401 on invalid) | ✅ | Live at `https://brand-gating.pages.dev/webhooks/compliance`. Verified in production with `scripts/check-compliance-webhook.mjs`: all three topics 200 when correctly signed, 401 when mis-signed or unsigned. |
 | 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
 | 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
@@ -194,12 +194,16 @@ temporary tunnel.
    `POST /webhooks/compliance` there returns **401 "Unauthorized"** for
    unsigned, forged and malformed signatures (the function's own response).
    The live site still returns 405 for the same request.
-5. **Point `brand-gating.pages.dev` at the public code.** It belongs to the
-   public app. In the project: Settings → Build → **Branch control** →
-   production branch `public-release`. Settings → **Variables and Secrets** →
-   Production → add `SHOPIFY_API_SECRET`, type **Secret**, value = the
-   `brand-gating` (Public) app's Client secret from the Shopify Dev Dashboard.
-   Then retry/trigger a production deployment.
+5. ✅ **Point `brand-gating.pages.dev` at the public code.** Done: production
+   branch is now `public-release`, and `SHOPIFY_API_SECRET` (the Public app's
+   Client secret, encrypted) is set for Production. To reach these settings,
+   open the project's **Settings** page (from a deployment page, use the
+   "this project's Settings" link) — **Build → Branch control** and
+   **Variables and Secrets** are sections on that page.
+
+   Re-verify any time from the repo root:
+   `node scripts/check-compliance-webhook.mjs` (prompts for the secret,
+   hidden). Expect 3× 200 and 1× 401.
 6. **Create the customer's copy of the site** (only when the customer is ready).
    A second Pages project from the same GitHub repo with the same build
    command, output directory and root directory, production branch `main`,
@@ -217,11 +221,8 @@ temporary tunnel.
 4. ✅ F2 (free shipping) fixed on both branches.
 5. ✅ Both apps deployed: public `brand-gating-5` (compliance webhooks now
    registered with Shopify), customer `brand-gating-2`.
-6. ❌ **Make the webhook endpoint live** — action items 4–5. Until then
-   Shopify has the subscriptions but `brand-gating.pages.dev` doesn't serve
-   `/webhooks/compliance` yet, so any compliance webhook would fail. Then
-   trigger test compliance webhooks and confirm 200s (and a 401 with a bad
-   signature).
+6. ✅ Webhook endpoint live in production and verified (200 signed, 401
+   forged/unsigned).
 7. ❌ Fresh-store install test (F3); decide F4.
 8. ❌ Ask Shopify Partner support about F1.
 9. ❌ Request Protected Customer Data Level 1 for the public app.
