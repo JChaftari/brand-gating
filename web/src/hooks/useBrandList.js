@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { loadBrandList, syncBrandList, selfHealBrandRegistry } from '../api/brandList';
+import {
+  loadBrandList,
+  syncBrandList,
+  selfHealBrandRegistry,
+  createBrandDiscount,
+} from '../api/brandList';
 
 /**
  * React hook over the brand registry. On mount: runs the self-healing check
@@ -14,6 +19,7 @@ import { loadBrandList, syncBrandList, selfHealBrandRegistry } from '../api/bran
  *                     merchant that updates won't take effect at checkout.
  *   refresh()         re-runs self-heal + load
  *   replace(next)     persists `next` via syncBrandList, updates local state
+ *   createDiscount()  creates the store's brand discount, then recounts
  */
 export function useBrandList() {
   const [brands, setBrands] = useState([]);
@@ -53,5 +59,13 @@ export function useBrandList() {
     return persisted;
   }, []);
 
-  return { brands, loading, error, discountCount, refresh, replace };
+  // Create the discount, then recount via self-heal (which also confirms its
+  // tag list matches) without toggling `loading`, so the table doesn't flash.
+  const createDiscount = useCallback(async () => {
+    await createBrandDiscount();
+    const heal = await selfHealBrandRegistry();
+    setDiscountCount(heal.discountCount);
+  }, []);
+
+  return { brands, loading, error, discountCount, refresh, replace, createDiscount };
 }

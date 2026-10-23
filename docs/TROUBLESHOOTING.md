@@ -20,9 +20,10 @@ Walk the three-part checklist — all must be true:
 
 Plus two easy-to-miss requirements:
 
-4. **An automatic discount using the app exists.** If the Brands page shows a
-   yellow "No active discount uses Brand Discount" banner, create one:
-   Discounts → Create discount → Automatic discount → Brand Discount.
+4. **Brand discounts are turned on.** If the Brands page shows a yellow "Brand
+   discounts are off" banner, click **Turn on brand discounts** in it.
+   (Choosing the app in Discounts → Create discount only opens the Brands page;
+   the button is the way to create it.)
 5. **The customer is logged in / identified at checkout.** The function reads
    the customer's assignments; an anonymous checkout gets no brand discount.
 

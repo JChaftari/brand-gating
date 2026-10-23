@@ -174,10 +174,11 @@ raw `brand_discounts` that bypasses the card.
 
 ## Self-healing
 
-Because a merchant can create a new automatic discount using our function
-*outside* the Brands page (directly in Shopify admin), that discount would start
-life with no `input_variables` metafield — and the function would no-op for it
-(I3) until we populate it.
+The app creates its own discount with `input_variables` already set (see
+[Creating the discount](#creating-the-discount)). But a discount using our
+function can also be created outside the app (e.g. through the Admin API), and
+would start life with no `input_variables` metafield — the function would no-op
+for it (I3) until we populate it.
 
 `selfHealBrandRegistry()` runs on Brands-page mount:
 
@@ -188,9 +189,29 @@ life with no `input_variables` metafield — and the function would no-op for it
 3. If any is missing or drifted, trigger a full `syncBrandList()`.
 
 There is no background sync — healing happens only when someone opens the Brands
-page. If the merchant has **zero** discounts using the function, the page shows
-a warning banner (their brand updates won't affect checkout until they create
-one).
+page.
+
+## Creating the discount
+
+The function has no discount-creation UI in Shopify admin: choosing it in
+**Discounts → Create discount** sends the merchant to the app's main page (the
+Brands page). So the app creates the discount itself.
+
+When the store has **zero** discounts using the function, the Brands page shows
+a "Brand discounts are off" banner with a **Turn on brand discounts** button.
+It calls `createBrandDiscount()` (`web/src/api/brandList.js`), which runs
+`discountAutomaticAppCreate` with:
+
+- `functionHandle: "brand-discount"`, `discountClasses: [PRODUCT]`
+- `startsAt` now, no `endsAt`
+- `combinesWith`: order ✅, shipping ✅, product ❌
+- `metafields`: `$app:brand-discount.input_variables` = current tag list, so the
+  discount never exists without its tag list (keeps invariant I1 in this one
+  module)
+
+Limitation: since Shopify has no edit screen for this discount type, merchants
+can't change its combinations or dates from admin. A discount function settings
+UI extension (plugs into Shopify's native discount form) would add that.
 
 ---
 

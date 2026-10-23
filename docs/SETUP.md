@@ -195,12 +195,16 @@ the Customer object."*
 
 ## 5. Discount that uses the function
 
-The function only runs if an **automatic discount** using it exists. In Shopify
-admin: **Discounts → Create discount → Automatic discount →** select the
-**Brand Discount** app function. Save.
+The function only runs if an **automatic discount** using it exists. Create it
+from the app: open **Apps → brand-gating**; while no such discount exists, the
+Brands page shows a "Brand discounts are off" banner with a **Turn on brand
+discounts** button. One click creates the discount (product lines only, starts
+now, no end date, combines with order and shipping discounts) with the brand
+list already loaded into it.
 
-If none exists, the Brands page shows a warning banner and brand updates won't
-affect checkout.
+Don't try to create it from **Discounts → Create discount**: the function has
+no discount-creation screen in Shopify admin, so choosing it in the
+discount-type picker just opens the Brands page.
 
 ---
 

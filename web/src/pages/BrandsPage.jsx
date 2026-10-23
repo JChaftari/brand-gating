@@ -21,13 +21,31 @@ import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
 
 export default function BrandsPage() {
-  const { brands, loading, error, discountCount, replace } = useBrandList();
+  const { brands, loading, error, discountCount, replace, createDiscount } = useBrandList();
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);   // brand|null
   const [deleteTarget, setDeleteTarget] = useState(null); // brand|null
   const [toast, setToast] = useState(null);
   const [postAddBanner, setPostAddBanner] = useState(null);
+  const [activating, setActivating] = useState(false);
+  const [activateError, setActivateError] = useState(null);
+
+  // Create the store's brand discount. Shopify's discount-type picker sends
+  // merchants who choose this app's discount here, so this is the only way a
+  // store gets one.
+  const handleActivateDiscount = useCallback(async () => {
+    setActivating(true);
+    setActivateError(null);
+    try {
+      await createDiscount();
+      setToast('Brand discounts turned on');
+    } catch (err) {
+      setActivateError(err);
+    } finally {
+      setActivating(false);
+    }
+  }, [createDiscount]);
 
   const openAddModal = useCallback(() => setAddModalOpen(true), []);
   const closeAddModal = useCallback(() => setAddModalOpen(false), []);
@@ -96,13 +114,28 @@ export default function BrandsPage() {
         )}
 
         {!loading && discountCount === 0 && (
-          <Banner tone="warning" title="No active discount uses Brand Discount">
-            <p>
-              Brand updates won't take effect at checkout until you create an
-              automatic discount that uses the Brand Discount app. Open
-              Discounts → Create discount → Automatic discount and select
-              "Brand Discount".
-            </p>
+          <Banner
+            tone="warning"
+            title="Brand discounts are off"
+            action={{
+              content: 'Turn on brand discounts',
+              onAction: handleActivateDiscount,
+              loading: activating,
+              disabled: activating,
+            }}
+          >
+            <BlockStack gap="200">
+              <p>
+                Customers won't get their brand discounts at checkout until
+                this is on. It creates an automatic discount that applies each
+                customer's brand percentages to the products they buy.
+              </p>
+              {activateError && (
+                <Text as="p" tone="critical">
+                  Couldn't turn on brand discounts: {activateError.message}
+                </Text>
+              )}
+            </BlockStack>
           </Banner>
         )}
 

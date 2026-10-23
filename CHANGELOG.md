@@ -26,6 +26,10 @@ doc: `docs/APP_STORE_READINESS.md`.
 - Public app requests no `read_files` scope (unused).
 
 ### Fixed
+- Merchants couldn't create the brand discount: the function has no
+  discount-creation UI, and the Brands page banner pointed back to the
+  discount picker. The banner now has a **Turn on brand discounts** button
+  that creates it (`createBrandDiscount`, via `discountAutomaticAppCreate`).
 - Removed leftover template logic in the function's delivery target that gave
   100% off shipping on every cart when the discount had the Shipping class
   enabled. The target now never discounts shipping.

@@ -150,6 +150,24 @@ means making the namespace a build-time setting (custom app keeps `custom`,
 public app uses `$app:`). Not required by a published rule, but a robustness
 issue worth deciding before public merchants have data in the old shape.
 
+### F6 — Merchants had no way to create the discount
+
+Found by the fresh-store test (F3). The function has no discount-creation UI,
+so choosing it in **Discounts → Create discount** opens the app's Brands page —
+whose banner then pointed merchants back to the discount picker, a loop. The
+original store's discount had been created by hand in GraphiQL during Phase 1,
+which hid this.
+
+**Fixed on `public-release`:** the banner now has a **Turn on brand discounts**
+button that creates the discount via `discountAutomaticAppCreate` (product
+lines only, starts now, combines with order + shipping discounts) with its tag
+list included in the same call. Needs verifying on the fresh store, then
+porting to `main` for the customer.
+
+Remaining gap: merchants can't edit that discount's combinations or dates from
+admin. A discount function settings UI extension would add that if review asks
+for it. See [ARCHITECTURE.md](ARCHITECTURE.md#creating-the-discount).
+
 ### F5 — Extension identity across two apps ✅
 
 Resolved. Both apps were deployed from the same extension sources and each
@@ -228,7 +246,7 @@ temporary tunnel.
 9. ❌ Request Protected Customer Data Level 1 for the public app.
 10. ❌ Listing assets, privacy policy, pricing, support contact.
 11. ❌ Demo store + reviewer instructions (include: add the customer-card
-    block, create the automatic discount with the **Product** class).
+    block, and click **Turn on brand discounts** on the Brands page).
 12. ❌ Lighthouse run, keep the report.
 13. ❌ Submit; expect iteration.
 

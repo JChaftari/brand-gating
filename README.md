@@ -238,8 +238,9 @@ When the merchant opens the Brands page:
    `syncBrandList()`.
 
 This handles two cases:
-- Merchant created a new automatic discount via Shopify admin (outside our
-  UI) → it lacks the metafield → we populate it.
+- A discount using the function was created outside the app (e.g. via the
+  Admin API) → it lacks the metafield → we populate it. (The app's own
+  **Turn on brand discounts** button creates it with the metafield already set.)
 - Merchant edited the registry on a different machine and the cached state
   drifts → we re-sync.
 
