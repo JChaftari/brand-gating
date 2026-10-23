@@ -58,7 +58,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 | 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
 | 5 | Protected Customer Data, Level 1, for the public app | ❌ | Partner Dashboard request + data-protection form. |
-| 6 | Free-shipping template leftover in the function | ❌ | **Must fix before listing** — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
+| 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
 | 7 | Works on a fresh install with no GraphiQL setup | ❌ | Verify — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
 | 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ❌ | Non-code. |
 | 9 | Demo store + reviewer instructions | ❌ | Non-code. |
@@ -119,11 +119,15 @@ safe only because its discount was created with the Product class. A public
 merchant (or a reviewer) ticking Shipping would hand out free shipping
 storewide.
 
-**Fix:** have the delivery target return no operations, or remove the target.
-This changes shared function code, so it's held for an explicit decision — it
-should ship to the public app and is harmless for the custom app's current
-configuration, but the custom app stays on `custom-v1.0.0` until you choose to
-update it.
+**Fixed on `public-release`:** the delivery target now always returns no
+operations (kept registered rather than removed, to avoid changing the
+function's targets). Verified by compiling the function and running it with
+the Shipping class enabled → no discount, while a brand-tagged cart line still
+gets its percentage. The test fixture that encoded the old behavior as
+"expected" was rewritten.
+
+The customer app (`main`) still has the old code. Its discount uses only the
+Product class, so it isn't affected unless someone enables Shipping on it.
 
 ### F3 — Fresh installs can't run GraphiQL setup
 

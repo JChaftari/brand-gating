@@ -21,6 +21,11 @@ doc: `docs/APP_STORE_READINESS.md`.
 ### Changed
 - Public app requests no `read_files` scope (unused).
 
+### Fixed
+- Removed leftover template logic in the function's delivery target that gave
+  100% off shipping on every cart when the discount had the Shipping class
+  enabled. The target now never discounts shipping.
+
 ## [Phase 2] — Brand registry & admin UIs
 
 Added merchant-facing management of brands and per-customer discounts, and

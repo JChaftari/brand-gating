@@ -1,56 +1,17 @@
-import {
-  DeliveryDiscountSelectionStrategy,
-  DiscountClass,
-} from "../generated/api";
-
 /**
   * @typedef {import("../generated/api").DeliveryInput} RunInput
   * @typedef {import("../generated/api").CartDeliveryOptionsDiscountsGenerateRunResult} CartDeliveryOptionsDiscountsGenerateRunResult
   */
 
 /**
-  * @param {RunInput} input
+  * Brand discounts apply to product lines only, so this target never discounts
+  * shipping. The template version of this file gave 100% off the first
+  * delivery group whenever the discount had the Shipping class enabled — free
+  * shipping on every cart for any merchant who ticked that box.
+  *
+  * @param {RunInput} _input
   * @returns {CartDeliveryOptionsDiscountsGenerateRunResult}
   */
-
-export function cartDeliveryOptionsDiscountsGenerateRun(input) {
-  const firstDeliveryGroup = input.cart.deliveryGroups[0];
-  if (!firstDeliveryGroup) {
-    return {operations: []};
-  }
-
-  const hasShippingDiscountClass = input.discount.discountClasses.includes(
-    DiscountClass.Shipping,
-  );
-
-  if (!hasShippingDiscountClass) {
-    return {operations: []};
-  }
-
-  return {
-    operations: [
-      {
-        deliveryDiscountsAdd: {
-          candidates: [
-            {
-              message: "FREE DELIVERY",
-              targets: [
-                {
-                  deliveryGroup: {
-                    id: firstDeliveryGroup.id,
-                  },
-                },
-              ],
-              value: {
-                percentage: {
-                  value: 100,
-                },
-              },
-            },
-          ],
-          selectionStrategy: DeliveryDiscountSelectionStrategy.All,
-        },
-      },
-    ],
-  };
+export function cartDeliveryOptionsDiscountsGenerateRun(_input) {
+  return {operations: []};
 }
