@@ -61,6 +61,16 @@ desired tag, then re-tag products and re-assign customer discounts.
 
 ## Developer-facing
 
+### Customer card shows a "Preview" badge and "Failed to fetch"
+
+**Cause.** The store is still in a `shopify app dev` dev preview, which serves
+extension code from your machine. Stopping `app dev` does not always end the
+preview, so the block tries to load from a dev server that's gone.
+
+**Fix.** Restore the released version on that store:
+`shopify app dev clean --store <store>.myshopify.com` (add `--config custom`
+for the customer app).
+
 ### `InvalidVariableValueError` / `$brandTags ... was provided invalid value` (STDIN null)
 
 **Cause.** A discount using the function lacks the
