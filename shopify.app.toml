@@ -17,7 +17,7 @@ automatically_update_urls_on_dev = false
 api_version = "2026-07"
 
   # Mandatory for App Store distribution. Handled by
-  # web/functions/webhooks/compliance.js (HMAC-verified, 401 on invalid).
+  # functions/webhooks/compliance.js (HMAC-verified, 401 on invalid).
   [[webhooks.subscriptions]]
   compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
   uri = "https://brand-gating.pages.dev/webhooks/compliance"

@@ -14,7 +14,7 @@ doc: `docs/APP_STORE_READINESS.md`.
 ### Added
 - `shopify.app.toml` (the public app) subscribes to the mandatory compliance
   webhooks.
-- `web/functions/webhooks/compliance.js` — Cloudflare Pages Function receiving
+- `functions/webhooks/compliance.js` — Cloudflare Pages Function receiving
   `customers/data_request`, `customers/redact`, `shop/redact`; HMAC-verified,
   401 on invalid, stateless.
 

@@ -53,7 +53,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 
 | # | Requirement | Status | Notes |
 |---|---|---|---|
-| 1 | Compliance webhooks with HMAC (401 on invalid) | 🟡 | `web/functions/webhooks/compliance.js` built and tested locally (10/10 cases). Needs `brand-gating.pages.dev` building from `public-release` + the secret set, then a live test. |
+| 1 | Compliance webhooks with HMAC (401 on invalid) | 🟡 | `functions/webhooks/compliance.js` built and tested locally (10/10 cases). Needs `brand-gating.pages.dev` building from `public-release` + the secret set, then a live test. |
 | 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
 | 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
@@ -76,7 +76,7 @@ the wrong trade: Remix rewrites the App Home and forks the codebase.
 
 Instead, the only server-side piece the public app needs — the compliance
 webhook receiver — is a single **stateless Cloudflare Pages Function** at
-`web/functions/webhooks/compliance.js`:
+`functions/webhooks/compliance.js`:
 
 - Reads the raw body, verifies `X-Shopify-Hmac-Sha256` with
   `crypto.subtle.verify` (constant-time) using the public app's client secret.
@@ -169,29 +169,42 @@ These need your accounts; nothing in the repo can do them.
    **Still to do at go-live:** enter the customer's `*.myshopify.com` domain on
    its distribution page, and request Protected Customer Data Level 1 for it.
 
-Cloudflare (steps 3–5) is **not needed until** the webhook code goes live for
-the public app, or the customer's store goes live. `brand-gating.pages.dev` is
-already live and serving the public app (client `f9f32…`). For testing the
-customer app before then, `shopify app dev --config custom` (from `main`)
-serves the page through a temporary tunnel.
+For testing the customer app before its site exists,
+`shopify app dev --config custom` (from `main`) serves the page through a
+temporary tunnel.
 
-3. **Find out how `brand-gating.pages.dev` gets updated.** Cloudflare
-   dashboard → Workers & Pages → `brand-gating` → **Deployments**. If entries
-   show a branch name and commit message, it builds automatically from GitHub;
-   if they say Direct Upload, it's uploaded by hand.
-4. **Point `brand-gating.pages.dev` at the public code.** It belongs to the
-   public app, so it should build from `public-release` (that branch has the
-   webhook function). If it's GitHub-connected: Settings → Build → set the
-   production branch to `public-release` and confirm the root directory is
-   `web`. Then add an **encrypted** environment variable
-   `SHOPIFY_API_SECRET` = the `brand-gating` app's Client secret.
-5. **Create the customer's copy of the site.** A second Cloudflare Pages
-   project from the same GitHub repo: production branch `main`, root directory
-   `web`, build command `npm run build`, output `dist`, environment variable
-   `SHOPIFY_API_KEY` = the new customer app's Client ID. Put its URL in
-   `shopify.app.custom.toml` as `application_url`.
-6. **Push both branches** so Cloudflare can see them:
-   `git push origin main custom-v1.0.0 public-release`.
+3. ✅ **How `brand-gating.pages.dev` deploys.** It's a Cloudflare Pages
+   project named `brand-gating` in account `ad2529655cd54eb6ca47142be437265e`,
+   connected to GitHub `JChaftari/brand-gating` (the "Cloudflare Workers and
+   Pages" GitHub app). Every push builds automatically. Current settings:
+
+   | Setting | Value |
+   |---|---|
+   | Production branch | `main` |
+   | Root directory | `/` (repo root) |
+   | Build command | `npm install --workspaces && npm run build --workspace=web` |
+   | Build output directory | `/web/dist` |
+
+   Because the root directory is the repo root, Pages Functions are read from
+   **`functions/`** at the repo root (not `web/functions/`). Don't change the
+   root directory.
+4. **Prove the function is picked up, on a preview first.** Push only
+   `public-release`. With `main` as the production branch, Cloudflare builds it
+   as a preview at `public-release.brand-gating.pages.dev` and the live site is
+   untouched. `POST /webhooks/compliance` there should return **401** (no
+   secret in preview, no signature). 404/405 means the function wasn't found.
+5. **Point `brand-gating.pages.dev` at the public code.** It belongs to the
+   public app. In the project: Settings → Build → **Branch control** →
+   production branch `public-release`. Settings → **Variables and Secrets** →
+   Production → add `SHOPIFY_API_SECRET`, type **Secret**, value = the
+   `brand-gating` (Public) app's Client secret from the Shopify Dev Dashboard.
+   Then retry/trigger a production deployment.
+6. **Create the customer's copy of the site** (only when the customer is ready).
+   A second Pages project from the same GitHub repo with the same build
+   command, output directory and root directory, production branch `main`,
+   and variable `SHOPIFY_API_KEY` = the customer app's Client ID
+   (`4fa17f…`). Put its URL in `shopify.app.custom.toml` as `application_url`
+   and in `redirect_urls`.
 
 ---
 
@@ -203,7 +216,7 @@ serves the page through a temporary tunnel.
 4. ✅ F2 (free shipping) fixed on both branches.
 5. ✅ Both apps deployed: public `brand-gating-5` (compliance webhooks now
    registered with Shopify), customer `brand-gating-2`.
-6. ❌ **Make the webhook endpoint live** — action items 3, 4, 6. Until then
+6. ❌ **Make the webhook endpoint live** — action items 4–5. Until then
    Shopify has the subscriptions but `brand-gating.pages.dev` doesn't serve
    `/webhooks/compliance` yet, so any compliance webhook would fail. Then
    trigger test compliance webhooks and confirm 200s (and a 401 with a bad
