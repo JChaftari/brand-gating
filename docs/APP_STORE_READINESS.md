@@ -12,21 +12,28 @@ See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SETUP.md](SETUP.md) ·
 ## Strategy: two apps, one codebase
 
 A Shopify app's distribution method (custom vs public) is chosen once and is
-permanent, and a public app can't be installed on a merchant's live store
-until it passes review. So one app can't serve the first customer now *and*
-become the public listing later. We run two apps from the same code:
+permanent, and a public app can only be installed on development stores until
+it passes review. So one app can't serve the first customer now *and* become
+the public listing later. We run two apps from the same code.
 
-| | Custom app | Public app |
+The existing `brand-gating` app was already set to **Public** distribution
+(listing in Draft), so it becomes the App Store app, and the customer gets a
+new custom-distribution app:
+
+| | Customer app | Public app |
 |---|---|---|
 | Purpose | First customer, now | App Store listing |
-| Partner Dashboard | existing `brand-gating` (client `f9f32…`) — **Custom** distribution | new app — **Public** distribution |
-| CLI config | `shopify.app.toml` | `shopify.app.public.toml` |
-| Frontend host | `brand-gating.pages.dev` | `brand-gating-public.pages.dev` (separate Pages project — the build bakes in each app's API key) |
-| Code | frozen at git tag **`custom-v1.0.0`** | branch **`public-release`** |
+| Partner Dashboard | **new** app — **Custom** distribution, tied to the customer's store | existing `brand-gating` (client `f9f32…`) — **Public**, listing in Draft |
+| CLI config | `shopify.app.custom.toml` (to be generated) | `shopify.app.toml` |
+| Frontend host | new Cloudflare Pages site, built from `main` | `brand-gating.pages.dev`, built from `public-release` |
+| Code | `main` (= tag **`custom-v1.0.0`**) | branch **`public-release`** |
 | Compliance webhooks | not subscribed | subscribed → `/webhooks/compliance` |
 
-Switch the CLI between them with `shopify app config use <file>` or
-`--config public` on any command.
+Each app needs its own copy of the frontend site because the build bakes in
+that app's Client ID (`%SHOPIFY_API_KEY%` in `web/index.html`).
+
+Pick the target per command, e.g. `shopify app deploy --config custom`, or
+switch the default with `shopify app config use <file>`.
 
 **Rule for shared code:** anything changed on `public-release` must either be
 inert for the custom app (new files, public-only config) or be a deliberate,
@@ -46,10 +53,10 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 
 | # | Requirement | Status | Notes |
 |---|---|---|---|
-| 1 | Compliance webhooks with HMAC (401 on invalid) | 🟡 | `web/functions/webhooks/compliance.js` built and tested locally (10/10 cases). Needs the public Pages project + secret, then a live test from the Partner Dashboard. |
-| 2 | Compliance subscriptions in config | ✅ | `shopify.app.public.toml` `[[webhooks.subscriptions]]`. |
+| 1 | Compliance webhooks with HMAC (401 on invalid) | 🟡 | `web/functions/webhooks/compliance.js` built and tested locally (10/10 cases). Needs `brand-gating.pages.dev` building from `public-release` + the secret set, then a live test. |
+| 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
 | 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
-| 4 | Only scopes the app uses | ✅ | Public config drops `read_files` (no image picker was built). |
+| 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
 | 5 | Protected Customer Data, Level 1, for the public app | ❌ | Partner Dashboard request + data-protection form. |
 | 6 | Free-shipping template leftover in the function | ❌ | **Must fix before listing** — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
 | 7 | Works on a fresh install with no GraphiQL setup | ❌ | Verify — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
@@ -143,7 +150,7 @@ issue worth deciding before public merchants have data in the old shape.
 
 Each extension's TOML has a `uid`. Deploying the same extensions to a second
 app should register them fresh under that app, but confirm on the first
-`shopify app deploy --config public` that the custom app's extensions are
+`shopify app deploy --config custom` that the public app's extensions are
 untouched (check both apps' Extensions pages in the Partner Dashboard).
 
 ---
@@ -152,30 +159,30 @@ untouched (check both apps' Extensions pages in the Partner Dashboard).
 
 These need your accounts; nothing in the repo can do them.
 
-1. **Check the existing app's distribution.** Partner Dashboard → Apps →
-   brand-gating → **Distribution**. If not chosen: select **Custom
-   distribution** and enter the first customer's store domain. This is
-   permanent — do not pick Public on this app.
-2. **Create the public app.** Partner Dashboard → Apps → **Create app →
-   Create manually** → choose **Public** distribution. Copy its **Client ID**
-   into `shopify.app.public.toml`, and keep its **Client secret** for step 4.
-3. **Check how `brand-gating.pages.dev` deploys.** Cloudflare dashboard →
-   Workers & Pages → brand-gating → **Settings → Build**. If it shows a Git
-   repository, note its production branch and root directory (should be
-   `main` and `web`). If it shows Direct Upload, it's deployed manually.
-   Either way, leave this project alone — it's the custom app.
-4. **Create the public Pages project.** Workers & Pages → Create → Pages →
-   connect this GitHub repo:
-   - Production branch: `public-release`
-   - Root directory: `web` (Pages Functions are read from `web/functions/`)
-   - Build command `npm run build`, output directory `dist`
-   - Environment variables: `SHOPIFY_API_KEY` = public Client ID (build time,
-     used by `index.html`); `SHOPIFY_API_SECRET` = public Client secret
-     (**encrypted**, used by the webhook function)
-   - If the `brand-gating-public` subdomain isn't available, update the three
-     URLs in `shopify.app.public.toml`.
-5. **Push the branch** (`git push -u origin public-release`) so Pages can build
-   it.
+1. ✅ **Check the existing app's distribution.** Done — `brand-gating` is
+   Public (listing in Draft). It stays the public app.
+2. **Create the customer's app** from the project root:
+   `shopify app config link` → choose to create a **new** app → name it →
+   save the config as `custom` (creates `shopify.app.custom.toml`). Then in the
+   Partner Dashboard **App distribution** page, open the new app and choose
+   **Custom distribution** with the customer's `*.myshopify.com` domain.
+3. **Find out how `brand-gating.pages.dev` gets updated.** Cloudflare
+   dashboard → Workers & Pages → `brand-gating` → **Deployments**. If entries
+   show a branch name and commit message, it builds automatically from GitHub;
+   if they say Direct Upload, it's uploaded by hand.
+4. **Point `brand-gating.pages.dev` at the public code.** It belongs to the
+   public app, so it should build from `public-release` (that branch has the
+   webhook function). If it's GitHub-connected: Settings → Build → set the
+   production branch to `public-release` and confirm the root directory is
+   `web`. Then add an **encrypted** environment variable
+   `SHOPIFY_API_SECRET` = the `brand-gating` app's Client secret.
+5. **Create the customer's copy of the site.** A second Cloudflare Pages
+   project from the same GitHub repo: production branch `main`, root directory
+   `web`, build command `npm run build`, output `dist`, environment variable
+   `SHOPIFY_API_KEY` = the new customer app's Client ID. Put its URL in
+   `shopify.app.custom.toml` as `application_url`.
+6. **Push both branches** so Cloudflare can see them:
+   `git push origin main custom-v1.0.0 public-release`.
 
 ---
 
@@ -183,8 +190,8 @@ These need your accounts; nothing in the repo can do them.
 
 1. ✅ Freeze custom release (`custom-v1.0.0`), branch `public-release`.
 2. ✅ Compliance webhook function + public app config.
-3. ❌ Action items 1–5 above.
-4. ❌ `shopify app deploy --config public`; trigger test compliance webhooks
+3. ❌ Action items 2–6 above.
+4. ❌ `shopify app deploy` from `public-release`; trigger test compliance webhooks
    from the Partner Dashboard; confirm 200s (and a 401 with a bad signature).
 5. ❌ Fix F2 (free shipping).
 6. ❌ Fresh-store install test (F3); decide F4.

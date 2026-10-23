@@ -6,13 +6,14 @@ not tag dates.
 
 ## [Unreleased] — Public app (branch `public-release`)
 
-Work toward App Store listing as a second app on the same codebase. The
-custom-distribution app for the first customer is frozen at tag
-`custom-v1.0.0` and unaffected. Tracking doc: `docs/APP_STORE_READINESS.md`.
+Work toward App Store listing. The existing `brand-gating` app is Public
+distribution and becomes the listing; the first customer gets a separate
+custom-distribution app built from the code at tag `custom-v1.0.0`. Tracking
+doc: `docs/APP_STORE_READINESS.md`.
 
 ### Added
-- `shopify.app.public.toml` — config for the separate public app (client ID
-  pending), subscribed to the mandatory compliance webhooks.
+- `shopify.app.toml` (the public app) subscribes to the mandatory compliance
+  webhooks.
 - `web/functions/webhooks/compliance.js` — Cloudflare Pages Function receiving
   `customers/data_request`, `customers/redact`, `shop/redact`; HMAC-verified,
   401 on invalid, stateless.

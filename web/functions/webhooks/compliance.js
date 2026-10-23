@@ -2,8 +2,9 @@
 //
 // Receives Shopify's three mandatory compliance (privacy) webhooks:
 //   customers/data_request, customers/redact, shop/redact
-// Required for public App Store distribution. Subscribed only in
-// shopify.app.public.toml; the custom-distribution app never sends here.
+// Required for public App Store distribution. Subscribed only by the public
+// app (shopify.app.toml on branch public-release); the customer's
+// custom-distribution app never sends here.
 //
 // Contract (per Shopify):
 //   - Invalid or missing HMAC        → 401

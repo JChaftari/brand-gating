@@ -1,4 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+#
+# PUBLIC (App Store) app — distribution: Public. Built from branch
+# `public-release`. The first customer runs a SEPARATE custom-distribution app
+# (shopify.app.custom.toml, built from `main`). Pick the target per command,
+# e.g. `shopify app deploy --config custom`.
 
 client_id = "f9f32ac3ca8e90585fc52b8fda97b2d1"
 name = "brand-gating"
@@ -12,6 +17,12 @@ include_config_on_deploy = true
 [webhooks]
 api_version = "2026-07"
 
+  # Mandatory for App Store distribution. Handled by
+  # web/functions/webhooks/compliance.js (HMAC-verified, 401 on invalid).
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+  uri = "https://brand-gating.pages.dev/webhooks/compliance"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 #
@@ -22,11 +33,13 @@ api_version = "2026-07"
 # read/write_products  → collectionCreate / collectionUpdate for brand collections
 # read/write_customers → customer.brand_discounts metafield (embedded UI extension)
 # read/write_discounts → discountNodes query + per-discount input_variables metafield writes
-# read_files           → ResourcePicker for selecting brand images from Shopify Files
-scopes = "read_products,write_products,read_customers,write_customers,read_discounts,write_discounts,read_files"
+#
+# No read_files: no image picker was built (images are pasted URLs), and App
+# Store review rejects requested scopes the app doesn't use.
+scopes = "read_products,write_products,read_customers,write_customers,read_discounts,write_discounts"
 
 [access.admin]
 embedded_app_direct_api_access = true
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [ "https://brand-gating.pages.dev/" ]
