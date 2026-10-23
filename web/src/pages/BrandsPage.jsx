@@ -14,6 +14,7 @@ import {
   InlineStack,
   Box,
   Toast,
+  Badge,
 } from '@shopify/polaris';
 import { useBrandList } from '../hooks/useBrandList';
 import AddBrandModal from '../components/AddBrandModal';
@@ -137,6 +138,18 @@ export default function BrandsPage() {
               )}
             </BlockStack>
           </Banner>
+        )}
+
+        {!loading && discountCount > 0 && (
+          // Merchants who pick this app in Discounts → Create discount land
+          // here; tell them it's already working.
+          <InlineStack gap="200" blockAlign="center">
+            <Badge tone="success">On</Badge>
+            <Text as="p" tone="subdued">
+              Brand discounts are on — customers get their brand percentages
+              at checkout.
+            </Text>
+          </InlineStack>
         )}
 
         {postAddBanner && (
@@ -295,7 +308,8 @@ function PostAddBanner({ brand, onDismiss }) {
         <Text as="p" variant="bodyMd">Next steps:</Text>
         <Text as="p" variant="bodyMd">
           1. Tag your {brand.display_name} products with <code>{brand.tag}</code> via
-          Products → bulk edit.
+          Products → bulk edit (type the tag in full the first time). Tagged
+          products appear in the {brand.display_name} collection automatically.
         </Text>
         <Text as="p" variant="bodyMd">
           2. Add the brand to your homepage tiles section in the theme editor.

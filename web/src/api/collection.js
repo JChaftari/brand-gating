@@ -38,12 +38,24 @@ const COLLECTION_UPDATE_MUTATION = `
  * `updateCollection`) to keep the failure modes distinct so the caller can
  * report orphan-collection issues cleanly.
  *
- * @param {{ title: string, handle: string }} args
+ * The collection is automated: products tagged with the brand tag join it on
+ * their own, so it always lists exactly the products that get the brand
+ * discount (the function matches on the tag). Products can't be added to it
+ * by hand — tagging is the one way to assign a brand.
+ *
+ * @param {{ title: string, handle: string, tag: string }} args
  * @returns {Promise<{ id: string, title: string, handle: string }>}
  */
-export async function createBrandCollection({ title, handle }) {
+export async function createBrandCollection({ title, handle, tag }) {
   const data = await gql(COLLECTION_CREATE_MUTATION, {
-    input: { title, handle },
+    input: {
+      title,
+      handle,
+      ruleSet: {
+        appliedDisjunctively: false,
+        rules: [{ column: 'TAG', relation: 'EQUALS', condition: tag }],
+      },
+    },
   });
   assertNoUserErrors(data.collectionCreate, 'collectionCreate');
   return data.collectionCreate.collection;

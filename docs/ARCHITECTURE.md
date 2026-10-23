@@ -75,6 +75,9 @@ state lives in Shopify metafields.
   auto-authenticated).
 - Responsibilities: list/add/edit/delete brands; create and update the Shopify
   collection behind each brand; keep the registry metafields in sync.
+  Brand collections are **automated** (rule: product tag equals the brand tag),
+  so a collection always lists exactly the products the function discounts.
+  Brands created before this change keep their original manual collections.
 - Key modules:
   - `web/src/api/brandList.js` — the registry helper (`loadBrandList`,
     `syncBrandList`, `selfHealBrandRegistry`). **The only supported way to

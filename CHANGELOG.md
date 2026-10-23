@@ -24,6 +24,13 @@ doc: `docs/APP_STORE_READINESS.md`.
 
 ### Changed
 - Public app requests no `read_files` scope (unused).
+- New brands get an **automated** collection (product tag equals the brand
+  tag) instead of a manual one, so tagging a product puts it in the brand's
+  collection. Previously, adding products to the collection by hand silently
+  did nothing for discounts. Existing collections are unchanged.
+- Brands page shows "Brand discounts are on" when the store's brand discount
+  exists, so merchants arriving from Discounts → Create discount see that
+  it's already working.
 
 ### Fixed
 - Merchants couldn't create the brand discount: the function has no

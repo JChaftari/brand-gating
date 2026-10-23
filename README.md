@@ -64,14 +64,20 @@ relevant discount's input metafield in a single atomic `metafieldsSet` call.
    can edit it before saving.
 4. Optionally paste a **Brand image URL** — see [Adding a brand
    image](#adding-a-brand-image) below.
-5. Click **Add brand**. A new Shopify collection is created with the brand's
-   display name and handle. The brand appears in the registry.
+5. Click **Add brand**. A new automated Shopify collection is created with the
+   brand's display name and handle, containing every product tagged with the
+   brand tag. The brand appears in the registry.
 
 After registering, you must complete two manual follow-up steps for the
 brand to actually start receiving discounts at checkout:
 
 - **Tag your products** with the brand tag (e.g., `brand-acme`) via Products
-  → bulk edit. Only tagged products will receive the discount.
+  → bulk edit. Only tagged products will receive the discount, and they join
+  the brand's collection automatically. Shopify only suggests tags already on
+  a product, so type a new brand's tag in full the first time. Adding products
+  to the collection by hand isn't possible: the tag is what assigns a brand.
+  (Brands created before this change have manual collections; there, adding a
+  product to the collection does not tag it.)
 - **Add the brand to your homepage tiles** in the theme editor (if your theme
   uses brand tiles).
 
