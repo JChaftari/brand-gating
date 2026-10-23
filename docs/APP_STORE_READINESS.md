@@ -26,7 +26,7 @@ new custom-distribution app:
 | Partner Dashboard | **new** app — **Custom** distribution, tied to the customer's store | existing `brand-gating` (client `f9f32…`) — **Public**, listing in Draft |
 | CLI config | `shopify.app.custom.toml` (to be generated) | `shopify.app.toml` |
 | Frontend host | new Cloudflare Pages site, built from `main` | `brand-gating.pages.dev`, built from `public-release` |
-| Code | `main` (= tag **`custom-v1.0.0`**) | branch **`public-release`** |
+| Code | `main` (first release tagged **`custom-v1.0.0`**; customer fixes land on `main`) | branch **`public-release`** |
 | Compliance webhooks | not subscribed | subscribed → `/webhooks/compliance` |
 
 Each app needs its own copy of the frontend site because the build bakes in
@@ -126,8 +126,8 @@ the Shipping class enabled → no discount, while a brand-tagged cart line still
 gets its percentage. The test fixture that encoded the old behavior as
 "expected" was rewritten.
 
-The customer app (`main`) still has the old code. Its discount uses only the
-Product class, so it isn't affected unless someone enables Shipping on it.
+The same fix is on `main` (customer app), verified the same way. Function
+code is identical on both branches.
 
 ### F3 — Fresh installs can't run GraphiQL setup
 
