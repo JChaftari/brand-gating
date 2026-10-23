@@ -5,6 +5,18 @@ checkout. Each customer can have a different discount percentage on each
 registered brand. The merchant manages the brand registry and the per-customer
 discount assignments through embedded admin UIs — no JSON editing required.
 
+## Documentation
+
+| Doc | Audience | What it covers |
+|---|---|---|
+| This README | Developers | Overview, stack, invariants, quick start |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Developers | System design, data model, key decisions & pivots |
+| [docs/SETUP.md](docs/SETUP.md) | Operators | One-time metafield/GraphiQL setup, scopes, deploy |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Devs + merchants | Symptom → cause → fix |
+| [docs/APP_STORE_READINESS.md](docs/APP_STORE_READINESS.md) | Devs + product | What's needed to list publicly (vs custom app) |
+| [CHANGELOG.md](CHANGELOG.md) | Everyone | Phase 1 / Phase 2 history, Phase 3 backlog |
+| Merchant Guide (`.docx`) | Merchants | Non-technical how-to for the two admin screens |
+
 ---
 
 ## How it works
@@ -172,9 +184,8 @@ fresh, run them once in the merchant's GraphiQL admin:
 4. Seed `input_variables` on each existing discount that uses the
    brand-discount function.
 
-The exact GraphiQL mutations are documented in the project's git history
-(commits during Phase 2 setup). Future seed ops should go through the admin
-UI, not GraphiQL.
+The exact GraphiQL mutations are in [docs/SETUP.md](docs/SETUP.md). Future seed
+ops should go through the admin UI, not GraphiQL.
 
 ### Required app scopes
 

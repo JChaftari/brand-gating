@@ -2,11 +2,12 @@
 
 client_id = "f9f32ac3ca8e90585fc52b8fda97b2d1"
 name = "brand-gating"
-application_url = "https://shopify.dev/apps/default-app-home"
+application_url = "https://brand-gating.pages.dev"
 embedded = true
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
 
 [webhooks]
 api_version = "2026-07"
