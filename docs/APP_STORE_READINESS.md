@@ -24,7 +24,7 @@ new custom-distribution app:
 |---|---|---|
 | Purpose | First customer, now | App Store listing |
 | Partner Dashboard | **new** app — **Custom** distribution, tied to the customer's store | existing `brand-gating` (client `f9f32…`) — **Public**, listing in Draft |
-| CLI config | `shopify.app.custom.toml` (to be generated) | `shopify.app.toml` |
+| CLI config | `shopify.app.custom.toml` (client `4fa17f…`, on `main`) | `shopify.app.toml` |
 | Frontend host | new Cloudflare Pages site, built from `main` | `brand-gating.pages.dev`, built from `public-release` |
 | Code | `main` (first release tagged **`custom-v1.0.0`**; customer fixes land on `main`) | branch **`public-release`** |
 | Compliance webhooks | not subscribed | subscribed → `/webhooks/compliance` |
