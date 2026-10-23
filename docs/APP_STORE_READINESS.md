@@ -188,11 +188,12 @@ temporary tunnel.
    Because the root directory is the repo root, Pages Functions are read from
    **`functions/`** at the repo root (not `web/functions/`). Don't change the
    root directory.
-4. **Prove the function is picked up, on a preview first.** Push only
-   `public-release`. With `main` as the production branch, Cloudflare builds it
-   as a preview at `public-release.brand-gating.pages.dev` and the live site is
-   untouched. `POST /webhooks/compliance` there should return **401** (no
-   secret in preview, no signature). 404/405 means the function wasn't found.
+4. ✅ **Prove the function is picked up, on a preview first.** Pushed
+   `public-release`; Cloudflare built it as a preview at
+   `public-release.brand-gating.pages.dev` with the live site untouched.
+   `POST /webhooks/compliance` there returns **401 "Unauthorized"** for
+   unsigned, forged and malformed signatures (the function's own response).
+   The live site still returns 405 for the same request.
 5. **Point `brand-gating.pages.dev` at the public code.** It belongs to the
    public app. In the project: Settings → Build → **Branch control** →
    production branch `public-release`. Settings → **Variables and Secrets** →
