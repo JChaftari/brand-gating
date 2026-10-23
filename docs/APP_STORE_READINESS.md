@@ -150,12 +150,11 @@ means making the namespace a build-time setting (custom app keeps `custom`,
 public app uses `$app:`). Not required by a published rule, but a robustness
 issue worth deciding before public merchants have data in the old shape.
 
-### F5 — Extension identity across two apps
+### F5 — Extension identity across two apps ✅
 
-Each extension's TOML has a `uid`. Deploying the same extensions to a second
-app should register them fresh under that app, but confirm on the first
-`shopify app deploy --config custom` that the public app's extensions are
-untouched (check both apps' Extensions pages in the Partner Dashboard).
+Resolved. Both apps were deployed from the same extension sources and each
+release went to its own app (public `brand-gating-5`, app 350711742465;
+customer `brand-gating-2`, app 439169679361), with no conflict.
 
 ---
 
@@ -200,18 +199,23 @@ serves the page through a temporary tunnel.
 
 1. ✅ Freeze custom release (`custom-v1.0.0`), branch `public-release`.
 2. ✅ Compliance webhook function + public app config.
-3. ❌ Action items 2–6 above.
-4. ❌ `shopify app deploy` from `public-release`; trigger test compliance webhooks
-   from the Partner Dashboard; confirm 200s (and a 401 with a bad signature).
-5. ❌ Fix F2 (free shipping).
-6. ❌ Fresh-store install test (F3); decide F4.
-7. ❌ Ask Shopify Partner support about F1.
-8. ❌ Request Protected Customer Data Level 1 for the public app.
-9. ❌ Listing assets, privacy policy, pricing, support contact.
-10. ❌ Demo store + reviewer instructions (include: add the customer-card
+3. ✅ Customer app created (action items 1–2).
+4. ✅ F2 (free shipping) fixed on both branches.
+5. ✅ Both apps deployed: public `brand-gating-5` (compliance webhooks now
+   registered with Shopify), customer `brand-gating-2`.
+6. ❌ **Make the webhook endpoint live** — action items 3, 4, 6. Until then
+   Shopify has the subscriptions but `brand-gating.pages.dev` doesn't serve
+   `/webhooks/compliance` yet, so any compliance webhook would fail. Then
+   trigger test compliance webhooks and confirm 200s (and a 401 with a bad
+   signature).
+7. ❌ Fresh-store install test (F3); decide F4.
+8. ❌ Ask Shopify Partner support about F1.
+9. ❌ Request Protected Customer Data Level 1 for the public app.
+10. ❌ Listing assets, privacy policy, pricing, support contact.
+11. ❌ Demo store + reviewer instructions (include: add the customer-card
     block, create the automatic discount with the **Product** class).
-11. ❌ Lighthouse run, keep the report.
-12. ❌ Submit; expect iteration.
+12. ❌ Lighthouse run, keep the report.
+13. ❌ Submit; expect iteration.
 
 ---
 
