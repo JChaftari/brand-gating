@@ -1,0 +1,39 @@
+# CUSTOMER app — distribution: Custom (single store). Built from branch `main`.
+# This is NOT the App Store app; that one is shopify.app.toml (Public), built
+# from branch `public-release`. Always target this app explicitly:
+#
+#   shopify app dev --config custom
+#   shopify app deploy --config custom
+#
+# Before go-live (see docs/APP_STORE_READINESS.md):
+#   - Set the customer's store domain on this app's Custom distribution page.
+#   - Request Protected Customer Data Level 1 for this app (the customer card
+#     reads a customer metafield).
+#   - Host its own copy of web/ (the build bakes in this app's client ID), set
+#     application_url + redirect_urls to it, and turn
+#     automatically_update_urls_on_dev off.
+
+client_id = "4fa17f4782ae783689bee26c28809ef5"
+name = "brand-gating"
+# Placeholder until the customer's site is hosted. During `shopify app dev`
+# the CLI points the app at a temporary tunnel instead.
+application_url = "https://example.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2026-07"
+
+[access_scopes]
+# Same minimum scopes as the public app — see shopify.app.toml for rationale.
+scopes = "read_customers,read_discounts,read_products,write_customers,write_discounts,write_products"
+
+[access.admin]
+# Required: the Brands page calls the Admin API directly from the browser.
+embedded_app_direct_api_access = true
+
+[auth]
+redirect_urls = [ "https://example.com/api/auth" ]
