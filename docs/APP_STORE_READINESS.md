@@ -161,11 +161,17 @@ These need your accounts; nothing in the repo can do them.
 
 1. ✅ **Check the existing app's distribution.** Done — `brand-gating` is
    Public (listing in Draft). It stays the public app.
-2. **Create the customer's app** from the project root:
-   `shopify app config link` → choose to create a **new** app → name it →
-   save the config as `custom` (creates `shopify.app.custom.toml`). Then in the
-   Partner Dashboard **App distribution** page, open the new app and choose
-   **Custom distribution** with the customer's `*.myshopify.com` domain.
+2. ✅ **Create the customer's app.** Done — new `brand-gating` app (client
+   `4fa17f…`), Custom distribution, config `shopify.app.custom.toml` on `main`.
+   **Still to do at go-live:** enter the customer's `*.myshopify.com` domain on
+   its distribution page, and request Protected Customer Data Level 1 for it.
+
+Cloudflare (steps 3–5) is **not needed until** the webhook code goes live for
+the public app, or the customer's store goes live. `brand-gating.pages.dev` is
+already live and serving the public app (client `f9f32…`). For testing the
+customer app before then, `shopify app dev --config custom` (from `main`)
+serves the page through a temporary tunnel.
+
 3. **Find out how `brand-gating.pages.dev` gets updated.** Cloudflare
    dashboard → Workers & Pages → `brand-gating` → **Deployments**. If entries
    show a branch name and commit message, it builds automatically from GitHub;
