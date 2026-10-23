@@ -4,6 +4,22 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
+## [Unreleased] — Public app (branch `public-release`)
+
+Work toward App Store listing as a second app on the same codebase. The
+custom-distribution app for the first customer is frozen at tag
+`custom-v1.0.0` and unaffected. Tracking doc: `docs/APP_STORE_READINESS.md`.
+
+### Added
+- `shopify.app.public.toml` — config for the separate public app (client ID
+  pending), subscribed to the mandatory compliance webhooks.
+- `web/functions/webhooks/compliance.js` — Cloudflare Pages Function receiving
+  `customers/data_request`, `customers/redact`, `shop/redact`; HMAC-verified,
+  401 on invalid, stateless.
+
+### Changed
+- Public app requests no `read_files` scope (unused).
+
 ## [Phase 2] — Brand registry & admin UIs
 
 Added merchant-facing management of brands and per-customer discounts, and
