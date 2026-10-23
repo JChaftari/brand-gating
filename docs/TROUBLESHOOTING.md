@@ -13,8 +13,10 @@ Symptom → cause → fix. Two sections: [merchant-facing](#merchant-facing)
 Walk the three-part checklist — all must be true:
 
 1. **Brand is registered.** Apps → brand-gating → Brands shows the brand.
-2. **Products are tagged.** The product carries the brand's tag (e.g.
-   `brand-acme`) — Products → bulk edit.
+2. **Products are assigned to the brand.** The product is in the brand's
+   collection, or carries the brand's tag (e.g. `brand-acme`). If it's only in
+   the collection and still isn't discounted, open the Brands page once — that
+   updates discounts set up before collections counted.
 3. **Customer has a percentage.** The customer's Brand Discounts card lists the
    brand with a percentage > 0.
 

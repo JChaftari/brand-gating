@@ -95,7 +95,6 @@ export default function AddBrandModal({ open, onClose, existingBrands, onSubmit 
       collection = await createBrandCollection({
         title: displayName.trim(),
         handle: tag,
-        tag,
       });
 
       // Step 2 — attach image if provided.
@@ -173,7 +172,7 @@ export default function AddBrandModal({ open, onClose, existingBrands, onSubmit 
               autoComplete="off"
               requiredIndicator
               disabled={submitting || !!orphanWarning}
-              helpText="Lowercase, hyphens only. Auto-generated from the display name. Products with this tag get the brand's discounts and appear in its collection automatically."
+              helpText="Lowercase, hyphens only. Auto-generated from the display name. Products with this tag, or in the brand's collection, get the brand's discounts."
               error={
                 validation && tag.length > 0 && /tag/i.test(validation)
                   ? validation

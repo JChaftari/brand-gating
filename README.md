@@ -44,7 +44,7 @@ namespace:
 | Owner | Key | Type | Purpose |
 |---|---|---|---|
 | Shop | `custom.brand_list` | `json` | Rich brand registry — `[{tag, display_name, collection_id, image_url}]`. Source of truth for the admin UI. |
-| Discount | `$app:brand-discount.input_variables` | `json` | Per-discount input variables for the function — `{brandTags: [...]}`. Function reads this via `[extensions.input.variables]` in the toml. Synced from `brand_list` automatically. |
+| Discount | `$app:brand-discount.input_variables` | `json` | Per-discount input variables for the function — `{brandTags: [...], brandCollectionIds: [...]}` (index-aligned). Function reads this via `[extensions.input.variables]` in the toml. Synced from `brand_list` automatically. |
 | Customer | `custom.brand_discounts` | `json` | Per-customer discount assignments — `[{brand_tag, percentage}]`. Edited via the customer-detail card. |
 
 The `syncBrandList` helper in `web/src/api/brandList.js` is the **only**
@@ -64,20 +64,20 @@ relevant discount's input metafield in a single atomic `metafieldsSet` call.
    can edit it before saving.
 4. Optionally paste a **Brand image URL** — see [Adding a brand
    image](#adding-a-brand-image) below.
-5. Click **Add brand**. A new automated Shopify collection is created with the
-   brand's display name and handle, containing every product tagged with the
-   brand tag. The brand appears in the registry.
+5. Click **Add brand**. A new Shopify collection is created with the brand's
+   display name and handle. The brand appears in the registry.
 
 After registering, you must complete two manual follow-up steps for the
 brand to actually start receiving discounts at checkout:
 
-- **Tag your products** with the brand tag (e.g., `brand-acme`) via Products
-  → bulk edit. Only tagged products will receive the discount, and they join
-  the brand's collection automatically. Shopify only suggests tags already on
-  a product, so type a new brand's tag in full the first time. Adding products
-  to the collection by hand isn't possible: the tag is what assigns a brand.
-  (Brands created before this change have manual collections; there, adding a
-  product to the collection does not tag it.)
+- **Assign your products to the brand**, either way works:
+  - add them to the brand's collection (Products → Collections), or
+  - tag them with the brand tag (e.g., `brand-acme`) via Products → bulk edit.
+    Shopify only suggests tags already on a product, so type a new brand's tag
+    in full the first time.
+
+  Only products assigned one of these ways receive the discount. The app
+  doesn't add tags for you: adding a product to the collection is enough.
 - **Add the brand to your homepage tiles** in the theme editor (if your theme
   uses brand tiles).
 
@@ -226,7 +226,7 @@ These are enforced in code; do not bypass:
    array is sent on every save (Add / Edit / Remove); there are no delta
    writes.
 
-3. **The function reads `$brandTags` as nullable (`[String!]`)** in
+3. **The function reads `$brandTags` / `$brandCollectionIds` as nullable** in
    `extensions/brand-discount/src/cart_lines_discounts_generate_run.graphql`.
    If the metafield is missing or empty, the function silently no-ops rather
    than crashing. Self-healing in `selfHealBrandRegistry()` repopulates the

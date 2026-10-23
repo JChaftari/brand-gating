@@ -14,8 +14,11 @@
 //     - Function input-variable bag, one per automatic discount that uses our
 //       brand-discount Shopify Function. Configured in shopify.extension.toml
 //       as [extensions.input.variables].
-//     - Shape: { "brandTags": [...] } — top-level keys match GraphQL variable
-//       names in cart_lines_discounts_generate_run.graphql.
+//     - Shape: { "brandTags": [...], "brandCollectionIds": [...] } — top-level
+//       keys match GraphQL variable names in
+//       cart_lines_discounts_generate_run.graphql. Index i of both arrays is
+//       the same brand; the function relies on that to map a collection back
+//       to its tag (a product counts as a brand if tagged OR in its collection).
 //     - Per-discount because Shopify Functions only support function-owner
 //       metafields for input variables — see
 //       https://shopify.dev/api/functions/input-query-variables.
@@ -163,9 +166,7 @@ export async function syncBrandList(nextBrandList) {
   const normalized = nextBrandList.map(normalizeBrand);
   validateBrandList(normalized);
 
-  const inputVariablesValue = JSON.stringify({
-    brandTags: normalized.map((b) => b.tag),
-  });
+  const inputVariablesValue = inputVariablesFor(normalized);
 
   // Discovery + shop ID in parallel — both are reads, both safe to fan out.
   const [shopId, brandDiscounts] = await Promise.all([
@@ -231,13 +232,18 @@ export async function selfHealBrandRegistry() {
     return { discountCount: 0, healed: false };
   }
 
-  const expected = canonicalTagSetJson(brands.map((b) => b.tag));
+  const expected = canonicalBrandsJson(
+    brands.map((b) => b.tag),
+    brands.map((b) => b.collection_id)
+  );
   const drift = brandDiscounts.some((d) => {
     const raw = d.inputVariables?.value;
     if (!raw) return true; // missing
     try {
       const parsed = JSON.parse(raw);
-      const actual = canonicalTagSetJson(parsed.brandTags ?? []);
+      // Discounts configured before brandCollectionIds existed have no ids,
+      // so they read as drifted and get rewritten with both lists.
+      const actual = canonicalBrandsJson(parsed.brandTags, parsed.brandCollectionIds);
       return actual !== expected;
     } catch {
       return true; // malformed
@@ -282,7 +288,7 @@ export async function createBrandDiscount() {
           namespace: NS_DISCOUNT,
           key: KEY_INPUT_VARIABLES,
           type: 'json',
-          value: JSON.stringify({ brandTags: brands.map((b) => b.tag) }),
+          value: inputVariablesFor(brands),
         },
       ],
     },
@@ -336,12 +342,23 @@ async function discoverBrandDiscounts() {
     .map((n) => ({ id: n.id, inputVariables: n.inputVariables ?? null }));
 }
 
-// Stable string representation of a tag set, used for drift comparison.
-// Sort to make set equality order-independent — order doesn't matter to the
-// function (hasTags returns one result per tag regardless).
-function canonicalTagSetJson(tags) {
-  const arr = Array.isArray(tags) ? [...tags].sort() : [];
-  return JSON.stringify(arr);
+// The function's input variables for a brand list. Arrays stay index-aligned
+// (brandTags[i] and brandCollectionIds[i] are the same brand).
+function inputVariablesFor(brands) {
+  return JSON.stringify({
+    brandTags: brands.map((b) => b.tag),
+    brandCollectionIds: brands.map((b) => b.collection_id),
+  });
+}
+
+// Stable string representation of the brand set (tag + collection pairs),
+// used for drift comparison. Sorted so brand order doesn't matter; pairing is
+// preserved because the function maps collections to tags by index.
+function canonicalBrandsJson(tags, collectionIds) {
+  const t = Array.isArray(tags) ? tags : [];
+  const c = Array.isArray(collectionIds) ? collectionIds : [];
+  const pairs = t.map((tag, i) => `${tag}|${c[i] ?? ''}`);
+  return JSON.stringify(pairs.sort());
 }
 
 // ---- normalization & validation --------------------------------------------

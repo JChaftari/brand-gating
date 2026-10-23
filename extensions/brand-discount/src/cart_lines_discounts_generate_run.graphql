@@ -8,7 +8,12 @@
 # function with InvalidVariableValueError (STDIN never built). Making the variable
 # nullable lets validation pass; the JS handler then treats null and [] identically
 # as "no brand tags configured for this discount → no-op."
-query RunInput($brandTags: [String!] = []) {
+#
+# $brandCollectionIds comes from the same metafield, same rules. A product
+# belongs to a brand if it has the brand's tag OR is in the brand's collection.
+# brandTags[i] and brandCollectionIds[i] describe the same brand; the JS reads
+# that metafield (discount.brandConfig) to map a collection back to its tag.
+query RunInput($brandTags: [String!] = [], $brandCollectionIds: [ID!] = []) {
   cart {
     buyerIdentity {
       customer {
@@ -26,6 +31,10 @@ query RunInput($brandTags: [String!] = []) {
               tag
               hasTag
             }
+            brandCollectionMatches: inCollections(ids: $brandCollectionIds) {
+              collectionId
+              isMember
+            }
           }
         }
       }
@@ -33,5 +42,8 @@ query RunInput($brandTags: [String!] = []) {
   }
   discount {
     discountClasses
+    brandConfig: metafield(namespace: "$app:brand-discount", key: "input_variables") {
+      value
+    }
   }
 }

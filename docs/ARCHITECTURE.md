@@ -32,7 +32,8 @@ state lives in Shopify metafields.
    │ SHOP metafield   │  │ DISCOUNT metafield    │  │ CUSTOMER metafield      │
    │ custom.brand_list│  │ $app:brand-discount.  │  │ custom.brand_discounts  │
    │ (rich registry)  │  │ input_variables       │  │ ([{brand_tag, pct}])    │
-   │                  │  │ ({brandTags:[...]})    │  │                        │
+   │                  │  │ ({brandTags,          │  │                        │
+   │                  │  │   brandCollectionIds})│  │                        │
    └─────────────────┘  └───────────┬──────────┘  └───────────┬────────────┘
                                      │ read at checkout        │ read at checkout
                                      ▼                         ▼
@@ -55,14 +56,19 @@ state lives in Shopify metafields.
   `cart.delivery-options.discounts.generate.run` (unrelated free-shipping
   logic, brand-agnostic, untouched by Phase 2).
 - The cart-lines target reads:
-  - `$brandTags` — the registered brand tags, sourced from the discount's
+  - `$brandTags` and `$brandCollectionIds` — the registered brands' tags and
+    collection IDs (index-aligned), sourced from the discount's
     `input_variables` metafield (see [Data model](#data-model)).
   - `cart.buyerIdentity.customer.metafield(custom.brand_discounts)` — the
     customer's per-brand percentages.
-  - `product.hasTags(tags: $brandTags)` per cart line — which registered
-    brands each line's product carries.
-- For each line: find the brands it's tagged with, look up the customer's
-  percentage for each, apply the highest. Emits one `productDiscountsAdd`
+  - `product.hasTags(tags: $brandTags)` and
+    `product.inCollections(ids: $brandCollectionIds)` per cart line — which
+    brands each line's product is tagged with or collected in.
+  - `discount.metafield($app:brand-discount, input_variables)` — the same
+    config, read so a collection membership can be mapped back to its tag.
+- For each line: a product belongs to a brand if it has the brand's tag **or**
+  is in the brand's collection. Look up the customer's percentage for each of
+  the line's brands and apply the highest. Emits one `productDiscountsAdd`
   candidate per eligible line with `selectionStrategy: All` so every eligible
   line is discounted simultaneously (bypassing Shopify's "best discount wins"
   default for automatic discounts).
@@ -75,9 +81,10 @@ state lives in Shopify metafields.
   auto-authenticated).
 - Responsibilities: list/add/edit/delete brands; create and update the Shopify
   collection behind each brand; keep the registry metafields in sync.
-  Brand collections are **automated** (rule: product tag equals the brand tag),
-  so a collection always lists exactly the products the function discounts.
-  Brands created before this change keep their original manual collections.
+  Brand collections are regular collections: merchants add products by hand,
+  and the function counts a product in the collection as part of the brand,
+  just like a product with the brand tag. Shopify has no way to pre-create a
+  tag (tags only exist on products), so the app doesn't create or apply tags.
 - Key modules:
   - `web/src/api/brandList.js` — the registry helper (`loadBrandList`,
     `syncBrandList`, `selfHealBrandRegistry`). **The only supported way to
@@ -109,7 +116,7 @@ Three JSON metafields. No database.
 | Owner | Namespace.key | Type | Shape | Written by | Read by |
 |---|---|---|---|---|---|
 | Shop | `custom.brand_list` | `json` | `[{tag, display_name, collection_id, image_url}]` | Brands page (`syncBrandList`) | Brands page, customer card |
-| Discount | `$app:brand-discount.input_variables` | `json` | `{brandTags: [tag, …]}` | Brands page (`syncBrandList`) | Function (as `$brandTags`) |
+| Discount | `$app:brand-discount.input_variables` | `json` | `{brandTags: [tag, …], brandCollectionIds: [gid, …]}` (index-aligned) | Brands page (`syncBrandList`, `createBrandDiscount`) | Function (as `$brandTags` / `$brandCollectionIds`, and directly to map collection → tag) |
 | Customer | `custom.brand_discounts` | `json` | `[{brand_tag, percentage}]` | Customer card | Function, customer card |
 
 Notes:
@@ -187,8 +194,9 @@ for it (I3) until we populate it.
 
 1. Query every discount that uses the brand-discount function
    (`discountNodes` filtered by the function's ID).
-2. For each, compare its `input_variables.brandTags` against the canonical
-   `brand_list` tag set (order-independent).
+2. For each, compare its `input_variables` (tag + collection pairs) against
+   the canonical `brand_list` (order-independent). Discounts configured before
+   `brandCollectionIds` existed count as drifted and get rewritten.
 3. If any is missing or drifted, trigger a full `syncBrandList()`.
 
 There is no background sync — healing happens only when someone opens the Brands
@@ -208,7 +216,8 @@ It calls `createBrandDiscount()` (`web/src/api/brandList.js`), which runs
 - `functionHandle: "brand-discount"`, `discountClasses: [PRODUCT]`
 - `startsAt` now, no `endsAt`
 - `combinesWith`: order ✅, shipping ✅, product ❌
-- `metafields`: `$app:brand-discount.input_variables` = current tag list, so the
+- `metafields`: `$app:brand-discount.input_variables` = current tag and
+  collection lists, so the
   discount never exists without its tag list (keeps invariant I1 in this one
   module)
 

@@ -65,7 +65,7 @@ mutation {
     name: "Brand-discount Function Input Variables"
     namespace: "$app:brand-discount"
     key: "input_variables"
-    description: "JSON input variables for the brand-discount function. Top-level keys match GraphQL variable names (brandTags). Managed by the admin UI."
+    description: "JSON input variables for the brand-discount function. Top-level keys match GraphQL variable names (brandTags, brandCollectionIds). Managed by the admin UI."
     type: "json"
     ownerType: DISCOUNT
     access: { admin: PRIVATE, storefront: NONE }
@@ -160,7 +160,7 @@ mutation {
     namespace: "$app:brand-discount"
     key: "input_variables"
     type: "json"
-    value: "{\"brandTags\":[\"brand-acme\"]}"
+    value: "{\"brandTags\":[\"brand-acme\"],\"brandCollectionIds\":[\"gid://shopify/Collection/<ID>\"]}"
   }]) {
     metafields { id namespace key value }
     userErrors { field message }

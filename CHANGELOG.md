@@ -24,10 +24,14 @@ doc: `docs/APP_STORE_READINESS.md`.
 
 ### Changed
 - Public app requests no `read_files` scope (unused).
-- New brands get an **automated** collection (product tag equals the brand
-  tag) instead of a manual one, so tagging a product puts it in the brand's
-  collection. Previously, adding products to the collection by hand silently
-  did nothing for discounts. Existing collections are unchanged.
+- A product now counts as part of a brand if it has the brand's tag **or** is
+  in the brand's collection. Previously, adding products to a brand's
+  collection by hand silently did nothing for discounts. The function checks
+  `product.inCollections` against a new `$brandCollectionIds` input variable
+  (index-aligned with `$brandTags`), and reads the discount's own
+  `input_variables` to map each collection back to its brand. Existing
+  discounts pick up the collection list the next time the Brands page opens
+  (self-heal). Brand collections stay regular collections you add to by hand.
 - Brands page shows "Brand discounts are on" when the store's brand discount
   exists, so merchants arriving from Discounts → Create discount see that
   it's already working.

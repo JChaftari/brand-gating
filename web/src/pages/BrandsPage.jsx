@@ -307,9 +307,9 @@ function PostAddBanner({ brand, onDismiss }) {
       <BlockStack gap="100">
         <Text as="p" variant="bodyMd">Next steps:</Text>
         <Text as="p" variant="bodyMd">
-          1. Tag your {brand.display_name} products with <code>{brand.tag}</code> via
-          Products → bulk edit (type the tag in full the first time). Tagged
-          products appear in the {brand.display_name} collection automatically.
+          1. Add your {brand.display_name} products to the {brand.display_name}{' '}
+          collection, or tag them with <code>{brand.tag}</code> (type the tag in
+          full the first time). Either one makes them part of the brand.
         </Text>
         <Text as="p" variant="bodyMd">
           2. Add the brand to your homepage tiles section in the theme editor.
