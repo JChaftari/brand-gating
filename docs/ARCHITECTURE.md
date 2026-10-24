@@ -310,6 +310,23 @@ than take on the staged-upload + CORS complexity of a custom uploader, brand
 images are added by pasting a Shopify Files CDN URL. Documented as a known
 limitation; revisit if Shopify ships a picker.
 
+### Decision: billing checked when the app opens
+
+The public app is billed through Shopify App Pricing ($19.99/month, 14-day
+trial). With no backend, the plan is checked from the Brands page on every
+open (`currentAppInstallation.activeSubscriptions`): no active plan → the app
+and customer card are locked and the store's brand discounts are switched off
+(`discountAutomaticDeactivate`), recording which ones in
+`$app:brand-discount.billing_paused_discounts`; plan active again → exactly
+those are switched back on (`discountAutomaticActivate`). Billing is keyed to
+the public app's client ID so the customer's custom app is never gated.
+
+Trade-off: a merchant whose plan ends while the app stays installed keeps
+discounts at checkout until someone opens the app. Uninstalling removes the
+app's discount function, and that is the usual way plans end. Closing the gap
+fully would need an `app_subscriptions/update` webhook with stored per-shop
+tokens (a database).
+
 ### Decision: app-reserved metafield namespace
 
 All three metafields live in `$app:brand-discount`, not the merchant-owned
