@@ -118,9 +118,12 @@ had this brand assigned will stop receiving the discount at checkout.
 ### Assign discounts to a customer
 
 1. Open any customer in **Shopify admin → Customers**.
-2. The first time you visit a customer page, click **Add block** in the
-   **Blocks** section and add the **Customer Brand Discounts** block. (Once
-   added, it appears on every customer page automatically.)
+2. The first time you visit a customer page, click **+ Block** in the
+   **Blocks** section, add the **Customer Brand Discounts** block, then click
+   the block's **pin icon**. Once pinned, it appears on every customer page
+   automatically. Until it's pinned it shows a "Preview" badge and disappears
+   when you leave the page (your discounts are saved on the customer either
+   way).
 3. In the **Brand Discounts** card:
    - Click **+ Add brand discount** → pick a brand from the dropdown, enter a
      percentage (0–100), click **Save**.
@@ -267,9 +270,10 @@ URL to grant permissions on first run.
   button works fine; only the Enter shortcut is missing. Likely a quirk of
   `<s-number-field>`'s key event surface in Shopify's web components. Low
   priority.
-- **Customer-card block must be added per-page on first visit.** Shopify's
-  block manager UX, not something we control. Once added, it persists for all
-  customer pages.
+- **Customer-card block must be added and pinned once per store.** Shopify's
+  block manager UX: apps can't pin blocks themselves. An added-but-unpinned
+  block only previews and disappears when the page is left; once pinned it
+  persists for all customer pages.
 - **No customer-impact count on brand delete.** The spec called for "N
   customers will lose this discount" on the delete confirmation; skipped
   because Shopify has no efficient server-side filter for
