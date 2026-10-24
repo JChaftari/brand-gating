@@ -108,8 +108,8 @@ definition is required). See
 
 **Cause.** Protected Customer Data access isn't configured.
 
-**Fix.** Request **Level 1** in the Partner Dashboard and declare the app's
-customer metafield (`$app:brand-discount` / `brand_discounts`) — see [SETUP §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card).
+**Fix.** Request **Level 1** in the Partner Dashboard (no metafield needs to be
+declared) — see [SETUP §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card).
 On dev stores it takes effect immediately.
 
 ### `Access denied for discountNodes field ... requires read_discounts`
