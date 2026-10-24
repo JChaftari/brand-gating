@@ -152,7 +152,9 @@ Resolved: both apps now keep all data in the app-reserved `$app:brand-discount`
 namespace (`brand_list` on the shop, `brand_discounts` on customers,
 `input_variables` on the discount). Done before either app had real merchant
 data, so nothing was migrated; old `custom.*` data on the test stores is
-ignored. Follow-ups: the Protected Customer Data request must declare the new
+ignored. Verified end to end on `brand-gating-fresh` (public `brand-gating-7`):
+new brand, product added to its collection, customer card, discounted
+checkout. Follow-ups: the Protected Customer Data request must declare the new
 customer metafield; optionally declare the definitions in `shopify.app.toml`
 so merchants can see the data read-only in admin. See
 [ARCHITECTURE.md](ARCHITECTURE.md#decision-app-reserved-metafield-namespace).
