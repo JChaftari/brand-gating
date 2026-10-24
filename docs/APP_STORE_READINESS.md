@@ -40,10 +40,9 @@ inert for the custom app (new files, public-only config) or be a deliberate,
 tested change before it's ever deployed to the custom app. The customer's
 build is always reproducible from `custom-v1.0.0`.
 
-Data isolation: the function's input variables use the `$app:` namespace,
-which Shopify resolves per app, so the two apps can't collide on that. The
-`custom.*` metafields are per-store and the two apps won't share a store — but
-see [finding F4](#f4--public-app-writes-to-the-merchants-custom-namespace).
+Data isolation: all app data lives in the app-reserved `$app:brand-discount` namespace,
+which Shopify resolves per app, so the two apps can't collide even on the
+same store, and neither can collide with a merchant's own fields (F4).
 
 ---
 
@@ -99,7 +98,7 @@ The app holds no data outside Shopify, so the handler acknowledges every valid
 request and does nothing else. Shopify's docs require a 200 and completion
 within 30 days "regardless of whether the app collects personal data," but
 don't state whether data the app wrote **into Shopify** (the customer's
-`custom.brand_discounts` metafield) is the app's to delete. An earlier version
+`$app:brand-discount.brand_discounts` metafield) is the app's to delete. An earlier version
 of this doc claimed it was; that was not confirmed and has been withdrawn.
 
 - **Current:** stateless acknowledge (sufficient if Shopify's own redaction
@@ -147,15 +146,16 @@ Testing note: installing via `shopify app dev` leaves a dev preview on the
 store even after stopping the command; run `shopify app dev clean --store …`
 before testing the released version.
 
-### F4 — Public app writes to the merchant's `custom` namespace
+### F4 — Public app writes to the merchant's `custom` namespace ✅
 
-`custom.brand_list` and `custom.brand_discounts` live in the merchant-owned
-`custom` namespace. For one customer that's fine. For a public app it risks
-colliding with a merchant's own fields of the same name. The conventional fix
-is app-reserved `$app:` namespaces. Doing that without changing the custom app
-means making the namespace a build-time setting (custom app keeps `custom`,
-public app uses `$app:`). Not required by a published rule, but a robustness
-issue worth deciding before public merchants have data in the old shape.
+Resolved: both apps now keep all data in the app-reserved `$app:brand-discount`
+namespace (`brand_list` on the shop, `brand_discounts` on customers,
+`input_variables` on the discount). Done before either app had real merchant
+data, so nothing was migrated; old `custom.*` data on the test stores is
+ignored. Follow-ups: the Protected Customer Data request must declare the new
+customer metafield; optionally declare the definitions in `shopify.app.toml`
+so merchants can see the data read-only in admin. See
+[ARCHITECTURE.md](ARCHITECTURE.md#decision-app-reserved-metafield-namespace).
 
 ### F6 — Merchants had no way to create the discount
 
@@ -257,7 +257,7 @@ temporary tunnel.
    `brand-gating-test`, which runs the public app; the customer app has no
    installs yet, so no existing collections changed behavior.) Merchant guide
    updated and committed as `docs/Brand-Discounts-Merchant-Guide.docx`.
-7c. ❌ Decide F4 (app-private field names for the public app).
+7c. ✅ F4 decided and done: both apps use `$app:brand-discount` for all data.
 8. ❌ Ask Shopify Partner support about F1.
 9. ❌ Request Protected Customer Data Level 1 for the public app.
 10. ❌ Listing assets, privacy policy, pricing, support contact.

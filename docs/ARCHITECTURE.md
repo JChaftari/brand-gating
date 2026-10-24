@@ -29,11 +29,11 @@ state lives in Shopify metafields.
             │                                        │
             ▼                                        ▼
    ┌─────────────────┐  ┌──────────────────────┐  ┌────────────────────────┐
-   │ SHOP metafield   │  │ DISCOUNT metafield    │  │ CUSTOMER metafield      │
-   │ custom.brand_list│  │ $app:brand-discount.  │  │ custom.brand_discounts  │
-   │ (rich registry)  │  │ input_variables       │  │ ([{brand_tag, pct}])    │
-   │                  │  │ ({brandTags,          │  │                        │
-   │                  │  │   brandCollectionIds})│  │                        │
+   │ SHOP metafield  │  │ DISCOUNT metafield   │  │ CUSTOMER metafield     │
+   │ $app:brand-     │  │ $app:brand-discount. │  │ $app:brand-discount.   │
+   │ discount.       │  │ input_variables      │  │ brand_discounts        │
+   │ brand_list      │  │ ({brandTags,         │  │ ([{brand_tag, pct}])   │
+   │ (rich registry) │  │  brandCollectionIds})│  │                        │
    └─────────────────┘  └───────────┬──────────┘  └───────────┬────────────┘
                                      │ read at checkout        │ read at checkout
                                      ▼                         ▼
@@ -59,7 +59,7 @@ state lives in Shopify metafields.
   - `$brandTags` and `$brandCollectionIds` — the registered brands' tags and
     collection IDs (index-aligned), sourced from the discount's
     `input_variables` metafield (see [Data model](#data-model)).
-  - `cart.buyerIdentity.customer.metafield(custom.brand_discounts)` — the
+  - `cart.buyerIdentity.customer.metafield($app:brand-discount.brand_discounts)` — the
     customer's per-brand percentages.
   - `product.hasTags(tags: $brandTags)` and
     `product.inCollections(ids: $brandCollectionIds)` per cart line — which
@@ -111,13 +111,14 @@ state lives in Shopify metafields.
 
 ## Data model
 
-Three JSON metafields. No database.
+Three JSON metafields, all in the app-reserved namespace `$app:brand-discount`. No
+database.
 
 | Owner | Namespace.key | Type | Shape | Written by | Read by |
 |---|---|---|---|---|---|
-| Shop | `custom.brand_list` | `json` | `[{tag, display_name, collection_id, image_url}]` | Brands page (`syncBrandList`) | Brands page, customer card |
+| Shop | `$app:brand-discount.brand_list` | `json` | `[{tag, display_name, collection_id, image_url}]` | Brands page (`syncBrandList`) | Brands page, customer card |
 | Discount | `$app:brand-discount.input_variables` | `json` | `{brandTags: [tag, …], brandCollectionIds: [gid, …]}` (index-aligned) | Brands page (`syncBrandList`, `createBrandDiscount`) | Function (as `$brandTags` / `$brandCollectionIds`, and directly to map collection → tag) |
-| Customer | `custom.brand_discounts` | `json` | `[{brand_tag, percentage}]` | Customer card | Function, customer card |
+| Customer | `$app:brand-discount.brand_discounts` | `json` | `[{brand_tag, percentage}]` | Customer card | Function, customer card |
 
 Notes:
 
@@ -130,8 +131,10 @@ Notes:
   because Shopify Functions only support function-owner metafields for input
   variables — not shop or app-install metafields. See
   [Decision: function input variables](#decision-function-input-variables-live-on-the-discount).
-- **`brand_discounts`** keeps the Phase 1 shape unchanged — no migration was
-  needed. The function's customer-side contract never changed across phases.
+- **`brand_discounts`** keeps the Phase 1 shape (`[{brand_tag, percentage}]`).
+  It moved from the merchant's `custom` namespace to the app-reserved one
+  before any real merchant data existed, so no migration was needed. See
+  [Decision: app-reserved namespace](#decision-app-reserved-metafield-namespace).
 
 ### The stale-brand case
 
@@ -306,6 +309,23 @@ no file/media picker for admin surfaces yet
 than take on the staged-upload + CORS complexity of a custom uploader, brand
 images are added by pasting a Shopify Files CDN URL. Documented as a known
 limitation; revisit if Shopify ships a picker.
+
+### Decision: app-reserved metafield namespace
+
+All three metafields live in `$app:brand-discount`, not the merchant-owned
+`custom` namespace. Merchant-owned metafields are "readable and writable by
+merchants and all apps with appropriate scopes" (Shopify docs), so on a
+public app `custom.brand_list` / `custom.brand_discounts` could collide with
+a merchant's own fields — the app would overwrite their data, or fail if
+their field had a different type — and any other app could corrupt the JSON
+the function reads. App-reserved metafields can only be written by this app.
+
+Trade-offs: other tools (CSV import apps, Flow, other apps) can't write
+customers' discounts; and without a definition granting admin access, the
+raw JSON doesn't appear in Shopify's built-in Metafields card (the Brand
+Discounts card is the editor). Switched before either app had real merchant
+data, so nothing was migrated; data written to `custom.*` on test stores is
+simply ignored.
 
 ### Decision: brand tag is immutable after creation
 

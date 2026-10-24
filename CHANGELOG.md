@@ -23,6 +23,14 @@ doc: `docs/APP_STORE_READINESS.md`.
   live endpoint to verify it (expects 200s and a 401 control).
 
 ### Changed
+- **All app data moved to the app-reserved namespace `$app:brand-discount`**
+  (both apps): `brand_list` on the shop and `brand_discounts` on customers,
+  alongside the existing `input_variables` on the discount. Merchant-owned
+  `custom.*` fields could collide with a merchant's own fields or be rewritten
+  by any app; app-reserved ones can only be written by this app. Done before
+  either app had real merchant data, so nothing was migrated; old `custom.*`
+  data on test stores is ignored. The Protected Customer Data request must
+  declare the new customer metafield.
 - Public app requests no `read_files` scope (unused).
 - A product now counts as part of a brand if it has the brand's tag **or** is
   in the brand's collection. Previously, adding products to a brand's

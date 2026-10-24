@@ -38,14 +38,15 @@ Three surfaces, one source of truth:
    Shopify web components, embedded on the customer detail page. Lets the
    merchant add, edit, and remove a customer's brand discounts inline.
 
-Data lives in three metafields, all in the `custom` (or app-reserved)
-namespace:
+Data lives in three metafields, all in the app-reserved namespace
+`$app:brand-discount` (only this app can write them, and they can't collide with a
+merchant's own `custom` fields):
 
 | Owner | Key | Type | Purpose |
 |---|---|---|---|
-| Shop | `custom.brand_list` | `json` | Rich brand registry — `[{tag, display_name, collection_id, image_url}]`. Source of truth for the admin UI. |
+| Shop | `$app:brand-discount.brand_list` | `json` | Rich brand registry — `[{tag, display_name, collection_id, image_url}]`. Source of truth for the admin UI. |
 | Discount | `$app:brand-discount.input_variables` | `json` | Per-discount input variables for the function — `{brandTags: [...], brandCollectionIds: [...]}` (index-aligned). Function reads this via `[extensions.input.variables]` in the toml. Synced from `brand_list` automatically. |
-| Customer | `custom.brand_discounts` | `json` | Per-customer discount assignments — `[{brand_tag, percentage}]`. Edited via the customer-detail card. |
+| Customer | `$app:brand-discount.brand_discounts` | `json` | Per-customer discount assignments — `[{brand_tag, percentage}]`. Edited via the customer-detail card. |
 
 The `syncBrandList` helper in `web/src/api/brandList.js` is the **only**
 supported way to mutate the registry. It writes the shop metafield + every
@@ -177,21 +178,12 @@ qualifies for.
 - **State**: Zero custom backend. All state lives in Shopify metafields. See
   the table in [How it works](#how-it-works).
 
-### One-time setup (per dev store)
+### Store setup
 
-These were done in this project's dev store via GraphiQL. If setting up
-fresh, run them once in the merchant's GraphiQL admin:
-
-1. Create the shop `custom.brand_list` metafield definition (json type, owner
-   SHOP, admin read/write).
-2. Create the per-discount `$app:brand-discount.input_variables` metafield
-   definition (json type, owner DISCOUNT, admin private).
-3. Seed `brand_list` with any pre-existing brands the merchant already had.
-4. Seed `input_variables` on each existing discount that uses the
-   brand-discount function.
-
-The exact GraphiQL mutations are in [docs/SETUP.md](docs/SETUP.md). Future seed
-ops should go through the admin UI, not GraphiQL.
+None. The app writes its metafields on first use (no definitions needed) and
+the **Turn on brand discounts** button creates the discount. App-level setup
+(scopes, Protected Customer Data, hosting, deploy) is in
+[docs/SETUP.md](docs/SETUP.md).
 
 ### Required app scopes
 

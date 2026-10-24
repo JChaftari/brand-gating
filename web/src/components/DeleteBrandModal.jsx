@@ -5,7 +5,7 @@ import { Modal, Banner, BlockStack, Text } from '@shopify/polaris';
  * Delete brand confirmation modal.
  *
  * Behavior:
- *   - Removes the brand from `custom.brand_list` only.
+ *   - Removes the brand from the brand list (`$app:brand-discount.brand_list`) only.
  *   - Does NOT delete the underlying collection or untag products. Those are
  *     intentional, separate destructive actions the merchant performs in
  *     Shopify admin if they want them.

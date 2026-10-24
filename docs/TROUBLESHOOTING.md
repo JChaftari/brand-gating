@@ -83,8 +83,7 @@ the entire input *before* the function runs.
 **Fix.** Two parts, both already in the codebase — verify them if this recurs:
 - The input query declares `$brandTags: [String!]` (nullable) with `= []`.
 - Open the Brands page to trigger `selfHealBrandRegistry`, which seeds
-  `input_variables` on any discount missing it. Or seed it manually per
-  [SETUP.md §3c](SETUP.md#3c-seed-each-discounts-input_variables).
+  `input_variables` on any discount missing it.
 
 ### `Variable definitions are missing` on function build/preview
 
@@ -94,16 +93,16 @@ that exists, or uses an unsupported owner.
 
 **Fix.** Input-variable metafields must live on the **function owner** (the
 discount), not the shop. Confirm the TOML references
-`namespace = "$app:brand-discount"`, `key = "input_variables"`, and that the
-definition exists (SETUP §2b). See
+`namespace = "$app:brand-discount"`, `key = "input_variables"` (no
+definition is required). See
 [ARCHITECTURE — function input variables](ARCHITECTURE.md#decision-function-input-variables-live-on-the-discount).
 
 ### `This app is not approved to access the Customer object`
 
 **Cause.** Protected Customer Data access isn't configured.
 
-**Fix.** Request **Level 1** in the Partner Dashboard and declare
-`custom.brand_discounts` — see [SETUP §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card).
+**Fix.** Request **Level 1** in the Partner Dashboard and declare the app's
+customer metafield (`$app:brand-discount` / `brand_discounts`) — see [SETUP §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card).
 On dev stores it takes effect immediately.
 
 ### `Access denied for discountNodes field ... requires read_discounts`

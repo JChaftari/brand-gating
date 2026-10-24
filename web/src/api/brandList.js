@@ -4,9 +4,11 @@
 //
 // THIS IS THE ONLY SUPPORTED WAY TO MUTATE THE BRAND REGISTRY.
 //
-// The registry is split across two metafield owners:
+// The registry is split across two metafield owners. Both live in the
+// app-reserved namespace $app:brand-discount, so only this app can write them
+// and they can't collide with a merchant's own `custom` fields:
 //
-//   SHOP    custom.brand_list                  (json)
+//   SHOP    $app:brand-discount.brand_list     (json)
 //     - Rich registry consumed by the admin UI.
 //     - Shape: [{ tag, display_name, collection_id, image_url }]
 //
@@ -47,7 +49,7 @@
 import { gql, assertNoUserErrors } from './graphql';
 import { getShopId } from './shop';
 
-const NS_SHOP = 'custom';
+const NS_SHOP = '$app:brand-discount';
 const KEY_BRAND_LIST = 'brand_list';
 
 const NS_DISCOUNT = '$app:brand-discount';
@@ -129,7 +131,7 @@ const SET_MUTATION = `
 // ---- public surface --------------------------------------------------------
 
 /**
- * Load the canonical brand list from the shop's `custom.brand_list` metafield.
+ * Load the canonical brand list from the shop's `$app:brand-discount.brand_list` metafield.
  * Returns an empty array if unset or unparseable.
  *
  * @returns {Promise<Array<Brand>>}
@@ -149,7 +151,7 @@ export async function loadBrandList() {
 /**
  * Atomic write of the brand registry.
  *
- * Writes the rich JSON to the shop's `custom.brand_list` AND derives + writes
+ * Writes the rich JSON to the shop's `$app:brand-discount.brand_list` AND derives + writes
  * the per-function input variables to every discount that uses our function.
  * All metafields are sent in one `metafieldsSet` call (atomic).
  *

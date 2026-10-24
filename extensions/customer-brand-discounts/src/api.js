@@ -8,13 +8,13 @@
 const LOAD_QUERY = `
   query LoadCustomerBrandData($customerId: ID!) {
     customer(id: $customerId) {
-      brandDiscounts: metafield(namespace: "custom", key: "brand_discounts") {
+      brandDiscounts: metafield(namespace: "$app:brand-discount", key: "brand_discounts") {
         id
         value
       }
     }
     shop {
-      brandList: metafield(namespace: "custom", key: "brand_list") {
+      brandList: metafield(namespace: "$app:brand-discount", key: "brand_list") {
         value
       }
     }
@@ -70,7 +70,7 @@ export async function saveCustomerBrandDiscounts(customerId, discounts) {
       metafields: [
         {
           ownerId: customerId,
-          namespace: 'custom',
+          namespace: '$app:brand-discount',
           key: 'brand_discounts',
           type: 'json',
           value: JSON.stringify(discounts),
