@@ -250,10 +250,13 @@ temporary tunnel.
    forged/unsigned).
 7. ✅ Fresh-store install test (F3) passed; F6 and collection membership fixed
    along the way (public app `brand-gating-6`).
-7b. ❌ Port to the customer app (`main`): the "Turn on brand discounts" button,
-   the "on" status line, and tag-or-collection membership. Check first whether
-   the customer's Acme/Beta/Gamma collections contain untagged products — those
-   would start being discounted.
+7b. ✅ Ported to the customer app (`main`, deployed as customer `brand-gating-3`):
+   the "Turn on brand discounts" button, the "on" status line, and
+   tag-or-collection membership. App code (`extensions/`, `web/src`) is now
+   identical on both branches. (The Acme/Beta/Gamma data is on
+   `brand-gating-test`, which runs the public app; the customer app has no
+   installs yet, so no existing collections changed behavior.) Merchant guide
+   updated and committed as `docs/Brand-Discounts-Merchant-Guide.docx`.
 7c. ❌ Decide F4 (app-private field names for the public app).
 8. ❌ Ask Shopify Partner support about F1.
 9. ❌ Request Protected Customer Data Level 1 for the public app.
