@@ -44,6 +44,11 @@
 // discount-type picker lands on this app's Brands page), so this is how a
 // store gets its discount. It writes input_variables in the same call, so the
 // discount never exists without its tag list.
+//
+// `pauseBrandDiscounts` / `resumeBrandDiscounts` switch the store's brand
+// discounts off and back on for public-app billing (see billing.js), keeping a
+// record ($app:brand-discount.billing_paused_discounts on the shop) of which
+// ones the app switched off.
 // =============================================================================
 
 import { gql, assertNoUserErrors } from './graphql';
@@ -96,6 +101,7 @@ const FIND_BRAND_DISCOUNTS_QUERY = `
           __typename
           ... on DiscountAutomaticApp {
             title
+            status
             appDiscountType { functionId }
           }
         }
@@ -113,6 +119,31 @@ const CREATE_DISCOUNT_MUTATION = `
       automaticAppDiscount { discountId title status }
       userErrors { field message }
     }
+  }
+`;
+
+// IDs of brand discounts this app switched off because the store had no active
+// plan (public app billing), so they're switched back on when a plan returns.
+const KEY_PAUSED = 'billing_paused_discounts';
+
+const READ_PAUSED_QUERY = `
+  query PausedBrandDiscounts {
+    shop {
+      id
+      paused: metafield(namespace: "${NS_SHOP}", key: "${KEY_PAUSED}") { value }
+    }
+  }
+`;
+
+const DEACTIVATE_MUTATION = `
+  mutation PauseBrandDiscount($id: ID!) {
+    discountAutomaticDeactivate(id: $id) { userErrors { field message } }
+  }
+`;
+
+const ACTIVATE_MUTATION = `
+  mutation ResumeBrandDiscount($id: ID!) {
+    discountAutomaticActivate(id: $id) { userErrors { field message } }
   }
 `;
 
@@ -299,7 +330,102 @@ export async function createBrandDiscount() {
   return data.discountAutomaticAppCreate.automaticAppDiscount;
 }
 
+/**
+ * Switch off every active brand discount because the store has no active plan
+ * (public app billing — see web/src/api/billing.js). Records the IDs it
+ * switched off so resumeBrandDiscounts turns back on only those, never a
+ * discount the merchant switched off themselves.
+ *
+ * @returns {Promise<number>} how many brand discounts are now paused by the app
+ * @throws {GraphQLError} if any discount couldn't be switched off (the ones that
+ *   were are still recorded)
+ */
+export async function pauseBrandDiscounts() {
+  const [{ shopId, paused }, brandDiscounts] = await Promise.all([
+    loadPausedDiscounts(),
+    discoverBrandDiscounts(),
+  ]);
+
+  const pausedNow = [];
+  let firstError = null;
+  for (const d of brandDiscounts) {
+    if (d.status !== 'ACTIVE') continue;
+    try {
+      const data = await gql(DEACTIVATE_MUTATION, { id: d.id });
+      assertNoUserErrors(data.discountAutomaticDeactivate, 'discountAutomaticDeactivate');
+      pausedNow.push(d.id);
+    } catch (err) {
+      firstError ??= err;
+    }
+  }
+
+  const all = [...new Set([...paused, ...pausedNow])];
+  if (pausedNow.length) await savePausedDiscounts(shopId, all);
+  if (firstError) throw firstError;
+  return all.length;
+}
+
+/**
+ * Switch back on the brand discounts pauseBrandDiscounts switched off, now
+ * that the store has an active plan. Discounts deleted in the meantime are
+ * dropped from the record.
+ *
+ * @returns {Promise<number>} how many discounts were switched back on
+ * @throws {GraphQLError} if any couldn't be (they stay recorded for next time)
+ */
+export async function resumeBrandDiscounts() {
+  const { shopId, paused } = await loadPausedDiscounts();
+  if (paused.length === 0) return 0;
+
+  const existing = new Set((await discoverBrandDiscounts()).map((d) => d.id));
+  const remaining = [];
+  let resumed = 0;
+  let firstError = null;
+  for (const id of paused) {
+    if (!existing.has(id)) continue;
+    try {
+      const data = await gql(ACTIVATE_MUTATION, { id });
+      assertNoUserErrors(data.discountAutomaticActivate, 'discountAutomaticActivate');
+      resumed++;
+    } catch (err) {
+      remaining.push(id);
+      firstError ??= err;
+    }
+  }
+
+  await savePausedDiscounts(shopId, remaining);
+  if (firstError) throw firstError;
+  return resumed;
+}
+
 // ---- internals -------------------------------------------------------------
+
+async function loadPausedDiscounts() {
+  const data = await gql(READ_PAUSED_QUERY);
+  let paused = [];
+  try {
+    const parsed = JSON.parse(data.shop.paused?.value ?? '[]');
+    if (Array.isArray(parsed)) paused = parsed;
+  } catch {
+    // Malformed record — treat as nothing paused.
+  }
+  return { shopId: data.shop.id, paused };
+}
+
+async function savePausedDiscounts(shopId, ids) {
+  const data = await gql(SET_MUTATION, {
+    metafields: [
+      {
+        ownerId: shopId,
+        namespace: NS_SHOP,
+        key: KEY_PAUSED,
+        type: 'json',
+        value: JSON.stringify(ids),
+      },
+    ],
+  });
+  assertNoUserErrors(data.metafieldsSet, 'metafieldsSet (paused discounts)');
+}
 
 let cachedFunctionId = null;
 
@@ -341,7 +467,11 @@ async function discoverBrandDiscounts() {
         n.discount?.__typename === 'DiscountAutomaticApp' &&
         n.discount?.appDiscountType?.functionId === fnId
     )
-    .map((n) => ({ id: n.id, inputVariables: n.inputVariables ?? null }));
+    .map((n) => ({
+      id: n.id,
+      status: n.discount.status,
+      inputVariables: n.inputVariables ?? null,
+    }));
 }
 
 // The function's input variables for a brand list. Arrays stay index-aligned

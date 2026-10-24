@@ -148,6 +148,38 @@ points (e.g. Cloudflare Pages).
 
 ---
 
+## 9. Billing (public app only)
+
+The public app is paid: one plan, **$19.99/month with a 14-day free trial**,
+through Shopify App Pricing ("managed pricing"). The customer's custom app is
+never billed or gated (billing is keyed to the public app's client ID in
+`web/src/api/billing.js` and `extensions/customer-brand-discounts/src/api.js`).
+
+Set the plan up **before** deploying the plan check, or the app will lock
+stores and send merchants to a plan page that doesn't exist yet:
+
+1. Partner Dashboard → **App distribution** → the public app → **Distribution**
+   → **Shopify App Store listing** → **Manage listing** → edit the listing →
+   **Pricing content** → **Manage** → **Settings** → **Pricing method** →
+   **Shopify App Pricing** → **Switch**.
+2. Add a public plan: $19.99, monthly, 14-day free trial. Set its welcome /
+   redirect link to `/` so merchants land back on the Brands page.
+3. If the plan editor offers it, make the plan free to test on development
+   stores, so Shopify's reviewers (whose stores belong to another
+   organization) can choose it. Stores in your own organization can always
+   choose plans at no charge.
+
+How the app enforces it (`web/src/components/BillingGate.jsx`): each time the
+app opens it checks `currentAppInstallation.activeSubscriptions`. With no
+`ACTIVE` plan it shows a **Choose a plan** screen (linking to Shopify's plan
+page) and switches the store's brand discounts off; when a plan is active
+again it switches back on only the discounts it switched off. The customer
+card is locked the same way. A merchant whose plan lapses but who never opens
+the app keeps discounts at checkout until they do (accepted trade-off; see
+[ARCHITECTURE.md](ARCHITECTURE.md#decision-billing-checked-when-the-app-opens)).
+
+---
+
 ## Scope reference
 
 `shopify.app.toml`:

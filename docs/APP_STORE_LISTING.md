@@ -15,7 +15,7 @@ Status of each item: see [APP_STORE_READINESS.md](APP_STORE_READINESS.md).
 
 | Decision | Why it matters |
 |---|---|
-| **Pricing details** | Decided: paid with a free trial. Still needed: price per month, trial length, number of plans. Must use Shopify's managed pricing or Billing API (rule 1.2.1) and be described accurately (4.2.1). |
+| **Pricing** | Decided: one plan, $19.99/month, 14-day free trial, via Shopify App Pricing. Set it up in the Partner Dashboard (see [SETUP.md §9](SETUP.md#9-billing-public-app-only)) before deploying the plan check. |
 | **Support email, country** | Publisher decided: Chaftari Development. Email and country are shown on the listing and in the privacy policy (`web/public/privacy.html`). |
 | **Icon** | Needs a distinctive mark without Shopify trademarks (4.4.3). |
 
@@ -58,8 +58,8 @@ Pricing / discounts (choose the closest category the editor offers).
 
 ### Pricing section
 
-Paid, with a free trial. *Fill in the price and trial length once decided*,
-matching the plan configured in Shopify exactly (rule 4.2.1).
+$19.99/month, with a 14-day free trial. Must match the plan configured in
+Shopify exactly (rule 4.2.1).
 
 ### Privacy policy URL
 
@@ -107,7 +107,7 @@ About 2–3 minutes:
 Paste into the submission's testing instructions. The app has no separate
 account or login, so no credentials are needed (rules 4.5.4–4.5.5).
 
-> 1. Install the app and open it from Apps. This is the Brands page.
+> 1. Install the app and open it from Apps. Click **Choose a plan** and pick the plan (free on development stores). You return to the Brands page.
 > 2. Click **Turn on brand discounts** in the yellow banner. A green **On** badge appears. (Choosing this app under Discounts → Create discount also opens this page.)
 > 3. Click **Add brand**, enter "Test Brand" and click **Add brand**. A "Test Brand" collection is created.
 > 4. Add any product to the "Test Brand" collection (Products → Collections). Alternatively, tag a product with `test-brand`.

@@ -81,8 +81,12 @@ function BrandDiscountsBlock() {
     let cancelled = false;
     (async () => {
       try {
-        const { discounts, brands } = await loadCustomerBrandData(customerId);
+        const { discounts, brands, needsPlan } = await loadCustomerBrandData(customerId);
         if (cancelled) return;
+        if (needsPlan) {
+          setState({ status: 'needsPlan' });
+          return;
+        }
         setState({
           status: 'loaded',
           rows: joinAndSort(discounts, brands),
@@ -248,6 +252,12 @@ function BrandDiscountsBlock() {
       {state.status === 'loading' && <LoadingState />}
 
       {state.status === 'error' && <ErrorBanner error={state.error} />}
+
+      {state.status === 'needsPlan' && (
+        <s-stack direction="block">
+          <s-text>Vendtier needs an active plan. Open Vendtier from Apps to choose one.</s-text>
+        </s-stack>
+      )}
 
       {state.status === 'loaded' && (
         <s-stack direction="block">

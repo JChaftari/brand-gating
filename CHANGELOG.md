@@ -22,6 +22,14 @@ doc: `docs/APP_STORE_READINESS.md`.
 - `scripts/check-compliance-webhook.mjs` — sends signed sample webhooks to the
   live endpoint to verify it (expects 200s and a 401 control).
 
+### Added (billing)
+- Public app is billed through Shopify App Pricing: $19.99/month, 14-day free
+  trial. `BillingGate` checks for an active plan when the app opens; without
+  one it shows a **Choose a plan** screen, locks the customer card and
+  switches brand discounts off, switching back on only those it paused once
+  a plan is active. Keyed to the public app's client ID; the customer's
+  custom app is never gated.
+
 ### Changed
 - **All app data moved to the app-reserved namespace `$app:brand-discount`**
   (both apps): `brand_list` on the shop and `brand_discounts` on customers,

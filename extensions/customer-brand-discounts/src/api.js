@@ -5,6 +5,11 @@
 // the App Home, but tailored for the extension sandbox. Same call works for
 // queries and mutations.
 
+// Apps billed through Shopify App Pricing (the public app). Same list as
+// web/src/api/billing.js; the customer's custom app isn't billed and is never
+// locked.
+const BILLED_APP_CLIENT_IDS = ['f9f32ac3ca8e90585fc52b8fda97b2d1'];
+
 const LOAD_QUERY = `
   query LoadCustomerBrandData($customerId: ID!) {
     customer(id: $customerId) {
@@ -17,6 +22,10 @@ const LOAD_QUERY = `
       brandList: metafield(namespace: "$app:brand-discount", key: "brand_list") {
         value
       }
+    }
+    currentAppInstallation {
+      app { apiKey }
+      activeSubscriptions { status }
     }
   }
 `;
@@ -31,10 +40,12 @@ const SAVE_MUTATION = `
 `;
 
 /**
- * Combined load: customer's brand_discounts + shop's brand_list, single round-trip.
+ * Combined load: customer's brand_discounts + shop's brand_list + plan status,
+ * single round-trip.
  *
  * @param {string} customerId  GID of the customer being viewed
- * @returns {Promise<{ discounts: Array, brands: Array }>}
+ * @returns {Promise<{ discounts: Array, brands: Array, needsPlan: boolean }>}
+ *   needsPlan: billed app without an active plan — the card must not allow edits
  * @throws {Error} on transport / GraphQL errors
  */
 export async function loadCustomerBrandData(customerId) {
@@ -49,9 +60,14 @@ export async function loadCustomerBrandData(customerId) {
   const discountsRaw = result.data?.customer?.brandDiscounts?.value;
   const brandsRaw = result.data?.shop?.brandList?.value;
 
+  const install = result.data?.currentAppInstallation;
+  const billed = BILLED_APP_CLIENT_IDS.includes(install?.app?.apiKey);
+  const active = (install?.activeSubscriptions ?? []).some((s) => s.status === 'ACTIVE');
+
   return {
     discounts: safeParseArray(discountsRaw),
     brands: safeParseArray(brandsRaw),
+    needsPlan: billed && !active,
   };
 }
 

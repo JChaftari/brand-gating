@@ -56,6 +56,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 | 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
 | 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
+| 4b | Billing via Shopify App Pricing ($19.99/mo, 14-day trial) | 🟡 | Plan check + discount pause/resume built and tested against a simulated API. Needs the plan set up in the Partner Dashboard ([SETUP §9](SETUP.md#9-billing-public-app-only)), then deploy + live test. |
 | 5 | Protected Customer Data, Level 1, for the public app | 🟡 | Request + Data protection details in the Partner Dashboard; answers [below](#protected-customer-data--data-protection-answers). Reviewed with the submission. Answers 2, 4 and 8 rely on the privacy policy (row 8). |
 | 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
 | 7 | Works on a fresh install with no GraphiQL setup | ✅ | Verified end to end on `brand-gating-fresh` — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
