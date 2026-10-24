@@ -59,7 +59,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
 | 5 | Protected Customer Data, Level 1, for the public app | ❌ | Partner Dashboard request + data-protection form. |
 | 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
-| 7 | Works on a fresh install with no GraphiQL setup | ❌ | Verify — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
+| 7 | Works on a fresh install with no GraphiQL setup | ✅ | Verified end to end on `brand-gating-fresh` — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
 | 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ❌ | Non-code. |
 | 9 | Demo store + reviewer instructions | ❌ | Non-code. |
 | 10 | Storefront performance (≤10-pt Lighthouse drop) | 🟡 | No storefront scripts; logic runs in a checkout Function. Run Lighthouse and keep the report. |
@@ -129,16 +129,23 @@ gets its percentage. The test fixture that encoded the old behavior as
 The same fix is on `main` (customer app), verified the same way. Function
 code is identical on both branches.
 
-### F3 — Fresh installs can't run GraphiQL setup
+### F3 — Fresh installs can't run GraphiQL setup ✅
 
-On the custom store, metafield definitions were created by hand in GraphiQL
-([SETUP.md §2](SETUP.md#2-one-time-metafield-definitions-graphiql)). A public
-merchant won't do that. `metafieldsSet` accepts metafields without a
-definition, so the Brands page, customer card, and function should all work on
-a clean store (definitions mainly affect how the fields display in admin).
-**Verify on a brand-new dev store with zero setup** before submitting. If
-anything needs a definition, create it from the app on first load rather than
-documenting a manual step.
+Verified. On a brand-new dev store (`brand-gating-fresh`) with no GraphiQL
+setup and no metafield definitions, the full flow works: Brands page, adding a
+brand, turning on brand discounts, the customer card, and a discounted
+checkout — by tag and by collection membership. Metafields work without
+definitions; the only visible difference is that the customer page's built-in
+Metafields card doesn't list "Brand Discounts" (that listing came from the
+hand-made definition).
+
+The test found two real problems, both fixed: no way to create the discount
+(F6), and adding a product to a brand's collection didn't count (the function
+now accepts tag **or** collection).
+
+Testing note: installing via `shopify app dev` leaves a dev preview on the
+store even after stopping the command; run `shopify app dev clean --store …`
+before testing the released version.
 
 ### F4 — Public app writes to the merchant's `custom` namespace
 
@@ -241,7 +248,13 @@ temporary tunnel.
    registered with Shopify), customer `brand-gating-2`.
 6. ✅ Webhook endpoint live in production and verified (200 signed, 401
    forged/unsigned).
-7. ❌ Fresh-store install test (F3); decide F4.
+7. ✅ Fresh-store install test (F3) passed; F6 and collection membership fixed
+   along the way (public app `brand-gating-6`).
+7b. ❌ Port to the customer app (`main`): the "Turn on brand discounts" button,
+   the "on" status line, and tag-or-collection membership. Check first whether
+   the customer's Acme/Beta/Gamma collections contain untagged products — those
+   would start being discounted.
+7c. ❌ Decide F4 (app-private field names for the public app).
 8. ❌ Ask Shopify Partner support about F1.
 9. ❌ Request Protected Customer Data Level 1 for the public app.
 10. ❌ Listing assets, privacy policy, pricing, support contact.
