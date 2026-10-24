@@ -263,8 +263,8 @@ temporary tunnel.
 8. ❌ Ask Shopify Partner support about F1.
 9. ❌ Request Protected Customer Data Level 1 for the public app.
 10. ❌ Listing assets, privacy policy, pricing, support contact.
-11. ❌ Demo store + reviewer instructions (include: add the customer-card
-    block, and click **Turn on brand discounts** on the Brands page).
+11. ❌ Demo store + reviewer instructions (include: add **and pin** the
+    customer-card block, and click **Turn on brand discounts** on the Brands page).
 12. ❌ Lighthouse run, keep the report.
 13. ❌ Submit; expect iteration.
 

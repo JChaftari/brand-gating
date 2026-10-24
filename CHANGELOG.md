@@ -101,7 +101,8 @@ tags — so adding a brand no longer requires a function redeploy.
 ### Known limitations
 - No in-form file picker for brand images (paste URL).
 - Enter key doesn't save inline edits on the customer card (use Save).
-- The customer card block must be added once per store from the block manager.
+- The customer card block must be added **and pinned** once per store from
+  the block manager; an unpinned block only previews and disappears.
 - No "N customers affected" count on brand deletion (no efficient server-side
   query for metafield-JSON-contains).
 

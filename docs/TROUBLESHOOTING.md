@@ -36,12 +36,16 @@ assigned. That discount does not apply at checkout. Click **Remove** on the row
 to tidy it up. (Edit is intentionally hidden — changing the percentage would
 have no effect.)
 
-### The Brand Discounts card doesn't appear on a customer page
+### The Brand Discounts card doesn't appear, or disappears after leaving the page
 
-On the first visit to any customer, the card must be added once: in the
-**Blocks** section click **Add block** and choose **Customer Brand Discounts**.
-After that it appears on all customer pages automatically. (This is Shopify's
-block-manager behavior, not something the app controls.)
+The card must be added **and pinned** once: in the **Blocks** section click
+**+ Block**, choose **Customer Brand Discounts**, then click the block's **pin
+icon**. After that it appears on all customer pages automatically.
+
+If the block keeps disappearing when you leave and reopen a customer, it was
+added but never pinned; the "Preview" badge on it means exactly that. Pin
+it. Discounts are saved on the customer, so nothing is lost when an unpinned
+block disappears. (Shopify's block-manager behavior; apps can't pin blocks.)
 
 ### Pressing Enter doesn't save an inline edit
 
@@ -63,7 +67,7 @@ desired tag, then re-tag products and re-assign customer discounts.
 
 ## Developer-facing
 
-### Customer card shows a "Preview" badge and "Failed to fetch"
+### Customer card shows "Failed to fetch"
 
 **Cause.** The store is still in a `shopify app dev` dev preview, which serves
 extension code from your machine. Stopping `app dev` does not always end the
@@ -72,6 +76,9 @@ preview, so the block tries to load from a dev server that's gone.
 **Fix.** Restore the released version on that store:
 `shopify app dev clean --store <store>.myshopify.com` (add `--config custom`
 for the customer app).
+
+A "Preview" badge on the block is unrelated: it only means the block isn't
+pinned yet (see the merchant section above).
 
 ### `InvalidVariableValueError` / `$brandTags ... was provided invalid value` (STDIN null)
 
