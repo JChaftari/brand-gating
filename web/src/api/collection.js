@@ -38,6 +38,10 @@ const COLLECTION_UPDATE_MUTATION = `
  * `updateCollection`) to keep the failure modes distinct so the caller can
  * report orphan-collection issues cleanly.
  *
+ * The collection is a regular (manual) one: merchants add products to it by
+ * hand, and the function treats a product in it as part of the brand, the
+ * same as a product with the brand tag.
+ *
  * @param {{ title: string, handle: string }} args
  * @returns {Promise<{ id: string, title: string, handle: string }>}
  */

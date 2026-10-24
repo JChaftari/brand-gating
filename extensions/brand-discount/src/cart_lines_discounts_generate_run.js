@@ -57,6 +57,22 @@ export function cartLinesDiscountsGenerateRun(input) {
     return { operations: [] };
   }
 
+  // Map each brand collection back to its brand tag, from the discount's
+  // input_variables (brandTags[i] ↔ brandCollectionIds[i]). Missing or
+  // malformed config → empty map → products match on tags only.
+  /** @type {Map<string, string>} */
+  const tagByCollectionId = new Map();
+  try {
+    const config = JSON.parse(input.discount.brandConfig?.value ?? '{}');
+    const tags = Array.isArray(config.brandTags) ? config.brandTags : [];
+    const ids = Array.isArray(config.brandCollectionIds) ? config.brandCollectionIds : [];
+    for (let i = 0; i < Math.min(tags.length, ids.length); i++) {
+      if (tags[i] && ids[i]) tagByCollectionId.set(ids[i], tags[i]);
+    }
+  } catch (_) {
+    // Fall through with an empty map.
+  }
+
   const candidates = [];
 
   // brandTagMatches can arrive as one of three things:
@@ -70,14 +86,26 @@ export function cartLinesDiscountsGenerateRun(input) {
   //                           discounts.
   // selfHealBrandRegistry in the admin UI populates the metafield on next
   // Brands-page visit, restoring case 1 for that discount.
+  // brandCollectionMatches follows the same three cases.
   for (const line of input.cart.lines) {
     const product = line.merchandise?.product;
     if (!product) continue;
 
-    let bestPct = 0;
+    // A product belongs to a brand if it has the brand's tag OR is in the
+    // brand's collection.
+    const lineBrandTags = new Set();
     for (const match of product.brandTagMatches ?? []) {
-      if (!match.hasTag) continue;
-      const pct = discountByTag.get(match.tag) ?? 0;
+      if (match.hasTag) lineBrandTags.add(match.tag);
+    }
+    for (const match of product.brandCollectionMatches ?? []) {
+      if (!match.isMember) continue;
+      const tag = tagByCollectionId.get(match.collectionId);
+      if (tag) lineBrandTags.add(tag);
+    }
+
+    let bestPct = 0;
+    for (const tag of lineBrandTags) {
+      const pct = discountByTag.get(tag) ?? 0;
       if (pct > bestPct) bestPct = pct;
     }
 
