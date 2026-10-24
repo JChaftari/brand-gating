@@ -1,293 +1,270 @@
 # Shopify App Store readiness
 
-An honest audit of what it takes to move brand-gating from a **custom app**
-(installed on named stores via the Partner Dashboard) to a **public app**
-listed on the Shopify App Store, plus a concrete remediation plan.
-
-> **Current verdict: not publishable as-is.** The app is backend-free
-> (`web/shopify.web.toml` → `roles = ["frontend"]`, served as a static SPA).
-> Several mandatory App Store requirements need a server endpoint that does not
-> exist today. None of this affects custom-app distribution, which this app
-> already satisfies.
+What it takes to list brand-gating publicly on the Shopify App Store **while
+the existing custom-distribution app keeps serving the first customer
+unchanged**. Status, decisions, open questions, and the remaining checklist.
 
 See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SETUP.md](SETUP.md) ·
 [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ---
 
-## Custom app vs public app — decide first
+## Strategy: two apps, one codebase
 
-| | Custom app (today) | Public app (App Store) |
+A Shopify app's distribution method (custom vs public) is chosen once and is
+permanent, and a public app can only be installed on development stores until
+it passes review. So one app can't serve the first customer now *and* become
+the public listing later. We run two apps from the same code.
+
+The existing `brand-gating` app was already set to **Public** distribution
+(listing in Draft), so it becomes the App Store app, and the customer gets a
+new custom-distribution app:
+
+| | Customer app | Public app |
 |---|---|---|
-| Distribution | Partner Dashboard → custom distribution to named stores | Public listing, any merchant installs |
-| Review | None | Full Shopify app review |
-| Compliance (GDPR) webhooks | Not required | **Required** |
-| OAuth / install flow | Managed install is enough | Real install + auth required |
-| Protected Customer Data | Configure on the store | Approved for the public app |
-| Listing assets | None | Icon, screenshots, pricing, privacy policy, support |
-| Backend server | Not needed | **Needed** (at minimum for compliance webhooks) |
+| Purpose | First customer, now | App Store listing |
+| Partner Dashboard | **new** app — **Custom** distribution, tied to the customer's store | existing `brand-gating` (client `f9f32…`) — **Public**, listing in Draft |
+| CLI config | `shopify.app.custom.toml` (client `4fa17f…`, on `main`) | `shopify.app.toml` |
+| Frontend host | new Cloudflare Pages site, built from `main` | `brand-gating.pages.dev`, built from `public-release` |
+| Code | `main` (first release tagged **`custom-v1.0.0`**; customer fixes land on `main`) | branch **`public-release`** |
+| Compliance webhooks | not subscribed | subscribed → `/webhooks/compliance` |
 
-If you only need this for one or a handful of specific merchants, **stop here —
-you're already done.** Everything below is exclusively for public listing.
+Each app needs its own copy of the frontend site because the build bakes in
+that app's Client ID (`%SHOPIFY_API_KEY%` in `web/index.html`).
+
+Pick the target per command, e.g. `shopify app deploy --config custom`, or
+switch the default with `shopify app config use <file>`.
+
+**Rule for shared code:** anything changed on `public-release` must either be
+inert for the custom app (new files, public-only config) or be a deliberate,
+tested change before it's ever deployed to the custom app. The customer's
+build is always reproducible from `custom-v1.0.0`.
+
+Data isolation: all app data lives in the app-reserved `$app:brand-discount` namespace,
+which Shopify resolves per app, so the two apps can't collide even on the
+same store, and neither can collide with a merchant's own fields (F4).
 
 ---
 
-## Requirements matrix
+## Status
 
-Legend: ✅ meets · ⚠️ partial / needs verification · ❌ blocker (missing)
+Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to do
 
 | # | Requirement | Status | Notes |
 |---|---|---|---|
-| 1 | Mandatory compliance webhooks (`customers/data_request`, `customers/redact`, `shop/redact`) with HMAC verification | ❌ | No `[[webhooks.subscriptions]]` in TOML; no endpoint exists. Hard blocker. |
-| 2 | Real install / auth (managed install + token exchange) | ❌ | `[auth].redirect_urls` is the scaffold placeholder. |
-| 3 | Protected Customer Data approval for the public app | ❌ | App reads `customer.brand_discounts`. Needs Level 1 grant + attestations for distribution. |
-| 4 | Privacy policy URL | ❌ | Listing asset — none yet. |
-| 5 | Pricing declared (Billing API or "free") | ❌ | Listing asset — none yet. App is currently free/no billing. |
-| 6 | App icon, screenshots, listing copy, support contact | ❌ | Listing assets — none yet. |
-| 7 | Reviewer test instructions / demo store | ❌ | Required for review. |
-| 8 | Session-token auth, no third-party cookies/localStorage | ✅ | App Bridge + Direct API Access already compliant. |
-| 9 | Embedded via App Bridge with correct redirect | ⚠️ | App Bridge is loaded; auth redirect must be finalized (see #2). |
-| 10 | Storefront performance (no >10-pt Lighthouse drop) | ✅* | No storefront script injection; logic is in a checkout Function. Verify before submit. |
-| 11 | API version not deprecating within 90 days | ✅ | Function `2026-01`, webhooks `2026-07`. |
-| 12 | Minimal, justified scopes; no prohibited scopes | ✅ | See `shopify.app.toml`. |
-| 13 | TLS/HTTPS on all endpoints | ✅ | Pages host is HTTPS; new backend must be too. |
-| 14 | App uninstall handled (`app/uninstalled`) | ⚠️ | Recommended; pairs naturally with the new backend. |
-
-\* Likely-pass but must be demonstrated with an actual Lighthouse run during
-review prep.
+| 1 | Compliance webhooks with HMAC (401 on invalid) | ✅ | Live at `https://brand-gating.pages.dev/webhooks/compliance`. Verified in production with `scripts/check-compliance-webhook.mjs`: all three topics 200 when correctly signed, 401 when mis-signed or unsigned. |
+| 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
+| 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
+| 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
+| 5 | Protected Customer Data, Level 1, for the public app | ❌ | Partner Dashboard request + data-protection form. |
+| 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
+| 7 | Works on a fresh install with no GraphiQL setup | ✅ | Verified end to end on `brand-gating-fresh` — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
+| 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ❌ | Non-code. |
+| 9 | Demo store + reviewer instructions | ❌ | Non-code. |
+| 10 | Storefront performance (≤10-pt Lighthouse drop) | 🟡 | No storefront scripts; logic runs in a checkout Function. Run Lighthouse and keep the report. |
+| 11 | API versions not deprecating within 90 days | ✅ | Function `2026-01`, webhooks `2026-07` — re-check at submission time. |
+| 12 | Session tokens, no third-party cookies / localStorage | ✅ | Already true. |
 
 ---
 
-## Blocker 1 — Compliance (GDPR) webhooks
+## Decision: additive backend, not a Remix migration
 
-**Rule.** Per Shopify: *"Any app that you distribute through the Shopify App
-Store must respond to data subject requests, regardless of whether the app
-collects personal data."* Three topics are mandatory for every app. On an
-**invalid** HMAC the endpoint must return **401**; on success, a **200**-series
-code. The action must complete within 30 days.
+An earlier version of this doc recommended migrating to the Shopify Remix
+template. With the requirement that the custom app not be compromised, that's
+the wrong trade: Remix rewrites the App Home and forks the codebase.
 
-**Why it hits us specifically.** The app stores customer data in the
-`custom.brand_discounts` customer metafield. `customers/redact` must delete it.
+Instead, the only server-side piece the public app needs — the compliance
+webhook receiver — is a single **stateless Cloudflare Pages Function** at
+`functions/webhooks/compliance.js`:
 
-### 1a. Declare the webhooks in `shopify.app.toml`
+- Reads the raw body, verifies `X-Shopify-Hmac-Sha256` with
+  `crypto.subtle.verify` (constant-time) using the public app's client secret.
+- Invalid/missing HMAC, unconfigured secret, or malformed header → **401**.
+- Valid → **200**. No database, no Admin API calls, no token storage.
+- Inert for the custom app: it never subscribes, and without
+  `SHOPIFY_API_SECRET` on its Pages project every request is rejected.
+- Doesn't touch the Vite build (`dist/` is unchanged).
 
-```toml
-[webhooks]
-api_version = "2026-07"
-
-  [[webhooks.subscriptions]]
-  compliance_topics = [
-    "customers/data_request",
-    "customers/redact",
-    "shop/redact",
-  ]
-  uri = "https://<your-backend-host>/webhooks/compliance"
-```
-
-The `uri` must point at a real HTTPS endpoint (the new backend — see
-[The backend decision](#the-backend-decision)).
-
-### 1b. Implement the endpoint (illustrative)
-
-Minimal handler. Verifies HMAC first (401 on failure), then acts per topic.
-This sketch is framework-agnostic pseudocode-ish Node; adapt to whatever host
-you choose.
-
-```js
-import crypto from 'node:crypto';
-
-// Raw body is required for HMAC — do NOT parse JSON before verifying.
-function verifyHmac(rawBody, hmacHeader, apiSecret) {
-  const digest = crypto
-    .createHmac('sha256', apiSecret)
-    .update(rawBody, 'utf8')
-    .digest('base64');
-  // timing-safe compare
-  const a = Buffer.from(digest);
-  const b = Buffer.from(hmacHeader || '');
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-export async function handleComplianceWebhook(req, res) {
-  const rawBody = await readRawBody(req); // string
-  const hmac = req.headers['x-shopify-hmac-sha256'];
-
-  if (!verifyHmac(rawBody, hmac, process.env.SHOPIFY_API_SECRET)) {
-    return res.status(401).send('Invalid HMAC'); // REQUIRED on bad HMAC
-  }
-
-  const topic = req.headers['x-shopify-topic'];
-  const payload = JSON.parse(rawBody);
-
-  switch (topic) {
-    case 'customers/data_request':
-      // All customer data lives in Shopify metafields — we hold no external
-      // copy. Nothing to assemble; acknowledge. (If you ever cache data,
-      // return it to the merchant here within 30 days.)
-      break;
-
-    case 'customers/redact':
-      // Delete the customer's brand_discounts metafield.
-      await deleteCustomerBrandDiscounts(payload.shop_domain, payload.customer.id);
-      break;
-
-    case 'shop/redact':
-      // 48h after uninstall. We store nothing outside Shopify, so no-op.
-      // If a backend DB is added later, purge this shop's rows here.
-      break;
-  }
-
-  return res.status(200).send('ok');
-}
-```
-
-`deleteCustomerBrandDiscounts` would call `metafieldsDelete` (or set the value
-empty) via an Admin API token obtained through token exchange — see Blocker 2.
-
-**Key point:** because all app state lives in Shopify metafields, the *logic*
-is tiny (mostly acknowledgements + one metafield delete). The cost is that the
-webhooks require a **server that can receive POSTs and verify HMAC** — which a
-static SPA cannot do.
+Revisit Remix only if later features need real server state (billing,
+background jobs, scheduled sync, stored offline tokens).
 
 ---
 
-## Blocker 2 — Install / authentication
+## Findings and open questions
 
-**Today.** `[auth].redirect_urls` is still
-`https://shopify.dev/apps/default-app-home/api/auth` (scaffold placeholder).
+### F1 — Does acknowledging `customers/redact` with a 200 suffice?
 
-**Modern minimum.** You don't need a full legacy OAuth backend. Use:
+The app holds no data outside Shopify, so the handler acknowledges every valid
+request and does nothing else. Shopify's docs require a 200 and completion
+within 30 days "regardless of whether the app collects personal data," but
+don't state whether data the app wrote **into Shopify** (the customer's
+`$app:brand-discount.brand_discounts` metafield) is the app's to delete. An earlier version
+of this doc claimed it was; that was not confirmed and has been withdrawn.
 
-- **Shopify managed installation** — scopes are declared in `shopify.app.toml`
-  (already done) and Shopify installs/updates them without calling your app.
-- **Token exchange** — the embedded frontend exchanges its App Bridge session
-  token for an Admin API access token when a server-side Admin API call is
-  needed (e.g. inside the compliance webhook handler, or any server logic).
+- **Current:** stateless acknowledge (sufficient if Shopify's own redaction
+  covers customer metafields).
+- **If review says otherwise:** the handler must clear the metafield, which
+  requires an offline Admin API token per shop → token exchange on install +
+  storage (e.g. Cloudflare KV) → and `shop/redact` must then purge that
+  storage. Ask Shopify Partner support before submission to avoid a rejection
+  loop.
 
-For the **frontend**, Direct API Access already covers the admin UI's own
-calls, so the interactive app stays largely as-is. What's new is:
+### F2 — Leftover free-shipping logic in the function
 
-- A correct auth redirect / embedded entry configured for the public app.
-- Token exchange wherever the **backend** must call the Admin API (the
-  `customers/redact` metafield delete is the concrete case).
+`extensions/brand-discount/src/cart_delivery_options_discounts_generate_run.js`
+is unmodified template code: if the automatic discount has the **Shipping**
+class enabled, it gives **100% off shipping on every cart**. The custom app is
+safe only because its discount was created with the Product class. A public
+merchant (or a reviewer) ticking Shipping would hand out free shipping
+storewide.
 
-**Net:** the addition of a backend for Blocker 1 is what makes token exchange
-relevant. They're one workstream.
+**Fixed on `public-release`:** the delivery target now always returns no
+operations (kept registered rather than removed, to avoid changing the
+function's targets). Verified by compiling the function and running it with
+the Shipping class enabled → no discount, while a brand-tagged cart line still
+gets its percentage. The test fixture that encoded the old behavior as
+"expected" was rewritten.
 
----
+The same fix is on `main` (customer app), verified the same way. Function
+code is identical on both branches.
 
-## Blocker 3 — Protected Customer Data (for distribution)
+### F3 — Fresh installs can't run GraphiQL setup ✅
 
-Configured per-store today (Level 1 on the dev store — see
-[SETUP.md §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card)).
-For **public** distribution this becomes a reviewed grant on the app itself,
-with data-handling attestations:
+Verified. On a brand-new dev store (`brand-gating-fresh`) with no GraphiQL
+setup and no metafield definitions, the full flow works: Brands page, adding a
+brand, turning on brand discounts, the customer card, and a discounted
+checkout — by tag and by collection membership. Metafields work without
+definitions; the only visible difference is that the customer page's built-in
+Metafields card doesn't list "Brand Discounts" (that listing came from the
+hand-made definition).
 
-- Request **Level 1** only (no name/email/phone/address — we read none).
-- Declare the specific field: `custom.brand_discounts`.
-- Complete the data-protection questionnaire (retention, encryption, access
-  controls, subprocessors). Since we hold no data outside Shopify, most answers
-  are "data remains in Shopify; no external storage" — but the attestation must
-  still be completed.
+The test found two real problems, both fixed: no way to create the discount
+(F6), and adding a product to a brand's collection didn't count (the function
+now accepts tag **or** collection).
 
----
+Testing note: installing via `shopify app dev` leaves a dev preview on the
+store even after stopping the command; run `shopify app dev clean --store …`
+before testing the released version.
 
-## Listing requirements (non-code, all mandatory)
+### F4 — Public app writes to the merchant's `custom` namespace ✅
 
-These aren't in the repo and must be produced for the listing:
+Resolved: both apps now keep all data in the app-reserved `$app:brand-discount`
+namespace (`brand_list` on the shop, `brand_discounts` on customers,
+`input_variables` on the discount). Done before either app had real merchant
+data, so nothing was migrated; old `custom.*` data on the test stores is
+ignored. Follow-ups: the Protected Customer Data request must declare the new
+customer metafield; optionally declare the definitions in `shopify.app.toml`
+so merchants can see the data read-only in admin. See
+[ARCHITECTURE.md](ARCHITECTURE.md#decision-app-reserved-metafield-namespace).
 
-- [ ] **App icon** (per Shopify's size/format spec).
-- [ ] **Screenshots** of the Brands page and the customer card.
-- [ ] **Listing copy** — name, tagline, description, feature bullets, category.
-- [ ] **Pricing** — declare free, or wire the Billing API. App is free today.
-- [ ] **Privacy policy URL** — must describe the customer-data handling.
-- [ ] **Support contact** — email and/or support URL.
-- [ ] **Demo store + reviewer instructions** — a store pre-seeded with brands,
-      a tagged product, a customer with discounts, and an active automatic
-      discount using the function, so a reviewer can verify end-to-end.
-- [ ] **Installation instructions** if any manual step is needed (e.g. adding
-      the customer-card block, creating the automatic discount).
+### F6 — Merchants had no way to create the discount
 
----
+Found by the fresh-store test (F3). The function has no discount-creation UI,
+so choosing it in **Discounts → Create discount** opens the app's Brands page —
+whose banner then pointed merchants back to the discount picker, a loop. The
+original store's discount had been created by hand in GraphiQL during Phase 1,
+which hid this.
 
-## Performance & technical quality (verify before submit)
+**Fixed on `public-release`:** the banner now has a **Turn on brand discounts**
+button that creates the discount via `discountAutomaticAppCreate` (product
+lines only, starts now, combines with order + shipping discounts) with its tag
+list included in the same call. Needs verifying on the fresh store, then
+porting to `main` for the customer.
 
-Likely-pass, but demonstrate it:
+Remaining gap: merchants can't edit that discount's combinations or dates from
+admin. A discount function settings UI extension would add that if review asks
+for it. See [ARCHITECTURE.md](ARCHITECTURE.md#creating-the-discount).
 
-- **Storefront Lighthouse** — the app injects no storefront scripts; the
-  discount runs in a checkout Function. Run Lighthouse on a themed store with
-  the app installed vs not, confirm <10-point delta. Keep the report.
-- **Function performance** — Functions have CPU/instruction limits. The
-  cart-lines logic is O(lines × brands); fine for realistic carts. No action
-  expected.
-- **App Bridge / embedded** — confirm the app loads embedded, uses session
-  tokens, and sets no third-party cookies or localStorage. (Already true.)
-- **Error handling** — the UIs surface errors (Polaris banners / inline card
-  errors). Reviewers test failure paths; keep those graceful.
+### F5 — Extension identity across two apps ✅
 
----
-
-## The backend decision
-
-Blockers 1 and 2 both require server code. Two ways to add it:
-
-1. **Minimal serverless endpoint.** A single HTTPS function (Cloudflare Worker /
-   Pages Function, since the SPA is already on Cloudflare Pages, or any Node
-   host) handling `/webhooks/compliance` with HMAC verification + token
-   exchange for the one metafield delete. Smallest footprint; keeps the
-   frontend-only App Home as-is.
-
-2. **Migrate to the Shopify Remix app template.** Brings OAuth/token exchange,
-   webhook registration, and session handling out of the box. Heavier, but this
-   is the well-trodden public-app path and the natural home if Phase 3 adds
-   webhooks, billing, or background jobs. This is the migration already flagged
-   in [CHANGELOG.md](CHANGELOG.md) under "deferred to Phase 3."
-
-**Recommendation:** if public listing is truly the goal, migrate to Remix. The
-compliance webhooks are exactly the "server-side state becomes necessary"
-trigger, and doing it once via the template avoids hand-rolling auth + webhook
-plumbing that review will scrutinize. If you want the lightest possible change
-and are comfortable maintaining bespoke auth, the serverless endpoint works.
+Resolved. Both apps were deployed from the same extension sources and each
+release went to its own app (public `brand-gating-5`, app 350711742465;
+customer `brand-gating-2`, app 439169679361), with no conflict.
 
 ---
 
-## Remediation roadmap
+## Your action items
 
-Ordered. Each step is a checkpoint.
+These need your accounts; nothing in the repo can do them.
 
-1. **Decide distribution** — custom (stop) vs public (continue).
-2. **Choose the backend** — serverless endpoint vs Remix migration.
-3. **Stand up the backend host** with HTTPS; point `application_url` /
-   `[auth].redirect_urls` at real URLs.
-4. **Implement managed install + token exchange** (or accept the Remix
-   template's built-ins).
-5. **Add the three compliance webhooks** — TOML subscription + endpoint with
-   HMAC (401 on bad HMAC) + `customers/redact` metafield delete.
-6. **Add `app/uninstalled`** handling (recommended).
-7. **Deploy + `shopify app deploy`**, verify webhooks register and fire
-   (Shopify sends test compliance payloads you can trigger from the Partner
-   Dashboard).
-8. **Request Protected Customer Data Level 1** for the public app; complete the
-   data-protection form.
-9. **Produce listing assets** — icon, screenshots, copy, pricing, privacy
-   policy, support contact.
-10. **Prepare the demo store + reviewer instructions.**
-11. **Run Lighthouse**, capture the report.
-12. **Submit for review**; expect iteration.
+1. ✅ **Check the existing app's distribution.** Done — `brand-gating` is
+   Public (listing in Draft). It stays the public app.
+2. ✅ **Create the customer's app.** Done — new `brand-gating` app (client
+   `4fa17f…`), Custom distribution, config `shopify.app.custom.toml` on `main`.
+   **Still to do at go-live:** enter the customer's `*.myshopify.com` domain on
+   its distribution page, and request Protected Customer Data Level 1 for it.
+
+For testing the customer app before its site exists,
+`shopify app dev --config custom` (from `main`) serves the page through a
+temporary tunnel.
+
+3. ✅ **How `brand-gating.pages.dev` deploys.** It's a Cloudflare Pages
+   project named `brand-gating` in account `ad2529655cd54eb6ca47142be437265e`,
+   connected to GitHub `JChaftari/brand-gating` (the "Cloudflare Workers and
+   Pages" GitHub app). Every push builds automatically. Current settings:
+
+   | Setting | Value |
+   |---|---|
+   | Production branch | `main` |
+   | Root directory | `/` (repo root) |
+   | Build command | `npm install --workspaces && npm run build --workspace=web` |
+   | Build output directory | `/web/dist` |
+
+   Because the root directory is the repo root, Pages Functions are read from
+   **`functions/`** at the repo root (not `web/functions/`). Don't change the
+   root directory.
+4. ✅ **Prove the function is picked up, on a preview first.** Pushed
+   `public-release`; Cloudflare built it as a preview at
+   `public-release.brand-gating.pages.dev` with the live site untouched.
+   `POST /webhooks/compliance` there returns **401 "Unauthorized"** for
+   unsigned, forged and malformed signatures (the function's own response).
+   The live site still returns 405 for the same request.
+5. ✅ **Point `brand-gating.pages.dev` at the public code.** Done: production
+   branch is now `public-release`, and `SHOPIFY_API_SECRET` (the Public app's
+   Client secret, encrypted) is set for Production. To reach these settings,
+   open the project's **Settings** page (from a deployment page, use the
+   "this project's Settings" link) — **Build → Branch control** and
+   **Variables and Secrets** are sections on that page.
+
+   Re-verify any time from the repo root:
+   `node scripts/check-compliance-webhook.mjs` (prompts for the secret,
+   hidden). Expect 3× 200 and 1× 401.
+6. **Create the customer's copy of the site** (only when the customer is ready).
+   A second Pages project from the same GitHub repo with the same build
+   command, output directory and root directory, production branch `main`,
+   and variable `SHOPIFY_API_KEY` = the customer app's Client ID
+   (`4fa17f…`). Put its URL in `shopify.app.custom.toml` as `application_url`
+   and in `redirect_urls`.
 
 ---
 
-## Quick answer
+## Remaining roadmap
 
-- **Can it be listed today?** No — no backend, so no compliance webhooks, no
-  real install auth. Both are mandatory.
-- **Is the app itself broken or non-compliant in design?** No. It's a valid
-  custom app. Public listing simply demands infrastructure (a backend) and
-  listing assets that a bespoke app never needed.
-- **Smallest path to "listable"?** Add a serverless endpoint for the three
-  compliance webhooks + token exchange, get Protected Customer Data approved,
-  and build the listing. **Cleanest path:** migrate to the Remix template and do
-  the same.
+1. ✅ Freeze custom release (`custom-v1.0.0`), branch `public-release`.
+2. ✅ Compliance webhook function + public app config.
+3. ✅ Customer app created (action items 1–2).
+4. ✅ F2 (free shipping) fixed on both branches.
+5. ✅ Both apps deployed: public `brand-gating-5` (compliance webhooks now
+   registered with Shopify), customer `brand-gating-2`.
+6. ✅ Webhook endpoint live in production and verified (200 signed, 401
+   forged/unsigned).
+7. ✅ Fresh-store install test (F3) passed; F6 and collection membership fixed
+   along the way (public app `brand-gating-6`).
+7b. ✅ Ported to the customer app (`main`, deployed as customer `brand-gating-3`):
+   the "Turn on brand discounts" button, the "on" status line, and
+   tag-or-collection membership. App code (`extensions/`, `web/src`) is now
+   identical on both branches. (The Acme/Beta/Gamma data is on
+   `brand-gating-test`, which runs the public app; the customer app has no
+   installs yet, so no existing collections changed behavior.) Merchant guide
+   updated and committed as `docs/Brand-Discounts-Merchant-Guide.docx`.
+7c. ✅ F4 decided and done: both apps use `$app:brand-discount` for all data.
+8. ❌ Ask Shopify Partner support about F1.
+9. ❌ Request Protected Customer Data Level 1 for the public app.
+10. ❌ Listing assets, privacy policy, pricing, support contact.
+11. ❌ Demo store + reviewer instructions (include: add the customer-card
+    block, and click **Turn on brand discounts** on the Brands page).
+12. ❌ Lighthouse run, keep the report.
+13. ❌ Submit; expect iteration.
 
 ---
 
@@ -295,7 +272,7 @@ Ordered. Each step is a checkpoint.
 
 - [App requirements checklist](https://shopify.dev/docs/apps/launch/app-requirements-checklist)
 - [Privacy law compliance](https://shopify.dev/docs/apps/build/compliance/privacy-law-compliance)
+- [App configuration (multiple config files)](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration)
 - [App installation & managed installation](https://shopify.dev/docs/apps/build/authentication-authorization/app-installation)
-- [Token exchange](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/token-exchange)
 - [Protected customer data](https://shopify.dev/docs/apps/launch/protected-customer-data)
-- [Shopify Remix app template](https://github.com/Shopify/shopify-app-template-remix)
+- [Cloudflare Pages Functions](https://developers.cloudflare.com/pages/functions/)

@@ -32,145 +32,30 @@ clean root `npm install` fixes it).
 
 ---
 
-## 2. One-time metafield definitions (GraphiQL)
+## 2. Store data — nothing to set up
 
-Run these once per store, in the store's GraphiQL. They create the definitions
-the three surfaces rely on. All are idempotent-ish: re-running a create returns
-a `TAKEN` userError, which is harmless.
+A store needs no manual setup. All app data lives in metafields in the
+app-reserved namespace `$app:brand-discount` (only this app can write them; they can't
+collide with a merchant's own `custom` fields), created on first use:
 
-### 2a. Shop brand registry — `custom.brand_list`
+| Owner | Key | Created when |
+|---|---|---|
+| Shop | `brand_list` | the first brand is added on the Brands page |
+| Discount | `input_variables` | **Turn on brand discounts** creates the discount; kept in sync after |
+| Customer | `brand_discounts` | the first discount is assigned on the customer card |
 
-```graphql
-mutation {
-  metafieldDefinitionCreate(definition: {
-    name: "Brand List"
-    namespace: "custom"
-    key: "brand_list"
-    description: "Registry of brands available for customer discount assignment."
-    type: "json"
-    ownerType: SHOP
-    access: { admin: MERCHANT_READ_WRITE, storefront: NONE }
-  }) {
-    createdDefinition { id namespace key type { name } ownerType }
-    userErrors { field message code }
-  }
-}
-```
+No metafield definitions are required (verified on a fresh store).
 
-### 2b. Per-discount function input — `$app:brand-discount.input_variables`
-
-```graphql
-mutation {
-  metafieldDefinitionCreate(definition: {
-    name: "Brand-discount Function Input Variables"
-    namespace: "$app:brand-discount"
-    key: "input_variables"
-    description: "JSON input variables for the brand-discount function. Top-level keys match GraphQL variable names (brandTags). Managed by the admin UI."
-    type: "json"
-    ownerType: DISCOUNT
-    access: { admin: PRIVATE, storefront: NONE }
-  }) {
-    createdDefinition { id namespace key type { name } ownerType }
-    userErrors { field message code }
-  }
-}
-```
-
-If `admin: PRIVATE` is rejected on your API version, use `MERCHANT_READ`.
-
-### 2c. Customer discounts — `custom.brand_discounts`
-
-This is the Phase 1 metafield. If Phase 1 was already deployed on the store it
-exists already — skip. Otherwise:
-
-```graphql
-mutation {
-  metafieldDefinitionCreate(definition: {
-    name: "Brand Discounts"
-    namespace: "custom"
-    key: "brand_discounts"
-    description: "Per-customer brand discount assignments: [{brand_tag, percentage}]."
-    type: "json"
-    ownerType: CUSTOMER
-    access: { admin: MERCHANT_READ_WRITE, storefront: NONE }
-  }) {
-    createdDefinition { id namespace key type { name } ownerType }
-    userErrors { field message code }
-  }
-}
-```
+Earlier versions used `custom.brand_list` / `custom.brand_discounts`, set up by
+hand in GraphiQL. That data is ignored now: on a store set up that way,
+re-enter brands and customer discounts through the app.
 
 ---
 
-## 3. Seed existing data (only if migrating a store with pre-existing brands)
+## 3. (Removed)
 
-If the store already had brands hardcoded in the function (pre-Phase-2), seed
-the registry so the admin UI and function agree.
-
-### 3a. Get the shop ID
-
-```graphql
-{ shop { id } }
-```
-
-### 3b. Seed `brand_list`
-
-Look up each brand's collection ID (`collectionByHandle(handle: "brand-acme")`)
-and write the registry:
-
-```graphql
-mutation {
-  metafieldsSet(metafields: [{
-    ownerId: "gid://shopify/Shop/<SHOP_ID>"
-    namespace: "custom"
-    key: "brand_list"
-    type: "json"
-    value: "[{\"tag\":\"brand-acme\",\"display_name\":\"Brand Acme\",\"collection_id\":\"gid://shopify/Collection/<ID>\",\"image_url\":null}]"
-  }]) {
-    metafields { id namespace key value }
-    userErrors { field message }
-  }
-}
-```
-
-### 3c. Seed each discount's `input_variables`
-
-Find the discount(s) using the function, then seed the flat tag list:
-
-```graphql
-# find them
-query {
-  discountNodes(first: 50) {
-    nodes {
-      id
-      discount {
-        __typename
-        ... on DiscountAutomaticApp { title appDiscountType { functionId } }
-      }
-    }
-  }
-}
-```
-
-```graphql
-# seed each
-mutation {
-  metafieldsSet(metafields: [{
-    ownerId: "gid://shopify/DiscountAutomaticNode/<DISCOUNT_ID>"
-    namespace: "$app:brand-discount"
-    key: "input_variables"
-    type: "json"
-    value: "{\"brandTags\":[\"brand-acme\"]}"
-  }]) {
-    metafields { id namespace key value }
-    userErrors { field message }
-  }
-}
-```
-
-After the initial seed, **never hand-edit these again** — the Brands page's
-`syncBrandList` owns them, and its self-heal will re-derive `input_variables`
-from `brand_list` on next page load.
+Seeding data by hand is no longer needed; use the Brands page and the
+customer card.
 
 ---
 
@@ -185,7 +70,10 @@ Protected Customer Data access.
    so Level 1 is sufficient — do **not** request Level 2.
 3. Provide a usage reason (e.g. "Display and manage per-customer brand discount
    assignments on the customer detail page").
-4. Under customer **metafields**, declare `custom.brand_discounts`.
+4. Under customer **metafields**, declare the app's customer metafield:
+   `brand_discounts` in the app's `brand-discount` namespace (`$app:brand-discount`).
+   It replaces the old `custom.brand_discounts`; update the declaration if
+   that one was requested before.
 5. Save. On development stores this takes effect without review.
 
 Symptom if this is missing: the card shows *"This app is not approved to access
@@ -195,12 +83,16 @@ the Customer object."*
 
 ## 5. Discount that uses the function
 
-The function only runs if an **automatic discount** using it exists. In Shopify
-admin: **Discounts → Create discount → Automatic discount →** select the
-**Brand Discount** app function. Save.
+The function only runs if an **automatic discount** using it exists. Create it
+from the app: open **Apps → brand-gating**; while no such discount exists, the
+Brands page shows a "Brand discounts are off" banner with a **Turn on brand
+discounts** button. One click creates the discount (product lines only, starts
+now, no end date, combines with order and shipping discounts) with the brand
+list already loaded into it.
 
-If none exists, the Brands page shows a warning banner and brand updates won't
-affect checkout.
+Don't try to create it from **Discounts → Create discount**: the function has
+no discount-creation screen in Shopify admin, so choosing it in the
+discount-type picker just opens the Brands page.
 
 ---
 

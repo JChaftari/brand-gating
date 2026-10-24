@@ -38,14 +38,15 @@ Three surfaces, one source of truth:
    Shopify web components, embedded on the customer detail page. Lets the
    merchant add, edit, and remove a customer's brand discounts inline.
 
-Data lives in three metafields, all in the `custom` (or app-reserved)
-namespace:
+Data lives in three metafields, all in the app-reserved namespace
+`$app:brand-discount` (only this app can write them, and they can't collide with a
+merchant's own `custom` fields):
 
 | Owner | Key | Type | Purpose |
 |---|---|---|---|
-| Shop | `custom.brand_list` | `json` | Rich brand registry — `[{tag, display_name, collection_id, image_url}]`. Source of truth for the admin UI. |
-| Discount | `$app:brand-discount.input_variables` | `json` | Per-discount input variables for the function — `{brandTags: [...]}`. Function reads this via `[extensions.input.variables]` in the toml. Synced from `brand_list` automatically. |
-| Customer | `custom.brand_discounts` | `json` | Per-customer discount assignments — `[{brand_tag, percentage}]`. Edited via the customer-detail card. |
+| Shop | `$app:brand-discount.brand_list` | `json` | Rich brand registry — `[{tag, display_name, collection_id, image_url}]`. Source of truth for the admin UI. |
+| Discount | `$app:brand-discount.input_variables` | `json` | Per-discount input variables for the function — `{brandTags: [...], brandCollectionIds: [...]}` (index-aligned). Function reads this via `[extensions.input.variables]` in the toml. Synced from `brand_list` automatically. |
+| Customer | `$app:brand-discount.brand_discounts` | `json` | Per-customer discount assignments — `[{brand_tag, percentage}]`. Edited via the customer-detail card. |
 
 The `syncBrandList` helper in `web/src/api/brandList.js` is the **only**
 supported way to mutate the registry. It writes the shop metafield + every
@@ -70,8 +71,14 @@ relevant discount's input metafield in a single atomic `metafieldsSet` call.
 After registering, you must complete two manual follow-up steps for the
 brand to actually start receiving discounts at checkout:
 
-- **Tag your products** with the brand tag (e.g., `brand-acme`) via Products
-  → bulk edit. Only tagged products will receive the discount.
+- **Assign your products to the brand**, either way works:
+  - add them to the brand's collection (Products → Collections), or
+  - tag them with the brand tag (e.g., `brand-acme`) via Products → bulk edit.
+    Shopify only suggests tags already on a product, so type a new brand's tag
+    in full the first time.
+
+  Only products assigned one of these ways receive the discount. The app
+  doesn't add tags for you: adding a product to the collection is enough.
 - **Add the brand to your homepage tiles** in the theme editor (if your theme
   uses brand tiles).
 
@@ -171,21 +178,12 @@ qualifies for.
 - **State**: Zero custom backend. All state lives in Shopify metafields. See
   the table in [How it works](#how-it-works).
 
-### One-time setup (per dev store)
+### Store setup
 
-These were done in this project's dev store via GraphiQL. If setting up
-fresh, run them once in the merchant's GraphiQL admin:
-
-1. Create the shop `custom.brand_list` metafield definition (json type, owner
-   SHOP, admin read/write).
-2. Create the per-discount `$app:brand-discount.input_variables` metafield
-   definition (json type, owner DISCOUNT, admin private).
-3. Seed `brand_list` with any pre-existing brands the merchant already had.
-4. Seed `input_variables` on each existing discount that uses the
-   brand-discount function.
-
-The exact GraphiQL mutations are in [docs/SETUP.md](docs/SETUP.md). Future seed
-ops should go through the admin UI, not GraphiQL.
+None. The app writes its metafields on first use (no definitions needed) and
+the **Turn on brand discounts** button creates the discount. App-level setup
+(scopes, Protected Customer Data, hosting, deploy) is in
+[docs/SETUP.md](docs/SETUP.md).
 
 ### Required app scopes
 
@@ -220,7 +218,7 @@ These are enforced in code; do not bypass:
    array is sent on every save (Add / Edit / Remove); there are no delta
    writes.
 
-3. **The function reads `$brandTags` as nullable (`[String!]`)** in
+3. **The function reads `$brandTags` / `$brandCollectionIds` as nullable** in
    `extensions/brand-discount/src/cart_lines_discounts_generate_run.graphql`.
    If the metafield is missing or empty, the function silently no-ops rather
    than crashing. Self-healing in `selfHealBrandRegistry()` repopulates the
@@ -238,8 +236,9 @@ When the merchant opens the Brands page:
    `syncBrandList()`.
 
 This handles two cases:
-- Merchant created a new automatic discount via Shopify admin (outside our
-  UI) → it lacks the metafield → we populate it.
+- A discount using the function was created outside the app (e.g. via the
+  Admin API) → it lacks the metafield → we populate it. (The app's own
+  **Turn on brand discounts** button creates it with the metafield already set.)
 - Merchant edited the registry on a different machine and the cached state
   drifts → we re-sync.
 

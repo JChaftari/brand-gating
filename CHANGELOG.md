@@ -4,6 +4,55 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
+## [Unreleased] — Public app (branch `public-release`)
+
+Work toward App Store listing. The existing `brand-gating` app is Public
+distribution and becomes the listing; the first customer gets a separate
+custom-distribution app built from the code at tag `custom-v1.0.0`. Tracking
+doc: `docs/APP_STORE_READINESS.md`.
+
+### Added
+- `shopify.app.toml` (the public app) subscribes to the mandatory compliance
+  webhooks.
+- `functions/webhooks/compliance.js` — Cloudflare Pages Function receiving
+  `customers/data_request`, `customers/redact`, `shop/redact`; HMAC-verified,
+  401 on invalid, stateless. Live at
+  `brand-gating.pages.dev/webhooks/compliance` (Pages production branch is now
+  `public-release`).
+- `scripts/check-compliance-webhook.mjs` — sends signed sample webhooks to the
+  live endpoint to verify it (expects 200s and a 401 control).
+
+### Changed
+- **All app data moved to the app-reserved namespace `$app:brand-discount`**
+  (both apps): `brand_list` on the shop and `brand_discounts` on customers,
+  alongside the existing `input_variables` on the discount. Merchant-owned
+  `custom.*` fields could collide with a merchant's own fields or be rewritten
+  by any app; app-reserved ones can only be written by this app. Done before
+  either app had real merchant data, so nothing was migrated; old `custom.*`
+  data on test stores is ignored. The Protected Customer Data request must
+  declare the new customer metafield.
+- Public app requests no `read_files` scope (unused).
+- A product now counts as part of a brand if it has the brand's tag **or** is
+  in the brand's collection. Previously, adding products to a brand's
+  collection by hand silently did nothing for discounts. The function checks
+  `product.inCollections` against a new `$brandCollectionIds` input variable
+  (index-aligned with `$brandTags`), and reads the discount's own
+  `input_variables` to map each collection back to its brand. Existing
+  discounts pick up the collection list the next time the Brands page opens
+  (self-heal). Brand collections stay regular collections you add to by hand.
+- Brands page shows "Brand discounts are on" when the store's brand discount
+  exists, so merchants arriving from Discounts → Create discount see that
+  it's already working.
+
+### Fixed
+- Merchants couldn't create the brand discount: the function has no
+  discount-creation UI, and the Brands page banner pointed back to the
+  discount picker. The banner now has a **Turn on brand discounts** button
+  that creates it (`createBrandDiscount`, via `discountAutomaticAppCreate`).
+- Removed leftover template logic in the function's delivery target that gave
+  100% off shipping on every cart when the discount had the Shipping class
+  enabled. The target now never discounts shipping.
+
 ## [Phase 2] — Brand registry & admin UIs
 
 Added merchant-facing management of brands and per-customer discounts, and

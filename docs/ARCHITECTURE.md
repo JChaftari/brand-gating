@@ -29,10 +29,11 @@ state lives in Shopify metafields.
             │                                        │
             ▼                                        ▼
    ┌─────────────────┐  ┌──────────────────────┐  ┌────────────────────────┐
-   │ SHOP metafield   │  │ DISCOUNT metafield    │  │ CUSTOMER metafield      │
-   │ custom.brand_list│  │ $app:brand-discount.  │  │ custom.brand_discounts  │
-   │ (rich registry)  │  │ input_variables       │  │ ([{brand_tag, pct}])    │
-   │                  │  │ ({brandTags:[...]})    │  │                        │
+   │ SHOP metafield  │  │ DISCOUNT metafield   │  │ CUSTOMER metafield     │
+   │ $app:brand-     │  │ $app:brand-discount. │  │ $app:brand-discount.   │
+   │ discount.       │  │ input_variables      │  │ brand_discounts        │
+   │ brand_list      │  │ ({brandTags,         │  │ ([{brand_tag, pct}])   │
+   │ (rich registry) │  │  brandCollectionIds})│  │                        │
    └─────────────────┘  └───────────┬──────────┘  └───────────┬────────────┘
                                      │ read at checkout        │ read at checkout
                                      ▼                         ▼
@@ -55,14 +56,19 @@ state lives in Shopify metafields.
   `cart.delivery-options.discounts.generate.run` (unrelated free-shipping
   logic, brand-agnostic, untouched by Phase 2).
 - The cart-lines target reads:
-  - `$brandTags` — the registered brand tags, sourced from the discount's
+  - `$brandTags` and `$brandCollectionIds` — the registered brands' tags and
+    collection IDs (index-aligned), sourced from the discount's
     `input_variables` metafield (see [Data model](#data-model)).
-  - `cart.buyerIdentity.customer.metafield(custom.brand_discounts)` — the
+  - `cart.buyerIdentity.customer.metafield($app:brand-discount.brand_discounts)` — the
     customer's per-brand percentages.
-  - `product.hasTags(tags: $brandTags)` per cart line — which registered
-    brands each line's product carries.
-- For each line: find the brands it's tagged with, look up the customer's
-  percentage for each, apply the highest. Emits one `productDiscountsAdd`
+  - `product.hasTags(tags: $brandTags)` and
+    `product.inCollections(ids: $brandCollectionIds)` per cart line — which
+    brands each line's product is tagged with or collected in.
+  - `discount.metafield($app:brand-discount, input_variables)` — the same
+    config, read so a collection membership can be mapped back to its tag.
+- For each line: a product belongs to a brand if it has the brand's tag **or**
+  is in the brand's collection. Look up the customer's percentage for each of
+  the line's brands and apply the highest. Emits one `productDiscountsAdd`
   candidate per eligible line with `selectionStrategy: All` so every eligible
   line is discounted simultaneously (bypassing Shopify's "best discount wins"
   default for automatic discounts).
@@ -75,6 +81,10 @@ state lives in Shopify metafields.
   auto-authenticated).
 - Responsibilities: list/add/edit/delete brands; create and update the Shopify
   collection behind each brand; keep the registry metafields in sync.
+  Brand collections are regular collections: merchants add products by hand,
+  and the function counts a product in the collection as part of the brand,
+  just like a product with the brand tag. Shopify has no way to pre-create a
+  tag (tags only exist on products), so the app doesn't create or apply tags.
 - Key modules:
   - `web/src/api/brandList.js` — the registry helper (`loadBrandList`,
     `syncBrandList`, `selfHealBrandRegistry`). **The only supported way to
@@ -101,13 +111,14 @@ state lives in Shopify metafields.
 
 ## Data model
 
-Three JSON metafields. No database.
+Three JSON metafields, all in the app-reserved namespace `$app:brand-discount`. No
+database.
 
 | Owner | Namespace.key | Type | Shape | Written by | Read by |
 |---|---|---|---|---|---|
-| Shop | `custom.brand_list` | `json` | `[{tag, display_name, collection_id, image_url}]` | Brands page (`syncBrandList`) | Brands page, customer card |
-| Discount | `$app:brand-discount.input_variables` | `json` | `{brandTags: [tag, …]}` | Brands page (`syncBrandList`) | Function (as `$brandTags`) |
-| Customer | `custom.brand_discounts` | `json` | `[{brand_tag, percentage}]` | Customer card | Function, customer card |
+| Shop | `$app:brand-discount.brand_list` | `json` | `[{tag, display_name, collection_id, image_url}]` | Brands page (`syncBrandList`) | Brands page, customer card |
+| Discount | `$app:brand-discount.input_variables` | `json` | `{brandTags: [tag, …], brandCollectionIds: [gid, …]}` (index-aligned) | Brands page (`syncBrandList`, `createBrandDiscount`) | Function (as `$brandTags` / `$brandCollectionIds`, and directly to map collection → tag) |
+| Customer | `$app:brand-discount.brand_discounts` | `json` | `[{brand_tag, percentage}]` | Customer card | Function, customer card |
 
 Notes:
 
@@ -120,8 +131,10 @@ Notes:
   because Shopify Functions only support function-owner metafields for input
   variables — not shop or app-install metafields. See
   [Decision: function input variables](#decision-function-input-variables-live-on-the-discount).
-- **`brand_discounts`** keeps the Phase 1 shape unchanged — no migration was
-  needed. The function's customer-side contract never changed across phases.
+- **`brand_discounts`** keeps the Phase 1 shape (`[{brand_tag, percentage}]`).
+  It moved from the merchant's `custom` namespace to the app-reserved one
+  before any real merchant data existed, so no migration was needed. See
+  [Decision: app-reserved namespace](#decision-app-reserved-metafield-namespace).
 
 ### The stale-brand case
 
@@ -174,23 +187,46 @@ raw `brand_discounts` that bypasses the card.
 
 ## Self-healing
 
-Because a merchant can create a new automatic discount using our function
-*outside* the Brands page (directly in Shopify admin), that discount would start
-life with no `input_variables` metafield — and the function would no-op for it
-(I3) until we populate it.
+The app creates its own discount with `input_variables` already set (see
+[Creating the discount](#creating-the-discount)). But a discount using our
+function can also be created outside the app (e.g. through the Admin API), and
+would start life with no `input_variables` metafield — the function would no-op
+for it (I3) until we populate it.
 
 `selfHealBrandRegistry()` runs on Brands-page mount:
 
 1. Query every discount that uses the brand-discount function
    (`discountNodes` filtered by the function's ID).
-2. For each, compare its `input_variables.brandTags` against the canonical
-   `brand_list` tag set (order-independent).
+2. For each, compare its `input_variables` (tag + collection pairs) against
+   the canonical `brand_list` (order-independent). Discounts configured before
+   `brandCollectionIds` existed count as drifted and get rewritten.
 3. If any is missing or drifted, trigger a full `syncBrandList()`.
 
 There is no background sync — healing happens only when someone opens the Brands
-page. If the merchant has **zero** discounts using the function, the page shows
-a warning banner (their brand updates won't affect checkout until they create
-one).
+page.
+
+## Creating the discount
+
+The function has no discount-creation UI in Shopify admin: choosing it in
+**Discounts → Create discount** sends the merchant to the app's main page (the
+Brands page). So the app creates the discount itself.
+
+When the store has **zero** discounts using the function, the Brands page shows
+a "Brand discounts are off" banner with a **Turn on brand discounts** button.
+It calls `createBrandDiscount()` (`web/src/api/brandList.js`), which runs
+`discountAutomaticAppCreate` with:
+
+- `functionHandle: "brand-discount"`, `discountClasses: [PRODUCT]`
+- `startsAt` now, no `endsAt`
+- `combinesWith`: order ✅, shipping ✅, product ❌
+- `metafields`: `$app:brand-discount.input_variables` = current tag and
+  collection lists, so the
+  discount never exists without its tag list (keeps invariant I1 in this one
+  module)
+
+Limitation: since Shopify has no edit screen for this discount type, merchants
+can't change its combinations or dates from admin. A discount function settings
+UI extension (plugs into Shopify's native discount form) would add that.
 
 ---
 
@@ -273,6 +309,23 @@ no file/media picker for admin surfaces yet
 than take on the staged-upload + CORS complexity of a custom uploader, brand
 images are added by pasting a Shopify Files CDN URL. Documented as a known
 limitation; revisit if Shopify ships a picker.
+
+### Decision: app-reserved metafield namespace
+
+All three metafields live in `$app:brand-discount`, not the merchant-owned
+`custom` namespace. Merchant-owned metafields are "readable and writable by
+merchants and all apps with appropriate scopes" (Shopify docs), so on a
+public app `custom.brand_list` / `custom.brand_discounts` could collide with
+a merchant's own fields — the app would overwrite their data, or fail if
+their field had a different type — and any other app could corrupt the JSON
+the function reads. App-reserved metafields can only be written by this app.
+
+Trade-offs: other tools (CSV import apps, Flow, other apps) can't write
+customers' discounts; and without a definition granting admin access, the
+raw JSON doesn't appear in Shopify's built-in Metafields card (the Brand
+Discounts card is the editor). Switched before either app had real merchant
+data, so nothing was migrated; data written to `custom.*` on test stores is
+simply ignored.
 
 ### Decision: brand tag is immutable after creation
 

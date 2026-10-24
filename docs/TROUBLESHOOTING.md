@@ -13,16 +13,19 @@ Symptom → cause → fix. Two sections: [merchant-facing](#merchant-facing)
 Walk the three-part checklist — all must be true:
 
 1. **Brand is registered.** Apps → brand-gating → Brands shows the brand.
-2. **Products are tagged.** The product carries the brand's tag (e.g.
-   `brand-acme`) — Products → bulk edit.
+2. **Products are assigned to the brand.** The product is in the brand's
+   collection, or carries the brand's tag (e.g. `brand-acme`). If it's only in
+   the collection and still isn't discounted, open the Brands page once — that
+   updates discounts set up before collections counted.
 3. **Customer has a percentage.** The customer's Brand Discounts card lists the
    brand with a percentage > 0.
 
 Plus two easy-to-miss requirements:
 
-4. **An automatic discount using the app exists.** If the Brands page shows a
-   yellow "No active discount uses Brand Discount" banner, create one:
-   Discounts → Create discount → Automatic discount → Brand Discount.
+4. **Brand discounts are turned on.** If the Brands page shows a yellow "Brand
+   discounts are off" banner, click **Turn on brand discounts** in it.
+   (Choosing the app in Discounts → Create discount only opens the Brands page;
+   the button is the way to create it.)
 5. **The customer is logged in / identified at checkout.** The function reads
    the customer's assignments; an anonymous checkout gets no brand discount.
 
@@ -60,6 +63,16 @@ desired tag, then re-tag products and re-assign customer discounts.
 
 ## Developer-facing
 
+### Customer card shows a "Preview" badge and "Failed to fetch"
+
+**Cause.** The store is still in a `shopify app dev` dev preview, which serves
+extension code from your machine. Stopping `app dev` does not always end the
+preview, so the block tries to load from a dev server that's gone.
+
+**Fix.** Restore the released version on that store:
+`shopify app dev clean --store <store>.myshopify.com` (add `--config custom`
+for the customer app).
+
 ### `InvalidVariableValueError` / `$brandTags ... was provided invalid value` (STDIN null)
 
 **Cause.** A discount using the function lacks the
@@ -70,8 +83,7 @@ the entire input *before* the function runs.
 **Fix.** Two parts, both already in the codebase — verify them if this recurs:
 - The input query declares `$brandTags: [String!]` (nullable) with `= []`.
 - Open the Brands page to trigger `selfHealBrandRegistry`, which seeds
-  `input_variables` on any discount missing it. Or seed it manually per
-  [SETUP.md §3c](SETUP.md#3c-seed-each-discounts-input_variables).
+  `input_variables` on any discount missing it.
 
 ### `Variable definitions are missing` on function build/preview
 
@@ -81,16 +93,16 @@ that exists, or uses an unsupported owner.
 
 **Fix.** Input-variable metafields must live on the **function owner** (the
 discount), not the shop. Confirm the TOML references
-`namespace = "$app:brand-discount"`, `key = "input_variables"`, and that the
-definition exists (SETUP §2b). See
+`namespace = "$app:brand-discount"`, `key = "input_variables"` (no
+definition is required). See
 [ARCHITECTURE — function input variables](ARCHITECTURE.md#decision-function-input-variables-live-on-the-discount).
 
 ### `This app is not approved to access the Customer object`
 
 **Cause.** Protected Customer Data access isn't configured.
 
-**Fix.** Request **Level 1** in the Partner Dashboard and declare
-`custom.brand_discounts` — see [SETUP §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card).
+**Fix.** Request **Level 1** in the Partner Dashboard and declare the app's
+customer metafield (`$app:brand-discount` / `brand_discounts`) — see [SETUP §4](SETUP.md#4-protected-customer-data-required-for-the-customer-card).
 On dev stores it takes effect immediately.
 
 ### `Access denied for discountNodes field ... requires read_discounts`

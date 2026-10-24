@@ -17,7 +17,7 @@ query RunInput($brandTags: [String!] = [], $brandCollectionIds: [ID!] = []) {
   cart {
     buyerIdentity {
       customer {
-        brandDiscounts: metafield(namespace: "custom", key: "brand_discounts") {
+        brandDiscounts: metafield(namespace: "$app:brand-discount", key: "brand_discounts") {
           value
         }
       }
