@@ -15,20 +15,18 @@ Status of each item: see [APP_STORE_READINESS.md](APP_STORE_READINESS.md).
 
 | Decision | Why it matters |
 |---|---|
-| **App name** | Must lead with a distinctive brand name (rule 4.1.2), be under 30 characters, and match the app's name in the Dev Dashboard / `shopify.app.toml` (rule 4.1.1). "brand-gating" works technically but reads like an internal name. |
-| **Pricing** | Free needs nothing more. Paid must use Shopify's managed pricing or Billing API (rule 1.2.1) and be described accurately (4.2.1). |
-| **Publisher name, support email, country** | Shown on the listing and in the privacy policy (`web/public/privacy.html`). |
+| **Pricing details** | Decided: paid with a free trial. Still needed: price per month, trial length, number of plans. Must use Shopify's managed pricing or Billing API (rule 1.2.1) and be described accurately (4.2.1). |
+| **Support email, country** | Publisher decided: Chaftari Development. Email and country are shown on the listing and in the privacy policy (`web/public/privacy.html`). |
 | **Icon** | Needs a distinctive mark without Shopify trademarks (4.4.3). |
 
 ---
 
 ## Listing copy
 
-### App name (pick one, or your own)
+### App name
 
-- `BrandTier: Customer Discounts`
-- `Brand Gating: Customer Pricing`
-- `[Your brand]: Brand Discounts`
+`Vendtier: Wholesale by Brand` (28 characters). Publisher: Chaftari Development.
+The public app's name in `shopify.app.toml` matches it (rule 4.1.1).
 
 ### Subtitle
 
@@ -40,7 +38,7 @@ Status of each item: see [APP_STORE_READINESS.md](APP_STORE_READINESS.md).
 
 ### Details
 
-> Brand Gating lets you reward customers brand by brand. Register the brands you sell, then give any customer their own percentage off each brand right from their customer page — for example 15% off one brand and 5% off another for a wholesale account. Products count toward a brand when they're in its collection or carry its tag. Discounts apply automatically at checkout with no codes to share, and they combine with your order and shipping discounts.
+> Vendtier lets you set wholesale pricing brand by brand. Register the brands you sell, then give any customer their own percentage off each brand right from their customer page — for example 15% off one brand and 5% off another for a wholesale account. Products count toward a brand when they're in its collection or carry its tag. Discounts apply automatically at checkout with no codes to share, and they combine with your order and shipping discounts.
 
 ### Key features
 
@@ -60,7 +58,8 @@ Pricing / discounts (choose the closest category the editor offers).
 
 ### Pricing section
 
-*Fill in once pricing is decided.* For a free app: "Free".
+Paid, with a free trial. *Fill in the price and trial length once decided*,
+matching the plan configured in Shopify exactly (rule 4.2.1).
 
 ### Privacy policy URL
 

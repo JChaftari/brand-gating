@@ -6,7 +6,7 @@
 # e.g. `shopify app deploy --config custom`.
 
 client_id = "f9f32ac3ca8e90585fc52b8fda97b2d1"
-name = "brand-gating"
+name = "Vendtier: Wholesale by Brand"
 application_url = "https://brand-gating.pages.dev"
 embedded = true
 
