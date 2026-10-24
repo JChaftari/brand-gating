@@ -64,17 +64,24 @@ customer card.
 The customer card reads a customer metafield, which Shopify gates behind
 Protected Customer Data access.
 
-1. Partner Dashboard → your app → **API access** → **Protected customer data
-   access** → **Request access**.
-2. Choose **Level 1** (data excluding name/email/phone/address). We read no PII,
-   so Level 1 is sufficient — do **not** request Level 2.
-3. Provide a usage reason (e.g. "Display and manage per-customer brand discount
-   assignments on the customer detail page").
-4. Under customer **metafields**, declare the app's customer metafield:
-   `brand_discounts` in the app's `brand-discount` namespace (`$app:brand-discount`).
-   It replaces the old `custom.brand_discounts`; update the declaration if
-   that one was requested before.
-5. Save. On development stores this takes effect without review.
+This is done in the **Partner Dashboard** (partners.shopify.com), not the Dev
+Dashboard. The app's distribution method must be chosen first.
+
+1. **Apps** → the app → sidebar **API access requests**.
+2. **Protected customer data access** → **Request access**.
+3. Select **Protected customer data** and give a reason (e.g. "Store each
+   customer's brand discount percentages so they're applied at checkout and
+   managed on the customer page"). **Save**.
+4. Skip **protected customer fields** (name, email, phone, address): that's
+   Level 2, which this app doesn't need. There is no per-metafield
+   declaration; Level 1 covers customer metafields as a data type.
+5. Complete the **Data protection details** (9 questions; the answers used
+   are in [APP_STORE_READINESS.md](APP_STORE_READINESS.md#protected-customer-data--data-protection-answers)).
+
+Development stores: works without review once saved. Public apps: reviewed
+with the App Store submission. Custom-distribution apps: Shopify lists
+Level 1 as "Always available"; if the card still says "not approved",
+repeat these steps for that app.
 
 Symptom if this is missing: the card shows *"This app is not approved to access
 the Customer object."*

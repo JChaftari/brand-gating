@@ -29,8 +29,7 @@ doc: `docs/APP_STORE_READINESS.md`.
   `custom.*` fields could collide with a merchant's own fields or be rewritten
   by any app; app-reserved ones can only be written by this app. Done before
   either app had real merchant data, so nothing was migrated; old `custom.*`
-  data on test stores is ignored. The Protected Customer Data request must
-  declare the new customer metafield.
+  data on test stores is ignored.
 - Public app requests no `read_files` scope (unused).
 - A product now counts as part of a brand if it has the brand's tag **or** is
   in the brand's collection. Previously, adding products to a brand's

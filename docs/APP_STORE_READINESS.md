@@ -56,7 +56,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 | 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
 | 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
-| 5 | Protected Customer Data, Level 1, for the public app | ❌ | Partner Dashboard request + data-protection form. |
+| 5 | Protected Customer Data, Level 1, for the public app | 🟡 | Request + Data protection details in the Partner Dashboard; answers [below](#protected-customer-data--data-protection-answers). Reviewed with the submission. Answers 2, 4 and 8 rely on the privacy policy (row 8). |
 | 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
 | 7 | Works on a fresh install with no GraphiQL setup | ✅ | Verified end to end on `brand-gating-fresh` — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
 | 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ❌ | Non-code. |
@@ -154,8 +154,7 @@ namespace (`brand_list` on the shop, `brand_discounts` on customers,
 data, so nothing was migrated; old `custom.*` data on the test stores is
 ignored. Verified end to end on `brand-gating-fresh` (public `brand-gating-7`):
 new brand, product added to its collection, customer card, discounted
-checkout. Follow-ups: the Protected Customer Data request must declare the new
-customer metafield; optionally declare the definitions in `shopify.app.toml`
+checkout. Optional follow-up: declare the definitions in `shopify.app.toml`
 so merchants can see the data read-only in admin. See
 [ARCHITECTURE.md](ARCHITECTURE.md#decision-app-reserved-metafield-namespace).
 
@@ -182,6 +181,28 @@ for it. See [ARCHITECTURE.md](ARCHITECTURE.md#creating-the-discount).
 Resolved. Both apps were deployed from the same extension sources and each
 release went to its own app (public `brand-gating-5`, app 350711742465;
 customer `brand-gating-2`, app 439169679361), with no conflict.
+
+---
+
+## Protected Customer Data — data protection answers
+
+Answers given in the Partner Dashboard's **Data protection details** (Level 1).
+Keep the privacy policy consistent with them.
+
+| # | Question | Answer | Why |
+|---|---|---|---|
+| 1 | Minimum personal data? | Yes | Only per-customer brand discount percentages, linked to the customer ID. No name, email, phone or address (Level 1 only). |
+| 2 | Tell merchants what data and why? | Yes | Privacy policy + merchant guide. Requires the privacy policy to be published. |
+| 3 | Limit use to that purpose? | Yes | Used only to apply and manage discounts. No analytics, marketing or sharing. |
+| 4 | Privacy / data protection agreements with merchants? | Yes | Shopify counts a privacy policy as this agreement. Requires it to be published. |
+| 5 | Respect customers' consent decisions? | Not applicable | No tracking or marketing; nothing consent-based is processed. |
+| 6 | Respect opt-outs of data sale? | Not applicable | Data is never sold or shared. |
+| 7 | Opt-out of automated decisions with legal/significant effects? | Not applicable | The merchant sets each percentage; the app only applies it. A discount has no legal or significant effect. |
+| 8 | Retention periods? | Yes | Data exists only in the merchant's store while the merchant keeps the assignment; removed when they remove it or delete the customer. The app keeps no copies; compliance webhook payloads are acknowledged and not stored or logged (only topic + shop domain are logged). Stated in the privacy policy. |
+| 9 | Encrypt at rest and in transit? | Yes | All data is stored by Shopify (encrypted at rest by Shopify); all traffic is HTTPS (Shopify APIs, the Cloudflare-hosted page and webhook endpoint). The app has no storage of its own. |
+
+There is no per-metafield declaration in the request; field selection only
+covers name/email/phone/address (Level 2, not used).
 
 ---
 
