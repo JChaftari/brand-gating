@@ -38,7 +38,7 @@ The public app's name in `shopify.app.toml` matches it (rule 4.1.1).
 
 ### Details
 
-> Vendtier lets you set wholesale pricing brand by brand. Register the brands you sell, then give any customer their own percentage off each brand right from their customer page — for example 15% off one brand and 5% off another for a wholesale account. Products count toward a brand when they're in its collection or carry its tag. Discounts apply automatically at checkout with no codes to share, and they combine with your order and shipping discounts.
+> Vendtier lets you set wholesale pricing brand by brand. Register the brands you sell, then give any customer their own percentage off each brand right from their customer page. For example, a wholesale account can get 15% off one brand and 5% off another. Products count toward a brand when they're in its collection or carry its tag. Discounts apply automatically at checkout with no codes to share, and they combine with your order and shipping discounts.
 
 ### Key features
 
@@ -46,6 +46,20 @@ The public app's name in `shopify.app.toml` matches it (rule 4.1.1).
 2. Set per-customer, per-brand percentages on the customer page
 3. Discounts apply automatically at checkout, with no codes
 4. Assign products to a brand by collection or by tag
+5. Works alongside your order and shipping discounts
+
+### Web search content
+
+- Title tag: `Vendtier: Wholesale Pricing by Brand for Each Customer`
+- Meta description: Set a different discount for each customer on each brand
+  you sell. Vendtier applies it automatically at checkout, with no discount codes.
+
+### Other listing form answers
+
+- **Sales channel requirements:** My app doesn't require the Online Store or
+  POS (no theme extension; the discount runs in Shopify's checkout).
+- **Geographic requirements, integrations, demo store URL:** leave empty.
+- **Test account:** tick "My app doesn't require an account to use it".
 
 ### Search terms (up to 5)
 
@@ -74,20 +88,30 @@ Show the real admin UI only — no browser window or desktop, no logo-only
 images, each one a different view (rules 4.4.4, 4.4.5). Use a tidy demo store
 with realistic brand and product names.
 
+1600 × 900 px, PNG or JPG. Alt text (64 characters max) in brackets.
+
 1. **Brands page** — 3–4 brands with images, the green **On** badge visible.
+   [Brands page listing registered brands with discounts turned on]
 2. **Add brand** — the modal with a display name filled in and its tag generated.
+   [Adding a new brand with its name and generated tag]
 3. **Customer page** — the pinned Brand Discounts card with several brands and
-   percentages.
+   percentages. [Customer page card showing that customer's discount per brand]
 4. **Adding a discount** — the card's new row with the brand dropdown open.
+   [Choosing a brand and percentage for a customer]
 5. **Checkout** — a cart showing "Brand discount 15% off" on a line, and a
    different brand at a different percentage on another line.
+   [Checkout showing different brand discounts on two items]
+
+**Feature media** (listing header): one 1600 × 900 image, such as screenshot 3
+cropped to the card, or a short video. No Shopify logo, little text.
 
 ---
 
 ## Screencast (required, rule 4.5.3)
 
 English, step by step, covering setup and every feature in the listing.
-About 2–3 minutes:
+Shopify asks for 3–8 minutes; upload to YouTube as **Unlisted** (not Google
+Drive or Vimeo) and never show passwords on screen:
 
 1. Install the app; open it from **Apps** (the Brands page).
 2. Click **Turn on brand discounts**; show the **On** badge.
@@ -107,14 +131,25 @@ About 2–3 minutes:
 Paste into the submission's testing instructions. The app has no separate
 account or login, so no credentials are needed (rules 4.5.4–4.5.5).
 
-> 1. Install the app and open it from Apps. Click **Choose a plan** and pick the plan (free on development stores). You return to the Brands page.
-> 2. Click **Turn on brand discounts** in the yellow banner. A green **On** badge appears. (Choosing this app under Discounts → Create discount also opens this page.)
-> 3. Click **Add brand**, enter "Test Brand" and click **Add brand**. A "Test Brand" collection is created.
-> 4. Add any product to the "Test Brand" collection (Products → Collections). Alternatively, tag a product with `test-brand`.
-> 5. Open a customer (Customers). In the **Blocks** section click **+ Block**, choose **Customer Brand Discounts**, then click the block's **pin icon** so it stays. Click **+ Add the first one**, choose Test Brand, enter 20, click **Save**.
-> 6. On the storefront, sign in as that customer, add the product to the cart and go to checkout. The line shows "Brand discount 20% off".
->
-> The app only reads customer data needed for the discounts (Protected Customer Data level 1; no names, emails, phone numbers or addresses).
+Plain text (the field doesn't render formatting), about 1,500 of the 2,800
+characters:
+
+```text
+The app has no separate account or login. Everything runs inside the Shopify admin.
+
+To test this app:
+1. Install the app and open it from Apps. Click "Choose a plan" and select the plan (development stores are not charged). You return to the app's Brands page.
+2. Click "Turn on brand discounts" in the yellow banner. A green "On" badge appears. (Choosing this app under Discounts > Create discount also opens this page.)
+3. Click "Add brand", enter "Test Brand" and click "Add brand". A "Test Brand" collection is created.
+4. Add any product to the "Test Brand" collection (Products > Collections). Alternatively, tag a product with test-brand.
+5. Open a customer (Customers). In the Blocks section click "+ Block", choose "Customer Brand Discounts", then click the block's pin icon so it stays on the page. Click "+ Add the first one", choose Test Brand, enter 20 and click "Save".
+6. On the storefront, sign in as that customer, add the product to the cart and go to checkout. The line shows "Brand discount" with 20% off.
+7. A product that isn't in the brand's collection and doesn't have its tag gets no discount, and other customers get no discount.
+
+Billing: if the plan is cancelled, opening the app shows the plan screen again and the brand discounts are switched off at checkout until a plan is active.
+
+Data: the app only stores brand settings and each customer's brand percentages in app-owned metafields. It does not read names, emails, phone numbers or addresses (Protected Customer Data level 1).
+```
 
 ---
 
