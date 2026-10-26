@@ -16,7 +16,7 @@ Status of each item: see [APP_STORE_READINESS.md](APP_STORE_READINESS.md).
 | Decision | Why it matters |
 |---|---|
 | **Pricing** | Decided: one plan, $19.99/month, 14-day free trial, via Shopify App Pricing. Set it up in the Partner Dashboard (see [SETUP.md §9](SETUP.md#9-billing-public-app-only)) before deploying the plan check. |
-| **Support email, country** | Publisher decided: Chaftari Development. Email and country are shown on the listing and in the privacy policy (`web/public/privacy.html`). |
+| **Support email, country** | Decided: Chaftari Development, vendtiersupport@gmail.com, Lebanon. Shown on the listing and in the privacy policy (`web/public/privacy.html`). |
 | **Icon** | Needs a distinctive mark without Shopify trademarks (4.4.3). |
 
 ---
@@ -77,8 +77,7 @@ Shopify exactly (rule 4.2.1).
 
 ### Privacy policy URL
 
-`https://brand-gating.pages.dev/privacy` (served from `web/public/privacy.html`;
-publish only after the placeholders are filled in).
+`https://brand-gating.pages.dev/privacy` (served from `web/public/privacy.html`).
 
 ---
 
