@@ -162,7 +162,8 @@ stores and send merchants to a plan page that doesn't exist yet:
    → **Shopify App Store listing** → **Manage listing** → edit the listing →
    **Pricing content** → **Manage** → **Settings** → **Pricing method** →
    **Shopify App Pricing** → **Switch**.
-2. Add a public plan: $19.99, monthly, 14-day free trial. Set its welcome /
+2. Add a public plan ("Standard Plan"): $19.99 monthly or $199.99 yearly,
+   14-day free trial. Set its welcome /
    redirect link to `/` so merchants land back on the Brands page.
 3. If the plan editor offers it, make the plan free to test on development
    stores, so Shopify's reviewers (whose stores belong to another
@@ -173,8 +174,10 @@ How the app enforces it (`web/src/components/BillingGate.jsx`): each time the
 app opens it checks `currentAppInstallation.activeSubscriptions`. With no
 `ACTIVE` plan it shows a **Choose a plan** screen (linking to Shopify's plan
 page) and switches the store's brand discounts off; when a plan is active
-again it switches back on only the discounts it switched off. The customer
-card is locked the same way. A merchant whose plan lapses but who never opens
+again it switches back on only the discounts it switched off. With a plan,
+the Brands page has a **Manage plan** button to the same Shopify page, so
+merchants can switch between monthly and yearly in-app (App Store rule
+1.2.3). The customer card is locked the same way. A merchant whose plan lapses but who never opens
 the app keeps discounts at checkout until they do (accepted trade-off; see
 [ARCHITECTURE.md](ARCHITECTURE.md#decision-billing-checked-when-the-app-opens)).
 
@@ -185,7 +188,7 @@ the app keeps discounts at checkout until they do (accepted trade-off; see
 `shopify.app.toml`:
 
 ```
-scopes = "read_products,write_products,read_customers,write_customers,read_discounts,write_discounts,read_files"
+scopes = "read_products,write_products,read_customers,write_customers,read_discounts,write_discounts"
 [access.admin]
 embedded_app_direct_api_access = true
 ```

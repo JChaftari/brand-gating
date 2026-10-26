@@ -213,9 +213,7 @@ function BrandImageUrlField({ value, onChange, disabled, error }) {
         helpText={
           <>
             Paste a URL from Shopify Files. Upload first via admin → Content →
-            Files, then click the image and copy the URL. (A built-in file
-            picker isn't available yet — Shopify hasn't shipped one for
-            embedded apps.)
+            Files, then click the image and copy the URL.
           </>
         }
         error={error}

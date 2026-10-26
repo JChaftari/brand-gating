@@ -27,3 +27,8 @@ extensions/*/dist
 # Ignore shopify files created during app dev
 .shopify/*
 .shopify.lock
+# Web app build output (Cloudflare builds it)
+web/dist
+
+# Listing screenshots and screencast (uploaded to the Partner Dashboard / YouTube, not versioned)
+listing-assets/

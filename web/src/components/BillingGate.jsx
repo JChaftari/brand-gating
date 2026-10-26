@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   Page,
   Card,
@@ -24,6 +24,12 @@ import { pauseBrandDiscounts, resumeBrandDiscounts } from '../api/brandList';
  * Discounts are only switched off when the store is known to have no plan —
  * never when the check itself fails.
  */
+
+// Shopify's plan page for this store, or null when the app isn't billed.
+// Lets pages offer "Manage plan" so merchants can switch plans in-app.
+const PlanUrlContext = createContext(null);
+export const usePlanUrl = () => useContext(PlanUrlContext);
+
 export default function BillingGate({ children }) {
   const [state, setState] = useState({ status: 'checking' });
 
@@ -45,10 +51,10 @@ export default function BillingGate({ children }) {
     if (billing.active) {
       try {
         await resumeBrandDiscounts();
-        setState({ status: 'ok' });
+        setState({ status: 'ok', planUrl: billing.planUrl });
       } catch (err) {
         // Paying merchant: never block the app over this; just say so.
-        setState({ status: 'ok', resumeError: err });
+        setState({ status: 'ok', planUrl: billing.planUrl, resumeError: err });
       }
       return;
     }
@@ -68,19 +74,20 @@ export default function BillingGate({ children }) {
   }, [check]);
 
   if (state.status === 'ok') {
-    if (!state.resumeError) return children;
     return (
-      <>
-        <Box padding="400">
-          <Banner tone="warning" title="Some brand discounts couldn't be switched back on">
-            <p>
-              Check Discounts in your Shopify admin and turn them on there.
-              ({state.resumeError.message})
-            </p>
-          </Banner>
-        </Box>
+      <PlanUrlContext.Provider value={state.planUrl ?? null}>
+        {state.resumeError && (
+          <Box padding="400">
+            <Banner tone="warning" title="Some brand discounts couldn't be switched back on">
+              <p>
+                Check Discounts in your Shopify admin and turn them on there.
+                ({state.resumeError.message})
+              </p>
+            </Banner>
+          </Box>
+        )}
         {children}
-      </>
+      </PlanUrlContext.Provider>
     );
   }
 

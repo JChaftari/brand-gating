@@ -20,9 +20,11 @@ import { useBrandList } from '../hooks/useBrandList';
 import AddBrandModal from '../components/AddBrandModal';
 import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
+import { usePlanUrl } from '../components/BillingGate';
 
 export default function BrandsPage() {
   const { brands, loading, error, discountCount, replace, createDiscount } = useBrandList();
+  const planUrl = usePlanUrl(); // null for the customer's custom app (not billed)
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);   // brand|null
@@ -106,6 +108,11 @@ export default function BrandsPage() {
         content: 'Add brand',
         onAction: openAddModal,
       }}
+      secondaryActions={
+        planUrl
+          ? [{ content: 'Manage plan', onAction: () => window.open(planUrl, '_top') }]
+          : undefined
+      }
     >
       <BlockStack gap="400">
         {error && (
@@ -241,11 +248,19 @@ function BrandsTable({ brands, onEdit, onDelete }) {
   const rows = brands.map((brand, index) => (
     <IndexTable.Row id={brand.tag} key={brand.tag} position={index}>
       <IndexTable.Cell>
-        <Thumbnail
-          source={brand.image_url || ''}
-          alt={brand.display_name}
-          size="small"
-        />
+        {brand.image_url ? (
+          <Thumbnail source={brand.image_url} alt={brand.display_name} size="small" />
+        ) : (
+          // No image: a plain placeholder, since an empty source renders as a broken image.
+          <Box
+            background="bg-surface-secondary"
+            borderRadius="200"
+            borderWidth="025"
+            borderColor="border"
+            minWidth="40px"
+            minHeight="40px"
+          />
+        )}
       </IndexTable.Cell>
       <IndexTable.Cell>
         <Text as="span" fontWeight="semibold">
@@ -312,7 +327,8 @@ function PostAddBanner({ brand, onDismiss }) {
           full the first time). Either one makes them part of the brand.
         </Text>
         <Text as="p" variant="bodyMd">
-          2. Add the brand to your homepage tiles section in the theme editor.
+          2. Optional: show the brand on your storefront by adding its
+          collection to a section in the theme editor.
         </Text>
       </BlockStack>
     </Banner>
