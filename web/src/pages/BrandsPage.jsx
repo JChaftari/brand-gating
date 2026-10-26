@@ -20,9 +20,11 @@ import { useBrandList } from '../hooks/useBrandList';
 import AddBrandModal from '../components/AddBrandModal';
 import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
+import { usePlanUrl } from '../components/BillingGate';
 
 export default function BrandsPage() {
   const { brands, loading, error, discountCount, replace, createDiscount } = useBrandList();
+  const planUrl = usePlanUrl(); // null for the customer's custom app (not billed)
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);   // brand|null
@@ -106,6 +108,11 @@ export default function BrandsPage() {
         content: 'Add brand',
         onAction: openAddModal,
       }}
+      secondaryActions={
+        planUrl
+          ? [{ content: 'Manage plan', onAction: () => window.open(planUrl, '_top') }]
+          : undefined
+      }
     >
       <BlockStack gap="400">
         {error && (
