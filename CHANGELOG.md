@@ -23,12 +23,32 @@ doc: `docs/APP_STORE_READINESS.md`.
   live endpoint to verify it (expects 200s and a 401 control).
 
 ### Added (billing)
-- Public app is billed through Shopify App Pricing: $19.99/month, 14-day free
-  trial. `BillingGate` checks for an active plan when the app opens; without
-  one it shows a **Choose a plan** screen, locks the customer card and
-  switches brand discounts off, switching back on only those it paused once
-  a plan is active. Keyed to the public app's client ID; the customer's
-  custom app is never gated.
+- Public app is billed through Shopify App Pricing: "Standard Plan",
+  $19.99/month or $199.99/year, 14-day free trial. `BillingGate` checks for an
+  active plan when the app opens; without one it shows a **Choose a plan**
+  screen, locks the customer card and switches brand discounts off, switching
+  back on only those it paused once a plan is active. Keyed to the public
+  app's client ID; the customer's custom app is never gated.
+- **Manage plan** button on the Brands page (opens Shopify's plan page) so
+  merchants can change plans in-app; hidden in the customer's app.
+
+### Added (App Store review)
+- `functions/api/session.js` + `web/src/api/session.js`: on load the app gets
+  an App Bridge session token and `GET /api/session` verifies it (signature,
+  audience, expiry, shop). Turns Shopify's "Using session tokens" embedded app
+  check green; reported only, never blocks the app.
+- Privacy policy at `brand-gating.pages.dev/privacy` (`web/public/privacy.html`).
+- IP allowlist enforced for the public app (Dev Dashboard setting, not code):
+  Cloudflare AS13335. See `docs/SETUP.md` §10.
+
+### Changed (App Store review)
+- Merchant-facing text: brands without an image show a placeholder instead
+  of a broken image; the post-add banner gives a general theme-editor tip
+  instead of the first customer's "homepage tiles" step; the image help text
+  no longer comments on Shopify's file picker.
+- These, the session check and Manage plan are also on `main` (customer app
+  `brand-gating-5`); they reach the customer once their app has its own
+  Cloudflare site.
 
 ### Changed
 - **All app data moved to the app-reserved namespace `$app:brand-discount`**

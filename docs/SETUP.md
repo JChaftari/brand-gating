@@ -150,8 +150,9 @@ points (e.g. Cloudflare Pages).
 
 ## 9. Billing (public app only)
 
-The public app is paid: one plan, **$19.99/month with a 14-day free trial**,
-through Shopify App Pricing ("managed pricing"). The customer's custom app is
+The public app is paid: one plan, "Standard Plan", **$19.99/month or
+$199.99/year with a 14-day free trial**, through Shopify App Pricing
+("managed pricing"). The customer's custom app is
 never billed or gated (billing is keyed to the public app's client ID in
 `web/src/api/billing.js` and `extensions/customer-brand-discounts/src/api.js`).
 
@@ -163,8 +164,8 @@ stores and send merchants to a plan page that doesn't exist yet:
    **Pricing content** → **Manage** → **Settings** → **Pricing method** →
    **Shopify App Pricing** → **Switch**.
 2. Add a public plan ("Standard Plan"): $19.99 monthly or $199.99 yearly,
-   14-day free trial. Set its welcome /
-   redirect link to `/` so merchants land back on the Brands page.
+   14-day free trial. Set its welcome / redirect link to `/` so merchants land
+   back on the Brands page.
 3. If the plan editor offers it, make the plan free to test on development
    stores, so Shopify's reviewers (whose stores belong to another
    organization) can choose it. Stores in your own organization can always
@@ -177,9 +178,40 @@ page) and switches the store's brand discounts off; when a plan is active
 again it switches back on only the discounts it switched off. With a plan,
 the Brands page has a **Manage plan** button to the same Shopify page, so
 merchants can switch between monthly and yearly in-app (App Store rule
-1.2.3). The customer card is locked the same way. A merchant whose plan lapses but who never opens
-the app keeps discounts at checkout until they do (accepted trade-off; see
+1.2.3). The customer card is locked the same way. A merchant whose plan
+lapses but who never opens the app keeps discounts at checkout until they do
+(accepted trade-off; see
 [ARCHITECTURE.md](ARCHITECTURE.md#decision-billing-checked-when-the-app-opens)).
+
+---
+
+## 10. IP allowlist (public app only)
+
+Shopify requires every public app to have an IP allowlist from
+**20 November 2026**; apps without one are flagged to merchants, delisted and
+blocked from new installs. The allowlist rejects Admin API requests made with
+the app's access token from anywhere outside the list.
+
+Current setting (Dev Dashboard → the public app → **Settings** → **IP
+allowlist**): **Networks (ASN) → AS13335** (Cloudflare, where the Pages
+Functions run), no country limit, **Enforcement on**.
+
+Why it changes nothing today: the app makes **no server-side Admin API
+calls**. The Brands page and the customer card reach Shopify through App
+Bridge Direct API access from the merchant's browser, which the allowlist
+exempts; the discount function runs inside Shopify; the Pages Functions
+(compliance webhooks, `/api/session`) never call the Admin API. The
+allowlist's **Run test** over the previous 30 days (which included full
+testing on `brand-gating-fresh`) found *no Admin API requests at all*, and the
+app worked normally with enforcement on.
+
+If a feature ever adds server-side Admin API calls: keep them on Cloudflare
+(covered by AS13335) or add the new host's addresses **before** deploying it,
+then re-run the test. A static IP list would be narrower than an ASN if the
+app ever gets fixed outbound addresses.
+
+The customer's custom app is not affected (the requirement is for public
+apps only).
 
 ---
 

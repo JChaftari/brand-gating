@@ -4,6 +4,11 @@ What it takes to list brand-gating publicly on the Shopify App Store **while
 the existing custom-distribution app keeps serving the first customer
 unchanged**. Status, decisions, open questions, and the remaining checklist.
 
+**Current state (5 November 2026):** the public app, *Vendtier: Wholesale by
+Brand*, was submitted for App Store review in late October 2026; the review is
+pending. Live versions: public `vendtier-wholesale-by-brand-9`, customer
+`brand-gating-5`.
+
 See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SETUP.md](SETUP.md) ·
 [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
@@ -54,17 +59,19 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 |---|---|---|---|
 | 1 | Compliance webhooks with HMAC (401 on invalid) | ✅ | Live at `https://brand-gating.pages.dev/webhooks/compliance`. Verified in production with `scripts/check-compliance-webhook.mjs`: all three topics 200 when correctly signed, 401 when mis-signed or unsigned. |
 | 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
-| 3 | Install / auth | 🟡 | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code needed for the current feature set. Needs real URLs once the Pages project exists. |
+| 3 | Install / auth | ✅ | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code. Install and reinstall tested on `brand-gating-fresh`: permissions screen → plan screen → Brands page. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
-| 4b | Billing via Shopify App Pricing ($19.99/mo, 14-day trial) | 🟡 | Plan check + discount pause/resume built and tested against a simulated API. Needs the plan set up in the Partner Dashboard ([SETUP §9](SETUP.md#9-billing-public-app-only)), then deploy + live test. |
-| 5 | Protected Customer Data, Level 1, for the public app | 🟡 | Request + Data protection details in the Partner Dashboard; answers [below](#protected-customer-data--data-protection-answers). Reviewed with the submission. Answers 2, 4 and 8 rely on the privacy policy (row 8). |
+| 4b | Billing via Shopify App Pricing | ✅ | "Standard Plan": $19.99/month or $199.99/year, 14-day trial. Plan check + discount pause/resume verified live (no plan → discount switched off; plan approved → back on). **Manage plan** button on the Brands page for plan changes (rule 1.2.3). See [SETUP §9](SETUP.md#9-billing-public-app-only). |
+| 5 | Protected Customer Data, Level 1, for the public app | ✅ | Requested, Data protection details completed with the answers [below](#protected-customer-data--data-protection-answers). |
 | 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
 | 7 | Works on a fresh install with no GraphiQL setup | ✅ | Verified end to end on `brand-gating-fresh` — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
-| 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ❌ | Non-code. |
-| 9 | Demo store + reviewer instructions | ❌ | Non-code. |
-| 10 | Storefront performance (≤10-pt Lighthouse drop) | 🟡 | No storefront scripts; logic runs in a checkout Function. Run Lighthouse and keep the report. |
-| 11 | API versions not deprecating within 90 days | ✅ | Function `2026-01`, webhooks `2026-07` — re-check at submission time. |
-| 12 | Session tokens, no third-party cookies / localStorage | ✅ | Already true. |
+| 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ✅ | Copy and alt texts in [APP_STORE_LISTING.md](APP_STORE_LISTING.md). Privacy policy live at `https://brand-gating.pages.dev/privacy`. Support: vendtiersupport@gmail.com. Screenshots and screencast are kept locally in `listing-assets/` (not in git). |
+| 9 | Demo data + reviewer instructions + screencast | ✅ | Demo brands, products and customer "Northside Ski Shop" on `brand-gating-fresh`; keep them while the review runs. Screencast: `https://youtu.be/n-azyXygsM8` (unlisted). |
+| 10 | Storefront performance (≤10-pt Lighthouse drop) | 🟡 | No storefront scripts; logic runs in a checkout Function, so scores can't drop. No Lighthouse report kept; run one if review asks. |
+| 11 | API versions not deprecating within 90 days | ✅ | Function `2026-01`, webhooks `2026-07`. |
+| 12 | Session tokens, no third-party cookies / localStorage | ✅ | App loads verify an App Bridge session token at `GET /api/session` (`functions/api/session.js`); the Partner Dashboard's embedded app checks are green. |
+| 13 | IP allowlist (required for public apps from 20 Nov 2026) | ✅ | Enforced in the Dev Dashboard: network AS13335 (Cloudflare). The test showed no Admin API requests to block — the app makes none from a server. See [SETUP §10](SETUP.md#10-ip-allowlist-public-app-only). |
+| 14 | Shopify's AI self-review (`/shopify-app-store-review`) | ✅ | 27 likely passing, 0 failing; the 4 needing review (plan changes, install/reinstall) were fixed or tested. |
 
 ---
 
@@ -74,9 +81,10 @@ An earlier version of this doc recommended migrating to the Shopify Remix
 template. With the requirement that the custom app not be compromised, that's
 the wrong trade: Remix rewrites the App Home and forks the codebase.
 
-Instead, the only server-side piece the public app needs — the compliance
-webhook receiver — is a single **stateless Cloudflare Pages Function** at
-`functions/webhooks/compliance.js`:
+Instead, the server-side pieces are stateless **Cloudflare Pages Functions**:
+the compliance webhook receiver below, and `functions/api/session.js`, which
+verifies the App Bridge session token the app sends on load (no Admin API
+calls either). The webhook receiver, `functions/webhooks/compliance.js`:
 
 - Reads the raw body, verifies `X-Shopify-Hmac-Sha256` with
   `crypto.subtle.verify` (constant-time) using the public app's client secret.
@@ -104,6 +112,8 @@ of this doc claimed it was; that was not confirmed and has been withdrawn.
 
 - **Current:** stateless acknowledge (sufficient if Shopify's own redaction
   covers customer metafields).
+- **Submitted with:** the stateless acknowledge. The review will show whether
+  it's accepted.
 - **If review says otherwise:** the handler must clear the metafield, which
   requires an offline Admin API token per shop → token exchange on install +
   storage (e.g. Cloudflare KV) → and `shop/redact` must then purge that
@@ -170,8 +180,8 @@ which hid this.
 **Fixed on `public-release`:** the banner now has a **Turn on brand discounts**
 button that creates the discount via `discountAutomaticAppCreate` (product
 lines only, starts now, combines with order + shipping discounts) with its tag
-list included in the same call. Needs verifying on the fresh store, then
-porting to `main` for the customer.
+list included in the same call. Verified on the fresh store and ported to
+`main` for the customer.
 
 Remaining gap: merchants can't edit that discount's combinations or dates from
 admin. A discount function settings UI extension would add that if review asks
@@ -181,7 +191,8 @@ for it. See [ARCHITECTURE.md](ARCHITECTURE.md#creating-the-discount).
 
 Resolved. Both apps were deployed from the same extension sources and each
 release went to its own app (public `brand-gating-5`, app 350711742465;
-customer `brand-gating-2`, app 439169679361), with no conflict.
+customer `brand-gating-2`, app 439169679361), with no conflict. Still true
+at public `vendtier-wholesale-by-brand-9` and customer `brand-gating-5`.
 
 ---
 
@@ -229,7 +240,7 @@ temporary tunnel.
 
    | Setting | Value |
    |---|---|
-   | Production branch | `main` |
+   | Production branch | `public-release` (see item 5) |
    | Root directory | `/` (repo root) |
    | Build command | `npm install --workspaces && npm run build --workspace=web` |
    | Build output directory | `/web/dist` |
@@ -256,9 +267,12 @@ temporary tunnel.
 6. **Create the customer's copy of the site** (only when the customer is ready).
    A second Pages project from the same GitHub repo with the same build
    command, output directory and root directory, production branch `main`,
-   and variable `SHOPIFY_API_KEY` = the customer app's Client ID
-   (`4fa17f…`). Put its URL in `shopify.app.custom.toml` as `application_url`
-   and in `redirect_urls`.
+   variable `SHOPIFY_API_KEY` = the customer app's Client ID (`4fa17f…`), and
+   encrypted secret `SHOPIFY_API_SECRET` = the customer app's Client secret
+   (the session check at `/api/session` needs both). Put its URL in
+   `shopify.app.custom.toml` as `application_url` and in `redirect_urls`, then
+   `shopify app deploy --config custom` from `main`. Until then the customer
+   app's Brands page fixes aren't live for them.
 
 ---
 
@@ -282,13 +296,18 @@ temporary tunnel.
    installs yet, so no existing collections changed behavior.) Merchant guide
    updated and committed as `docs/Brand-Discounts-Merchant-Guide.docx`.
 7c. ✅ F4 decided and done: both apps use `$app:brand-discount` for all data.
-8. ❌ Ask Shopify Partner support about F1.
-9. ❌ Request Protected Customer Data Level 1 for the public app.
-10. ❌ Listing assets, privacy policy, pricing, support contact.
-11. ❌ Demo store + reviewer instructions (include: add **and pin** the
-    customer-card block, and click **Turn on brand discounts** on the Brands page).
-12. ❌ Lighthouse run, keep the report.
-13. ❌ Submit; expect iteration.
+7d. ✅ Renamed to *Vendtier: Wholesale by Brand* (publisher Chaftari
+   Development); billing via Shopify App Pricing with the plan check.
+8. 🟡 F1: submitted with the stateless acknowledge; the review will settle it.
+9. ✅ Protected Customer Data Level 1 requested for the public app.
+10. ✅ Listing assets, privacy policy, pricing, support contact.
+11. ✅ Demo data, reviewer instructions and screencast.
+12. 🟡 Lighthouse run: not done (no storefront code); run one if review asks.
+13. ✅ Embedded app checks green, AI self-review done, IP allowlist enforced.
+14. 🟡 Submitted for review (late October 2026), pending. Expect iteration;
+    keep `brand-gating-fresh` and its demo data intact until it's approved.
+15. ❌ Customer go-live: their domain on the customer app's distribution page,
+    their Cloudflare site (action item 6), then deploy from `main`.
 
 ---
 
