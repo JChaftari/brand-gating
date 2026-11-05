@@ -312,8 +312,8 @@ limitation; revisit if Shopify ships a picker.
 
 ### Decision: billing checked when the app opens
 
-The public app is billed through Shopify App Pricing ($19.99/month, 14-day
-trial). With no backend, the plan is checked from the Brands page on every
+The public app is billed through Shopify App Pricing ($19.99/month or
+$199.99/year, 14-day trial). With no backend, the plan is checked from the Brands page on every
 open (`currentAppInstallation.activeSubscriptions`): no active plan → the app
 and customer card are locked and the store's brand discounts are switched off
 (`discountAutomaticDeactivate`), recording which ones in

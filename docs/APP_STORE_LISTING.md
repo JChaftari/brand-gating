@@ -11,13 +11,16 @@ Status of each item: see [APP_STORE_READINESS.md](APP_STORE_READINESS.md).
 
 ---
 
-## Decisions still open
+## Decisions
 
-| Decision | Why it matters |
+All settled; the listing was submitted for review in late October 2026.
+
+| Decision | Outcome |
 |---|---|
-| **Pricing** | Decided: one plan, $19.99/month, 14-day free trial, via Shopify App Pricing. Set it up in the Partner Dashboard (see [SETUP.md §9](SETUP.md#9-billing-public-app-only)) before deploying the plan check. |
-| **Support email, country** | Decided: Chaftari Development, vendtiersupport@gmail.com, Lebanon. Shown on the listing and in the privacy policy (`web/public/privacy.html`). |
-| **Icon** | Needs a distinctive mark without Shopify trademarks (4.4.3). |
+| **Pricing** | One plan, "Standard Plan": $19.99/month or $199.99/year, 14-day free trial, via Shopify App Pricing (see [SETUP.md §9](SETUP.md#9-billing-public-app-only)). |
+| **Support email, country** | Chaftari Development, vendtiersupport@gmail.com, Lebanon. Shown on the listing and in the privacy policy (`web/public/privacy.html`). |
+| **Icon** | Uploaded in the Dev Dashboard app settings (the listing syncs it from there; the admin sidebar icon is a separate setting). |
+| **Screencast** | `https://youtu.be/n-azyXygsM8` (unlisted). Its opening shows the plan's earlier name, "premium-plan", for a few seconds. |
 
 ---
 
@@ -72,8 +75,8 @@ Pricing / discounts (choose the closest category the editor offers).
 
 ### Pricing section
 
-$19.99/month, with a 14-day free trial. Must match the plan configured in
-Shopify exactly (rule 4.2.1).
+"Standard Plan": $19.99/month or $199.99/year, with a 14-day free trial.
+Must match the plan configured in Shopify exactly (rule 4.2.1).
 
 ### Privacy policy URL
 
