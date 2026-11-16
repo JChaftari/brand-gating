@@ -23,7 +23,7 @@ doc: `docs/APP_STORE_READINESS.md`.
   live endpoint to verify it (expects 200s and a 401 control).
 
 ### Added (billing)
-- Public app is billed through Shopify App Pricing: "Standard Plan",
+- Public app is billed through Shopify App Pricing: `premium-plan`,
   $19.99/month or $199.99/year, 14-day free trial. `BillingGate` checks for an
   active plan when the app opens; without one it shows a **Choose a plan**
   screen, locks the customer card and switches brand discounts off, switching

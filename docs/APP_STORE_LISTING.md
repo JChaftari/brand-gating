@@ -13,14 +13,17 @@ Status of each item: see [APP_STORE_READINESS.md](APP_STORE_READINESS.md).
 
 ## Decisions
 
-All settled; the listing was submitted for review in late October 2026.
+All settled. First submitted in late October 2026; paused in November because
+reviewers couldn't select a plan (App Pricing wasn't enabled, see
+[SETUP.md §9](SETUP.md#9-billing-public-app-only)); fixed on 16 November,
+ready to resubmit.
 
 | Decision | Outcome |
 |---|---|
-| **Pricing** | One plan, "Standard Plan": $19.99/month or $199.99/year, 14-day free trial, via Shopify App Pricing (see [SETUP.md §9](SETUP.md#9-billing-public-app-only)). |
+| **Pricing** | One plan, `premium-plan`: $19.99/month or $199.99/year, 14-day free trial, via Shopify App Pricing (enabled; free for partner and development stores). See [SETUP.md §9](SETUP.md#9-billing-public-app-only). |
 | **Support email, country** | Chaftari Development, vendtiersupport@gmail.com, Lebanon. Shown on the listing and in the privacy policy (`web/public/privacy.html`). |
 | **Icon** | Uploaded in the Dev Dashboard app settings (the listing syncs it from there; the admin sidebar icon is a separate setting). |
-| **Screencast** | `https://youtu.be/n-azyXygsM8` (unlisted). Its opening shows the plan's earlier name, "premium-plan", for a few seconds. |
+| **Screencast** | `https://youtu.be/n-azyXygsM8` (unlisted). |
 
 ---
 
@@ -75,7 +78,7 @@ Pricing / discounts (choose the closest category the editor offers).
 
 ### Pricing section
 
-"Standard Plan": $19.99/month or $199.99/year, with a 14-day free trial.
+`premium-plan`: $19.99/month or $199.99/year, with a 14-day free trial.
 Must match the plan configured in Shopify exactly (rule 4.2.1).
 
 ### Privacy policy URL
@@ -140,7 +143,7 @@ characters:
 The app has no separate account or login. Everything runs inside the Shopify admin.
 
 To test this app:
-1. Install the app and open it from Apps. Click "Choose a plan" and select the plan (development stores are not charged). You return to the app's Brands page.
+1. Install the app and open it from Apps. Click "Choose a plan". On Shopify's plan page, select premium-plan (it is free to test on partner and development stores) and approve. You return to the app's Brands page.
 2. Click "Turn on brand discounts" in the yellow banner. A green "On" badge appears. (Choosing this app under Discounts > Create discount also opens this page.)
 3. Click "Add brand", enter "Test Brand" and click "Add brand". A "Test Brand" collection is created.
 4. Add any product to the "Test Brand" collection (Products > Collections). Alternatively, tag a product with test-brand.

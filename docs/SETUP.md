@@ -150,26 +150,42 @@ points (e.g. Cloudflare Pages).
 
 ## 9. Billing (public app only)
 
-The public app is paid: one plan, "Standard Plan", **$19.99/month or
+The public app is paid: one public plan, **`premium-plan`, $19.99/month or
 $199.99/year with a 14-day free trial**, through Shopify App Pricing
-("managed pricing"). The customer's custom app is
-never billed or gated (billing is keyed to the public app's client ID in
-`web/src/api/billing.js` and `extensions/customer-brand-discounts/src/api.js`).
+("managed pricing"). The customer's custom app is never billed or gated
+(billing is keyed to the public app's client ID in `web/src/api/billing.js`
+and `extensions/customer-brand-discounts/src/api.js`).
 
-Set the plan up **before** deploying the plan check, or the app will lock
-stores and send merchants to a plan page that doesn't exist yet:
+Current setup (done 16 November 2026): **Shopify App Pricing is enabled**;
+`premium-plan` is the one public plan and is marked **free for partner and
+development stores**. A `shopify-test` private plan ($0/month) also exists;
+Shopify created it, and only stores assigned to it can see it.
+
+Setting it up — finish **all** of it before deploying the plan check or
+submitting for review:
 
 1. Partner Dashboard → **App distribution** → the public app → **Distribution**
    → **Shopify App Store listing** → **Manage listing** → edit the listing →
-   **Pricing content** → **Manage** → **Settings** → **Pricing method** →
-   **Shopify App Pricing** → **Switch**.
-2. Add a public plan ("Standard Plan"): $19.99 monthly or $199.99 yearly,
-   14-day free trial. Set its welcome / redirect link to `/` so merchants land
-   back on the Brands page.
-3. If the plan editor offers it, make the plan free to test on development
-   stores, so Shopify's reviewers (whose stores belong to another
-   organization) can choose it. Stores in your own organization can always
-   choose plans at no charge.
+   **Pricing content** → **Manage**.
+2. Under **Update to App Pricing**, click **Get started**. Shopify drafts App
+   Pricing plans; set the plan to $19.99 monthly / $199.99 yearly, 14-day
+   free trial, welcome / redirect link `/` (merchants land back on the Brands
+   page), and resolve anything marked **Action needed**.
+3. In the plan's settings, tick the option that makes it **free for partner
+   and development stores**. Without it, development stores outside your
+   Partner organization (Shopify's reviewers) can only subscribe by approving
+   the real charge.
+4. Test on a development store in your own organization: open the app →
+   **Choose a plan** / **Manage plan** → select the plan → approve.
+5. Tick **I've verified my app is ready to switch to Shopify App Pricing** and
+   click **Enable Shopify App Pricing**. The progress bar must show **App
+   Pricing enabled**.
+
+**Why step 5 matters:** until App Pricing is enabled the plans are drafts.
+Development stores in your own organization can still select drafts ("Free to
+test"), so everything looks fine on your own store, but every other store,
+reviewers' included, sees **"No plans are available for your store."** That
+paused the first App Store submission (rule 1.2.1, November 2026).
 
 How the app enforces it (`web/src/components/BillingGate.jsx`): each time the
 app opens it checks `currentAppInstallation.activeSubscriptions`. With no

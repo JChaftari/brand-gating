@@ -5,8 +5,13 @@ the existing custom-distribution app keeps serving the first customer
 unchanged**. Status, decisions, open questions, and the remaining checklist.
 
 **Current state (5 November 2026):** the public app, *Vendtier: Wholesale by
-Brand*, was submitted for App Store review in late October 2026; the review is
-pending. Live versions: public `vendtier-wholesale-by-brand-9`, customer
+Brand*, was submitted for App Store review in late October 2026. The review
+was **paused until 14 November** under rule 1.2.1: reviewers' stores got "No
+plans are available for your store", because Shopify App Pricing had never
+been enabled (the plan was still a draft only our own dev store could
+select). Fixed on 16 November: App Pricing enabled, plan marked free for
+partner and development stores; ready to resubmit. Live versions: public
+`vendtier-wholesale-by-brand-9`, customer
 `brand-gating-5`.
 
 See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SETUP.md](SETUP.md) ·
@@ -61,7 +66,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 | 2 | Compliance subscriptions in config | ✅ | `shopify.app.toml` `[[webhooks.subscriptions]]` (on `public-release`). |
 | 3 | Install / auth | ✅ | Managed installation (scopes in TOML) + session tokens via App Bridge Direct API Access — no OAuth code. Install and reinstall tested on `brand-gating-fresh`: permissions screen → plan screen → Brands page. |
 | 4 | Only scopes the app uses | ✅ | Public app's config drops `read_files` (no image picker was built). |
-| 4b | Billing via Shopify App Pricing | ✅ | "Standard Plan": $19.99/month or $199.99/year, 14-day trial. Plan check + discount pause/resume verified live (no plan → discount switched off; plan approved → back on). **Manage plan** button on the Brands page for plan changes (rule 1.2.3). See [SETUP §9](SETUP.md#9-billing-public-app-only). |
+| 4b | Billing via Shopify App Pricing | ✅ | App Pricing **enabled** (16 Nov 2026). `premium-plan`: $19.99/month or $199.99/year, 14-day trial, free for partner and development stores. Plan check + discount pause/resume verified live (no plan → discount switched off; plan approved → back on). **Manage plan** button on the Brands page for plan changes (rule 1.2.3). See [SETUP §9](SETUP.md#9-billing-public-app-only). |
 | 5 | Protected Customer Data, Level 1, for the public app | ✅ | Requested, Data protection details completed with the answers [below](#protected-customer-data--data-protection-answers). |
 | 6 | Free-shipping template leftover in the function | ✅ | Fixed on `public-release` — see [F2](#f2--leftover-free-shipping-logic-in-the-function). |
 | 7 | Works on a fresh install with no GraphiQL setup | ✅ | Verified end to end on `brand-gating-fresh` — see [F3](#f3--fresh-installs-cant-run-graphiql-setup). |
@@ -304,8 +309,10 @@ temporary tunnel.
 11. ✅ Demo data, reviewer instructions and screencast.
 12. 🟡 Lighthouse run: not done (no storefront code); run one if review asks.
 13. ✅ Embedded app checks green, AI self-review done, IP allowlist enforced.
-14. 🟡 Submitted for review (late October 2026), pending. Expect iteration;
-    keep `brand-gating-fresh` and its demo data intact until it's approved.
+14. 🟡 Submitted for review (late October 2026); paused until 14 November
+    (rule 1.2.1: plan not selectable — App Pricing wasn't enabled). Fixed 16
+    November; resubmit with the updated testing instructions. Keep
+    `brand-gating-fresh` and its demo data intact until it's approved.
 15. ❌ Customer go-live: their domain on the customer app's distribution page,
     their Cloudflare site (action item 6), then deploy from `main`.
 
