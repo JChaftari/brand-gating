@@ -311,8 +311,14 @@ temporary tunnel.
 13. ✅ Embedded app checks green, AI self-review done, IP allowlist enforced.
 14. 🟡 Submitted for review (late October 2026); paused until 14 November
     (rule 1.2.1: plan not selectable — App Pricing wasn't enabled). Fixed 16
-    November; resubmit with the updated testing instructions. Keep
-    `brand-gating-fresh` and its demo data intact until it's approved.
+    November. A second item (rule 4.5.4, test credentials): the reviewer
+    couldn't sign in as the eligible customer (storefront sign-in is an
+    emailed one-time code). Fixed 18 November: testing instructions now verify
+    the discount with an admin draft order ("Apply all eligible automatic
+    discounts"), which runs the discount function for the selected customer
+    without a sign-in — verified on `brand-gating-fresh` (20% and 35% lines);
+    proof at `https://brand-gating.pages.dev/review/draft-order-brand-discounts.png`.
+    Keep `brand-gating-fresh` and its demo data intact until it's approved.
 15. ❌ Customer go-live: their domain on the customer app's distribution page,
     their Cloudflare site (action item 6), then deploy from `main`.
 

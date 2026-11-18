@@ -134,24 +134,35 @@ Drive or Vimeo) and never show passwords on screen:
 ## Testing instructions for reviewers
 
 Paste into the submission's testing instructions. The app has no separate
-account or login, so no credentials are needed (rules 4.5.4–4.5.5).
+account or login, so there are no app credentials (rules 4.5.4–4.5.5).
 
-Plain text (the field doesn't render formatting), about 1,500 of the 2,800
-characters:
+The discount is customer-specific, so it's verified with an **admin draft
+order** for the customer: Shopify runs the app's discount function there with
+no customer sign-in. Storefront checkout needs a signed-in customer, and
+Shopify's customer sign-in is an emailed one-time code, which reviewers'
+example.com test customers can't receive — the first review stopped there
+(rule 4.5.4, November 2026). Draft-order behavior verified on
+`brand-gating-fresh`; proof screenshot:
+`https://brand-gating.pages.dev/review/draft-order-brand-discounts.png`.
+
+Plain text (the field doesn't render formatting), under the 2,800-character
+limit:
 
 ```text
-The app has no separate account or login. Everything runs inside the Shopify admin.
+The app has no separate account or login. Everything runs inside the Shopify admin, and the discount can be verified without signing in as a customer (step 6).
 
 To test this app:
 1. Install the app and open it from Apps. Click "Choose a plan". On Shopify's plan page, select premium-plan (it is free to test on partner and development stores) and approve. You return to the app's Brands page.
-2. Click "Turn on brand discounts" in the yellow banner. A green "On" badge appears. (Choosing this app under Discounts > Create discount also opens this page.)
+2. Click "Turn on brand discounts" in the yellow banner. A green "On" badge appears.
 3. Click "Add brand", enter "Test Brand" and click "Add brand". A "Test Brand" collection is created.
-4. Add any product to the "Test Brand" collection (Products > Collections). Alternatively, tag a product with test-brand.
-5. Open a customer (Customers). In the Blocks section click "+ Block", choose "Customer Brand Discounts", then click the block's pin icon so it stays on the page. Click "+ Add the first one", choose Test Brand, enter 20 and click "Save".
-6. On the storefront, sign in as that customer, add the product to the cart and go to checkout. The line shows "Brand discount" with 20% off.
-7. A product that isn't in the brand's collection and doesn't have its tag gets no discount, and other customers get no discount.
+4. Open any active product (Products), add "Test Brand" in its Collections field and click Save. Alternatively, give the product the tag test-brand.
+5. Open any customer (Customers). In the Blocks section click "+ Block", choose "Customer Brand Discounts", then click the block's pin icon so it stays on the page. Click "+ Add the first one", choose Test Brand, enter 20 and click "Save".
+6. Verify the discount: go to Orders > Create order. Select the customer from step 5 and add the product from step 4. Under Payment click "Add discount", tick "Apply all eligible automatic discounts" and click Done. The product's price drops by 20% (for a $100.00 product, $80.00). You can discard the draft afterwards.
+7. In the same draft, a product that isn't in Test Brand stays at full price. With a different customer selected, nothing is discounted.
 
-Billing: if the plan is cancelled, opening the app shows the plan screen again and the brand discounts are switched off at checkout until a plan is active.
+Optional: the same discount applies at online checkout when that customer is signed in to the storefront. Shopify's customer sign-in sends a one-time code by email, so this needs a customer whose email can receive it. The draft order in step 6 runs the same discount without signing in.
+
+Billing: if the plan is cancelled, opening the app shows the plan screen again and the brand discounts are switched off until a plan is active.
 
 Data: the app only stores brand settings and each customer's brand percentages in app-owned metafields. It does not read names, emails, phone numbers or addresses (Protected Customer Data level 1).
 ```
