@@ -44,7 +44,11 @@ The public app's name in `shopify.app.toml` matches it (rule 4.1.1).
 
 ### Details
 
-> Vendtier lets you set wholesale pricing brand by brand. Register the brands you sell, then give any customer their own percentage off each brand right from their customer page. For example, a wholesale account can get 15% off one brand and 5% off another. Products count toward a brand when they're in its collection or carry its tag. Discounts apply automatically at checkout with no codes to share, and they combine with your order and shipping discounts.
+> Vendtier lets you give each wholesale customer their own discount on each brand you sell. Register your brands, then set a customer's discount for each brand directly from their customer page, so one account can get a bigger discount on one brand and a smaller one on another. Products count toward a brand when they're in its collection or carry its tag. Discounts apply automatically at checkout with no codes to share, and they combine with your order and shipping discounts.
+
+(478/500. The listing editor's review tips flag "right" as an unverifiable
+claim, "%" as statistics and "pricing" as pricing outside the Pricing
+section, so the copy avoids all three.)
 
 ### Key features
 
@@ -56,7 +60,7 @@ The public app's name in `shopify.app.toml` matches it (rule 4.1.1).
 
 ### Web search content
 
-- Title tag: `Vendtier: Wholesale Pricing by Brand for Each Customer`
+- Title tag: `Vendtier: Wholesale Discounts by Brand for Each Customer`
 - Meta description: Set a different discount for each customer on each brand
   you sell. Vendtier applies it automatically at checkout, with no discount codes.
 
