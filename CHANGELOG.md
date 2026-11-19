@@ -4,6 +4,25 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
+## 2026-11-19 — API 2026-10 and review request (both apps)
+
+Released as public `vendtier-wholesale-by-brand-10` (published on the App
+Store: <https://apps.shopify.com/vendtier-wholesale-by-brand>) and customer
+`brand-gating-6`.
+
+### Changed
+- Shopify API `2026-01` → `2026-10` for the discount function, the customer
+  card (`@shopify/ui-extensions` 2026.10.2) and the Brands page's Admin API
+  calls (2026-01 stops being served around 16 January 2027). No behavior
+  change: queries validated, function outputs identical, tested on a dev
+  preview and after release. Webhooks stay on `2026-07`.
+
+### Added
+- App Store review request on the Brands page (App Bridge Reviews API):
+  public app only, once brand discounts have been applied to at least one
+  order, at most once per 60 days from our side (Shopify enforces its own
+  limits too). Not in the customer card (rule 2.2.6).
+
 ## [Unreleased] — Public app (branch `public-release`)
 
 Work toward App Store listing. The existing `brand-gating` app is Public

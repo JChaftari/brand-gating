@@ -4,15 +4,11 @@ What it takes to list brand-gating publicly on the Shopify App Store **while
 the existing custom-distribution app keeps serving the first customer
 unchanged**. Status, decisions, open questions, and the remaining checklist.
 
-**Current state (5 November 2026):** the public app, *Vendtier: Wholesale by
-Brand*, was submitted for App Store review in late October 2026. The review
-was **paused until 14 November** under rule 1.2.1: reviewers' stores got "No
-plans are available for your store", because Shopify App Pricing had never
-been enabled (the plan was still a draft only our own dev store could
-select). Fixed on 16 November: App Pricing enabled, plan marked free for
-partner and development stores; ready to resubmit. Live versions: public
-`vendtier-wholesale-by-brand-9`, customer
-`brand-gating-5`.
+**Current state (19 November 2026):** *Vendtier: Wholesale by Brand* is
+**approved and published** on the Shopify App Store (fully visible):
+<https://apps.shopify.com/vendtier-wholesale-by-brand>. Live versions: public
+`vendtier-wholesale-by-brand-10`, customer `brand-gating-6`, both on API
+`2026-10`. The review history (two items, both fixed) is in roadmap item 14.
 
 See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SETUP.md](SETUP.md) ·
 [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
@@ -73,7 +69,7 @@ Legend: ✅ done · 🟡 done in code, needs your action/verification · ❌ to 
 | 8 | Listing assets (icon, screenshots, copy, pricing, privacy policy, support) | ✅ | Copy and alt texts in [APP_STORE_LISTING.md](APP_STORE_LISTING.md). Privacy policy live at `https://brand-gating.pages.dev/privacy`. Support: vendtiersupport@gmail.com. Screenshots and screencast are kept locally in `listing-assets/` (not in git). |
 | 9 | Demo data + reviewer instructions + screencast | ✅ | Demo brands, products and customer "Northside Ski Shop" on `brand-gating-fresh`; keep them while the review runs. Screencast: `https://youtu.be/n-azyXygsM8` (unlisted). |
 | 10 | Storefront performance (≤10-pt Lighthouse drop) | 🟡 | No storefront scripts; logic runs in a checkout Function, so scores can't drop. No Lighthouse report kept; run one if review asks. |
-| 11 | API versions not deprecating within 90 days | ✅ | Function `2026-01`, webhooks `2026-07`. |
+| 11 | API versions not deprecating within 90 days | ✅ | Function, customer card and Admin API calls on `2026-10` (since 19 Nov 2026; supported until about October 2027), webhooks `2026-07`. Each version is served for about 12 months — update at least yearly. |
 | 12 | Session tokens, no third-party cookies / localStorage | ✅ | App loads verify an App Bridge session token at `GET /api/session` (`functions/api/session.js`); the Partner Dashboard's embedded app checks are green. |
 | 13 | IP allowlist (required for public apps from 20 Nov 2026) | ✅ | Enforced in the Dev Dashboard: network AS13335 (Cloudflare). The test showed no Admin API requests to block — the app makes none from a server. See [SETUP §10](SETUP.md#10-ip-allowlist-public-app-only). |
 | 14 | Shopify's AI self-review (`/shopify-app-store-review`) | ✅ | 27 likely passing, 0 failing; the 4 needing review (plan changes, install/reinstall) were fixed or tested. |
@@ -197,7 +193,7 @@ for it. See [ARCHITECTURE.md](ARCHITECTURE.md#creating-the-discount).
 Resolved. Both apps were deployed from the same extension sources and each
 release went to its own app (public `brand-gating-5`, app 350711742465;
 customer `brand-gating-2`, app 439169679361), with no conflict. Still true
-at public `vendtier-wholesale-by-brand-9` and customer `brand-gating-5`.
+at public `vendtier-wholesale-by-brand-10` and customer `brand-gating-6`.
 
 ---
 
@@ -309,7 +305,9 @@ temporary tunnel.
 11. ✅ Demo data, reviewer instructions and screencast.
 12. 🟡 Lighthouse run: not done (no storefront code); run one if review asks.
 13. ✅ Embedded app checks green, AI self-review done, IP allowlist enforced.
-14. 🟡 Submitted for review (late October 2026); paused until 14 November
+14. ✅ Approved and published, 19 November 2026
+    (<https://apps.shopify.com/vendtier-wholesale-by-brand>). History:
+    submitted late October 2026; paused until 14 November
     (rule 1.2.1: plan not selectable — App Pricing wasn't enabled). Fixed 16
     November. A second item (rule 4.5.4, test credentials): the reviewer
     couldn't sign in as the eligible customer (storefront sign-in is an
@@ -318,9 +316,18 @@ temporary tunnel.
     discounts"), which runs the discount function for the selected customer
     without a sign-in — verified on `brand-gating-fresh` (20% and 35% lines);
     proof at `https://brand-gating.pages.dev/review/draft-order-brand-discounts.png`.
-    Keep `brand-gating-fresh` and its demo data intact until it's approved.
+    Keep `brand-gating-fresh` and its demo data (it also holds one test order
+    from 19 November, used to test the review request) for future reviews.
 15. ❌ Customer go-live: their domain on the customer app's distribution page,
     their Cloudflare site (action item 6), then deploy from `main`.
+16. ✅ API `2026-10` (19 November 2026): all Admin GraphQL operations
+    validated, function outputs identical on 7 test carts, customer-card
+    type check unchanged, then tested live on a dev preview and again after
+    release (public `vendtier-wholesale-by-brand-10`, customer
+    `brand-gating-6`). Next update due before about October 2027.
+17. ✅ App Store review request (App Bridge Reviews API) on the Brands page,
+    once brand discounts have been used on an order; tested on
+    `brand-gating-fresh`.
 
 ---
 

@@ -169,10 +169,10 @@ qualifies for.
 
 ### Stack
 
-- **Function**: JavaScript Shopify Function, API version `2026-01`. Compiled
+- **Function**: JavaScript Shopify Function, API version `2026-10`. Compiled
   to WASM via Shopify's Javy. See `extensions/brand-discount`.
 - **App Home**: Vite + React 18 + Polaris 13, no backend. Uses App Bridge
-  Direct API Access (`fetch('shopify:admin/api/2026-01/graphql.json')`) for
+  Direct API Access (`fetch('shopify:admin/api/2026-10/graphql.json')`) for
   all reads and writes. See `web/`.
 - **Customer card**: Preact + Shopify admin web components (`<s-admin-block>`,
   `<s-table>`, etc.). React + `@shopify/ui-extensions-react` cannot be used

@@ -51,7 +51,7 @@ state lives in Shopify metafields.
 
 ### 1. Shopify Function — `extensions/brand-discount`
 
-- JavaScript function, API version `2026-01`, compiled to WASM via Javy.
+- JavaScript function, API version `2026-10`, compiled to WASM via Javy.
 - Two targets: `cart.lines.discounts.generate.run` (the brand logic) and
   `cart.delivery-options.discounts.generate.run` (unrelated free-shipping
   logic, brand-agnostic, untouched by Phase 2).
@@ -77,7 +77,7 @@ state lives in Shopify metafields.
 
 - Vite + React 18 + Polaris 13. Runs in the embedded-app iframe.
 - No server. Talks to the Admin GraphQL API directly from the browser via App
-  Bridge Direct API Access (`fetch('shopify:admin/api/2026-01/graphql.json')`,
+  Bridge Direct API Access (`fetch('shopify:admin/api/2026-10/graphql.json')`,
   auto-authenticated).
 - Responsibilities: list/add/edit/delete brands; create and update the Shopify
   collection behind each brand; keep the registry metafields in sync.
