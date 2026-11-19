@@ -2,7 +2,7 @@
 // Access. The `shopify:admin/api/<version>/graphql.json` URL is auto-authenticated
 // by the App Bridge script in index.html — no token handling needed here.
 
-const API_VERSION = '2026-01';
+const API_VERSION = '2026-10';
 const ENDPOINT = `shopify:admin/api/${API_VERSION}/graphql.json`;
 
 export class GraphQLError extends Error {
