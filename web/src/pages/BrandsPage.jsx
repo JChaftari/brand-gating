@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Page,
   Card,
@@ -21,10 +21,30 @@ import AddBrandModal from '../components/AddBrandModal';
 import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
 import { usePlanUrl } from '../components/BillingGate';
+import { maybeRequestReview } from '../api/reviews';
+
+// Wait this long after the page has loaded before asking for a review, so the
+// modal doesn't appear while the merchant is still orienting.
+const REVIEW_REQUEST_DELAY_MS = 3000;
 
 export default function BrandsPage() {
   const { brands, loading, error, discountCount, replace, createDiscount } = useBrandList();
   const planUrl = usePlanUrl(); // null for the customer's custom app (not billed)
+
+  // App Store review request: once per page visit, after brands have loaded,
+  // public app only. maybeRequestReview decides whether the store qualifies
+  // (brand discounts used on an order, not asked in the last 60 days).
+  // The flag is set when the timer fires, not when it's scheduled, so
+  // StrictMode's double effect run (dev) doesn't cancel the only request.
+  const reviewAsked = useRef(false);
+  useEffect(() => {
+    if (loading || !planUrl || reviewAsked.current) return undefined;
+    const timer = setTimeout(() => {
+      reviewAsked.current = true;
+      maybeRequestReview();
+    }, REVIEW_REQUEST_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [loading, planUrl]);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);   // brand|null
