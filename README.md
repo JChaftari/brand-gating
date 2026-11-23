@@ -15,6 +15,7 @@ discount assignments through embedded admin UIs — no JSON editing required.
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Devs + merchants | Symptom → cause → fix |
 | [docs/APP_STORE_READINESS.md](docs/APP_STORE_READINESS.md) | Devs + product | What's needed to list publicly (vs custom app) |
 | [docs/APP_STORE_LISTING.md](docs/APP_STORE_LISTING.md) | Product | Listing copy, screenshots, screencast script, reviewer testing instructions |
+| [docs/MARKETING_KIT.md](docs/MARKETING_KIT.md) | Product | Listing tweaks to test, outreach messages, community posts, review-request rules |
 | [CHANGELOG.md](CHANGELOG.md) | Everyone | Phase 1 / Phase 2 history, Phase 3 backlog |
 | [docs/Brand-Discounts-Merchant-Guide.docx](docs/Brand-Discounts-Merchant-Guide.docx) | Merchants | Non-technical how-to: turning on brand discounts, managing brands, assigning customer discounts |
 
