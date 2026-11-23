@@ -171,6 +171,12 @@ available" (no review was needed). Verified on `brand-gating-fresh`:
 selecting Free shows the 2-brand banner, the "No discounts on free plan"
 badges and **Upgrade for more brands**.
 
+Checkout verified the same day with admin draft orders for Northside Ski Shop
+(20% on Northridge Boards, the 1st brand; 5% on Powder & Pine, the 3rd):
+on **Free**, The Complete Snowboard $699.95 → $559.96 and Selling Plans Ski
+Wax stayed $24.95; back on **premium-plan**, the snowboard $559.96 and the
+wax $23.71. The store was left on premium-plan; both drafts were discarded.
+
 Shopify App Pricing creates a $0 subscription when a merchant picks a free
 plan, so the store has an `ACTIVE` subscription either way. The app tells the
 plans apart **by name**: a subscription whose name contains the word "free"
