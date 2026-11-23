@@ -8,6 +8,10 @@ Written November 2026, right after the app went live
 Everything in `[brackets]` is a placeholder. Personalize every message:
 generic messages are the ones that get no replies.
 
+Emails and partner pitches are written as the team ("we") and signed
+**The Vendtier team**, never with a personal name. Community posts
+(section 4) stay first person, since they're posted from your own accounts.
+
 See also: [APP_STORE_LISTING.md](APP_STORE_LISTING.md) (the approved listing
 copy these tweaks would change).
 
@@ -132,51 +136,51 @@ Pace: about 10 a day, each one personalized.
 
 > Hi [first name or "[Store name] team"],
 >
-> I was looking at [Store name] and saw you carry [Brand A], [Brand B] and
+> We were looking at [Store name] and saw you carry [Brand A], [Brand B] and
 > [Brand C] and offer wholesale accounts. Stores like yours often need a
 > retailer to get, say, [20%] on [Brand A] but only [10%] on [Brand B],
 > because the margins differ by brand. In Shopify that usually means
 > discount codes per customer or manual draft orders.
 >
-> I built a small app, Vendtier, that does exactly that: you set each
+> We built a small app, Vendtier, that does exactly that: you set each
 > customer's discount for each brand on their customer page, and it applies
 > automatically at checkout, with no codes.
 >
-> If it's useful, I'll set it up with you on a 15-minute call, free, using
+> If it's useful, we'll set it up with you on a 15-minute call, free, using
 > your real brands and one of your wholesale customers. It's free for up to
 > two brands; for more, it's $19.99 a month with a 14-day free trial.
 >
 > https://apps.shopify.com/vendtier-wholesale-by-brand
 >
-> [Your name]
+> The Vendtier team
 > Chaftari Development · [postal address]
-> If this isn't relevant, reply "no" and I won't write again.
+> If this isn't relevant, reply "no" and we won't write again.
 
 ### 3b. One follow-up (5–7 days later, same thread)
 
 > Hi [first name], just bringing this back up once. If per-brand discounts
-> for your wholesale customers would help, I'm happy to do the setup with you
-> (about 15 minutes). If not, no problem, and I won't follow up again.
+> for your wholesale customers would help, we're happy to do the setup with
+> you (about 15 minutes). If not, no problem, and we won't follow up again.
 >
-> [Your name]
+> The Vendtier team
 
 ### 3c. Short version for Instagram, LinkedIn or a contact form
 
-> Hi! I saw [Store name] sells [Brand A] and [Brand B] wholesale. I built a
+> Hi! We saw [Store name] sells [Brand A] and [Brand B] wholesale. We built a
 > Shopify app that gives each wholesale customer their own discount on each
 > brand, applied automatically at checkout. Happy to set it up with you for
 > free on a quick call if that's useful. No worries if not!
 
 ### 3d. Merchant who left a low review on a competitor
 
-> Hi [first name], I came across your review of [competitor app], where you
+> Hi [first name], we came across your review of [competitor app], where you
 > mentioned [their exact complaint, for example "you can't set a different
-> discount per vendor"]. I built Vendtier for that case: each customer gets
+> discount per vendor"]. We built Vendtier for that case: each customer gets
 > their own discount per brand, applied automatically at checkout. If you're
-> still looking, I'd be glad to set it up with you, free.
+> still looking, we'd be glad to set it up with you, free.
 >
-> [Your name], Chaftari Development · [postal address]
-> Reply "no" and I won't write again.
+> The Vendtier team, Chaftari Development · [postal address]
+> Reply "no" and we won't write again.
 
 Don't criticize the other app. Point only to the problem they described.
 
@@ -242,41 +246,45 @@ Looking for feedback.
 
 **Subject:** A per-brand option for your wholesale apps list
 
-> Hi [name], I read your [article title]. One case it doesn't cover:
+> Hi [name], we read your [article title]. One case it doesn't cover:
 > stores that give each wholesale customer a different discount on each
 > brand. That's the only thing Vendtier does, applied automatically at
 > checkout with no codes.
 >
-> If you'd like to try it for an update, I'll set you up with a free
+> If you'd like to try it for an update, we'll set you up with a free
 > account on a development store and walk you through it.
 >
 > https://apps.shopify.com/vendtier-wholesale-by-brand
 >
-> [Your name], Chaftari Development
+> The Vendtier team, Chaftari Development
 
 Follow up once after a week, then stop.
 
 ### 5b. Agency or freelancer who builds B2B stores
 
-> Hi [name], I saw you build wholesale and B2B stores on Shopify (for
-> example [client or portfolio piece]). I make Vendtier, an app that gives each
-> wholesale customer their own discount per brand, applied automatically at
-> checkout. It's useful for clients who distribute several brands.
+> Hi [name], we saw you build wholesale and B2B stores on Shopify (for
+> example [client or portfolio piece]). We make Vendtier, an app that gives
+> each wholesale customer their own discount per brand, applied automatically
+> at checkout. It's useful for clients who distribute several brands.
 >
-> If you have a client with this need, I'll do the setup with you or them for
-> free, and I'm happy to add features you run into. Development stores are
-> free to test on.
+> If you have a client with this need, we'll do the setup with you or them
+> for free, and we're happy to add features you run into. Development stores
+> are free to test on.
+>
+> The Vendtier team
 
 ### 5c. A complementary B2B app (similar size, not a competitor)
 
 Good fits: wholesale order forms, net terms or invoicing, B2B registration
 and approval, quick order lists.
 
-> Hi [name], I make Vendtier (per-brand wholesale discounts at checkout).
-> Our apps solve neighboring parts of the same wholesale setup, and I think
+> Hi [name], we make Vendtier (per-brand wholesale discounts at checkout).
+> Our apps solve neighboring parts of the same wholesale setup, and we think
 > our merchants would use both. Would you be open to mentioning each other,
 > for example a "works well with" line in our docs or onboarding, or a joint
 > setup guide?
+>
+> The Vendtier team
 
 ---
 
