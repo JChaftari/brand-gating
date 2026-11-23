@@ -124,7 +124,8 @@ Track every contact in a simple sheet:
 | Store | URL | Contact | Brands seen | Date sent | Follow-up | Reply | Installed | Set up | Review asked |
 |---|---|---|---|---|---|---|---|---|---|
 
-Pace: about 10 a day, each one personalized.
+Pace: 3–5 a day in the first week, then about 10, each one personalized
+(see "Sending tips" below).
 
 ---
 
@@ -146,9 +147,9 @@ Pace: about 10 a day, each one personalized.
 > customer's discount for each brand on their customer page, and it applies
 > automatically at checkout, with no codes.
 >
-> If it's useful, we'll set it up with you on a 15-minute call, free, using
-> your real brands and one of your wholesale customers. It's free for up to
-> two brands; for more, it's $19.99 a month with a 14-day free trial.
+> It takes about 5 minutes to set up and is free for up to two brands;
+> beyond that it's $19.99 a month. If you'd like a hand, just reply and we'll
+> walk you through it by email, or on a quick call if you prefer.
 >
 > https://apps.shopify.com/vendtier-wholesale-by-brand
 >
@@ -159,8 +160,8 @@ Pace: about 10 a day, each one personalized.
 ### 3b. One follow-up (5–7 days later, same thread)
 
 > Hi [first name], just bringing this back up once. If per-brand discounts
-> for your wholesale customers would help, we're happy to do the setup with
-> you (about 15 minutes). If not, no problem, and we won't follow up again.
+> for your wholesale customers would help, just reply and we'll walk you
+> through setup by email. If not, no problem, and we won't follow up again.
 >
 > The Vendtier team
 
@@ -168,8 +169,8 @@ Pace: about 10 a day, each one personalized.
 
 > Hi! We saw [Store name] sells [Brand A] and [Brand B] wholesale. We built a
 > Shopify app that gives each wholesale customer their own discount on each
-> brand, applied automatically at checkout. Happy to set it up with you for
-> free on a quick call if that's useful. No worries if not!
+> brand, applied automatically at checkout. Happy to help you set it up if
+> that's useful. No worries if not!
 
 ### 3d. Merchant who left a low review on a competitor
 
@@ -177,12 +178,35 @@ Pace: about 10 a day, each one personalized.
 > mentioned [their exact complaint, for example "you can't set a different
 > discount per vendor"]. We built Vendtier for that case: each customer gets
 > their own discount per brand, applied automatically at checkout. If you're
-> still looking, we'd be glad to set it up with you, free.
+> still looking, it's free for up to two brands, and we're happy to walk you
+> through setup by email.
 >
 > The Vendtier team, Chaftari Development · [postal address]
 > Reply "no" and we won't write again.
 
 Don't criticize the other app. Point only to the problem they described.
+
+### Sending tips (staying out of spam)
+
+- **Ramp up slowly.** vendtiersupport@gmail.com is a new account: send 3–5
+  a day in the first week, then up to 10. Use Gmail's **Schedule send** to
+  spread them across the recipient's morning.
+- **Warm the account.** Use it normally too: answer support email, and
+  have a couple of people you know email it and get replies.
+- **Look like a person.** Gmail display name "Vendtier", the app icon as the
+  profile photo.
+- **Test placement first.** Send one draft to mail-tester.com (aim for 9+/10)
+  and one to a personal Outlook and Gmail address to see which folder it
+  lands in.
+- **Keep each email different.** Vary the subject and opening per store
+  (the daily job does this); plain text, one link, no attachments or
+  tracking, "free" at most once.
+- **Honor every "no" immediately.** Spam reports from recipients hurt
+  delivery far more than anything in the email itself.
+- **Help by email first.** Lead with "reply and we'll walk you through it";
+  offer a call only as an option. A call is a big ask from a stranger.
+- **Later, not free:** your own domain (around $10 a year) with SPF, DKIM and
+  DMARC looks more professional; it needs the same slow warm-up.
 
 ---
 
