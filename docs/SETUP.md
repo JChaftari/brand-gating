@@ -163,6 +163,14 @@ public app's client ID in `web/src/api/billing.js` and
 
 ### Free plan (added 23 November 2026)
 
+**Status:** created and live on 23 November 2026: invoice name `Free`,
+handle `free`, redirect `/`, no charge; listing display name `Free` with
+features "Up to 2 brands", "Per-customer discount on each brand", "Applied
+automatically at checkout". The App Store listing shows "Free plan
+available" (no review was needed). Verified on `brand-gating-fresh`:
+selecting Free shows the 2-brand banner, the "No discounts on free plan"
+badges and **Upgrade for more brands**.
+
 Shopify App Pricing creates a $0 subscription when a merchant picks a free
 plan, so the store has an `ACTIVE` subscription either way. The app tells the
 plans apart **by name**: a subscription whose name contains the word "free"
