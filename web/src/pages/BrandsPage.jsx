@@ -20,7 +20,7 @@ import { useBrandList } from '../hooks/useBrandList';
 import AddBrandModal from '../components/AddBrandModal';
 import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
-import { usePlanUrl } from '../components/BillingGate';
+import { usePlan } from '../components/BillingGate';
 import { maybeRequestReview } from '../api/reviews';
 
 // Wait this long after the page has loaded before asking for a review, so the
@@ -29,7 +29,11 @@ const REVIEW_REQUEST_DELAY_MS = 3000;
 
 export default function BrandsPage() {
   const { brands, loading, error, discountCount, replace, createDiscount } = useBrandList();
-  const planUrl = usePlanUrl(); // null for the customer's custom app (not billed)
+  // planUrl is null for the customer's custom app (not billed). On the free
+  // plan only the first brandLimit brands get discounts at checkout.
+  const { planUrl, free, brandLimit } = usePlan();
+  const atLimit = brands.length >= brandLimit;
+  const openPlanPage = useCallback(() => window.open(planUrl, '_top'), [planUrl]);
 
   // App Store review request: once per page visit, after brands have loaded,
   // public app only. maybeRequestReview decides whether the store qualifies
@@ -124,14 +128,13 @@ export default function BrandsPage() {
     <Page
       title="Brands"
       subtitle="Manage the brands available for customer discount assignment."
-      primaryAction={{
-        content: 'Add brand',
-        onAction: openAddModal,
-      }}
+      primaryAction={
+        atLimit && planUrl
+          ? { content: 'Upgrade for more brands', onAction: openPlanPage }
+          : { content: 'Add brand', onAction: openAddModal }
+      }
       secondaryActions={
-        planUrl
-          ? [{ content: 'Manage plan', onAction: () => window.open(planUrl, '_top') }]
-          : undefined
+        planUrl ? [{ content: 'Manage plan', onAction: openPlanPage }] : undefined
       }
     >
       <BlockStack gap="400">
@@ -179,6 +182,10 @@ export default function BrandsPage() {
           </InlineStack>
         )}
 
+        {!loading && free && (
+          <FreePlanNotice brands={brands} brandLimit={brandLimit} onUpgrade={openPlanPage} />
+        )}
+
         {postAddBanner && (
           <PostAddBanner
             brand={postAddBanner}
@@ -193,6 +200,7 @@ export default function BrandsPage() {
         ) : (
           <BrandsTable
             brands={brands}
+            brandLimit={brandLimit}
             onEdit={openEditModal}
             onDelete={openDeleteModal}
           />
@@ -264,7 +272,46 @@ function BrandsEmptyState({ onAddBrand }) {
   );
 }
 
-function BrandsTable({ brands, onEdit, onDelete }) {
+// Free plan: how many brands are used, and which ones don't get discounts
+// when the store has more than the plan allows (for example after a downgrade).
+function FreePlanNotice({ brands, brandLimit, onUpgrade }) {
+  const upgrade = { content: 'Upgrade', onAction: onUpgrade };
+  const names = (list) => list.map((b) => b.display_name).join(', ');
+
+  if (brands.length > brandLimit) {
+    const applied = brands.slice(0, brandLimit);
+    const notApplied = brands.slice(brandLimit);
+    return (
+      <Banner
+        tone="warning"
+        title={`The free plan gives discounts on ${brandLimit} brands`}
+        action={upgrade}
+      >
+        <p>
+          {names(applied)} get discounts at checkout. {names(notApplied)}{' '}
+          {notApplied.length === 1 ? "doesn't" : "don't"} until you upgrade or
+          delete brands.
+        </p>
+      </Banner>
+    );
+  }
+
+  if (brands.length === brandLimit) {
+    return (
+      <Banner tone="info" title={`Free plan: ${brandLimit} of ${brandLimit} brands used`} action={upgrade}>
+        <p>Upgrade to add more brands.</p>
+      </Banner>
+    );
+  }
+
+  return (
+    <Text as="p" tone="subdued">
+      Free plan: {brands.length} of {brandLimit} brands used.
+    </Text>
+  );
+}
+
+function BrandsTable({ brands, brandLimit, onEdit, onDelete }) {
   const rows = brands.map((brand, index) => (
     <IndexTable.Row id={brand.tag} key={brand.tag} position={index}>
       <IndexTable.Cell>
@@ -283,9 +330,12 @@ function BrandsTable({ brands, onEdit, onDelete }) {
         )}
       </IndexTable.Cell>
       <IndexTable.Cell>
-        <Text as="span" fontWeight="semibold">
-          {brand.display_name}
-        </Text>
+        <InlineStack gap="200" blockAlign="center">
+          <Text as="span" fontWeight="semibold">
+            {brand.display_name}
+          </Text>
+          {index >= brandLimit && <Badge tone="attention">No discounts on free plan</Badge>}
+        </InlineStack>
       </IndexTable.Cell>
       <IndexTable.Cell>
         <Text as="span" tone="subdued">{brand.tag}</Text>

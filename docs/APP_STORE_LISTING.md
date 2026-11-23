@@ -20,7 +20,7 @@ ready to resubmit.
 
 | Decision | Outcome |
 |---|---|
-| **Pricing** | One plan, `premium-plan`: $19.99/month or $199.99/year, 14-day free trial, via Shopify App Pricing (enabled; free for partner and development stores). See [SETUP.md §9](SETUP.md#9-billing-public-app-only). |
+| **Pricing** | Two plans via Shopify App Pricing: **Free** (up to 2 brands, added 23 November 2026) and `premium-plan`: $19.99/month or $199.99/year, 14-day free trial, no brand limit (free for partner and development stores). See [SETUP.md §9](SETUP.md#9-billing-public-app-only). |
 | **Support email, country** | Chaftari Development, vendtiersupport@gmail.com, Lebanon. Shown on the listing and in the privacy policy (`web/public/privacy.html`). |
 | **Icon** | Uploaded in the Dev Dashboard app settings (the listing syncs it from there; the admin sidebar icon is a separate setting). |
 | **Screencast** | `https://youtu.be/n-azyXygsM8` (unlisted). |
@@ -82,8 +82,11 @@ Pricing / discounts (choose the closest category the editor offers).
 
 ### Pricing section
 
-`premium-plan`: $19.99/month or $199.99/year, with a 14-day free trial.
-Must match the plan configured in Shopify exactly (rule 4.2.1).
+- **Free**: up to 2 brands.
+- `premium-plan`: $19.99/month or $199.99/year, with a 14-day free trial,
+  unlimited brands.
+
+Must match the plans configured in Shopify exactly (rule 4.2.1).
 
 ### Privacy policy URL
 

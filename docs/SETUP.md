@@ -150,11 +150,45 @@ points (e.g. Cloudflare Pages).
 
 ## 9. Billing (public app only)
 
-The public app is paid: one public plan, **`premium-plan`, $19.99/month or
-$199.99/year with a 14-day free trial**, through Shopify App Pricing
-("managed pricing"). The customer's custom app is never billed or gated
-(billing is keyed to the public app's client ID in `web/src/api/billing.js`
-and `extensions/customer-brand-discounts/src/api.js`).
+The public app has two public plans through Shopify App Pricing ("managed
+pricing"):
+
+- **Free** — $0, up to **2 brands** get discounts at checkout.
+- **`premium-plan`** — $19.99/month or $199.99/year with a 14-day free trial,
+  no brand limit.
+
+The customer's custom app is never billed or gated (billing is keyed to the
+public app's client ID in `web/src/api/billing.js` and
+`extensions/customer-brand-discounts/src/api.js`).
+
+### Free plan (added 23 November 2026)
+
+Shopify App Pricing creates a $0 subscription when a merchant picks a free
+plan, so the store has an `ACTIVE` subscription either way. The app tells the
+plans apart **by name**: a subscription whose name contains the word "free"
+(case-insensitive, for example `Free` or `free-plan`) is the free plan; any
+other active plan, including `premium-plan` and Shopify's `shopify-test`,
+has no limit. **Keep the word "free" in the free plan's name and keep it out
+of every paid plan's name.**
+
+To add it: Partner Dashboard → **App distribution** → the public app →
+**Distribution** → **Manage listing** → **Edit** (English) → **Pricing
+content** → **Manage** → under **Public plans** click **Add**. Billing:
+**Free**. Name it **Free**. Features: "Up to 2 brands", "Per-customer
+discounts for each brand", "Applied automatically at checkout". Welcome link
+`/`. Save, then check on a development store (open the app → **Manage plan**
+→ pick Free): the Brands page shows "Free plan: N of 2 brands used".
+
+What the limit does (`setBrandLimit` in `web/src/api/brandList.js`):
+only the **first 2 brands** in the registry go into the discount's
+`input_variables`, so only they get discounts at checkout. The registry
+(`brand_list`) keeps every brand, so upgrading restores them all on the next
+Brands page load (self-heal sees the plan change as drift), and downgrading
+trims them the same way. The Brands page swaps **Add brand** for **Upgrade
+for more brands** at the limit and labels any brand beyond it; the customer
+card offers only the covered brands and labels assigned ones that aren't
+covered. Like the plan check itself, a plan change takes effect at checkout
+when the app is next opened.
 
 Current setup (done 16 November 2026): **Shopify App Pricing is enabled**;
 `premium-plan` is the one public plan and is marked **free for partner and

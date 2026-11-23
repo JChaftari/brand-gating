@@ -82,13 +82,14 @@ page one. Prefer terms where page one has apps with few reviews:
 If the editor allows more than five, add the best of these instead of
 replacing the current ones.
 
-### Free plan (decision for you)
+### Free plan (done 23 November 2026)
 
 Paid-only apps with zero reviews are the most common reason new apps report
-for installs that don't stick. Option: a free plan limited to **2 brands**,
-with `premium-plan` for unlimited brands. Merchants can then use the app,
-see a real result and leave an honest review. This needs a code change to the
-plan check (commit `8161396`) and a second plan in Shopify App Pricing.
+for installs that don't stick, so there's now a **Free plan for up to 2
+brands**, with `premium-plan` for unlimited brands. Merchants can use the
+app, see a real result and leave an honest review. Setup and behavior:
+[SETUP.md §9](SETUP.md#9-billing-public-app-only). Outreach should lead with
+it: "free for up to two brands" lowers the bar to trying it.
 
 ---
 
@@ -142,8 +143,8 @@ Pace: about 10 a day, each one personalized.
 > automatically at checkout, with no codes.
 >
 > If it's useful, I'll set it up with you on a 15-minute call, free, using
-> your real brands and one of your wholesale customers. There's a 14-day free
-> trial, and after that it's $19.99 a month.
+> your real brands and one of your wholesale customers. It's free for up to
+> two brands; for more, it's $19.99 a month with a 14-day free trial.
 >
 > https://apps.shopify.com/vendtier-wholesale-by-brand
 >

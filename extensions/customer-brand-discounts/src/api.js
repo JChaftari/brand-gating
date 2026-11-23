@@ -10,6 +10,13 @@
 // locked.
 const BILLED_APP_CLIENT_IDS = ['f9f32ac3ca8e90585fc52b8fda97b2d1'];
 
+// Free plan: only the first FREE_PLAN_BRAND_LIMIT registered brands get
+// discounts at checkout. A store is on it when every active subscription's
+// name says "free"; any other active plan has no limit. Same rule as
+// planFromSubscriptions in web/src/api/billing.js.
+const FREE_PLAN_BRAND_LIMIT = 2;
+const FREE_PLAN_NAME = /\bfree\b/i;
+
 const LOAD_QUERY = `
   query LoadCustomerBrandData($customerId: ID!) {
     customer(id: $customerId) {
@@ -25,7 +32,7 @@ const LOAD_QUERY = `
     }
     currentAppInstallation {
       app { apiKey }
-      activeSubscriptions { status }
+      activeSubscriptions { name status }
     }
   }
 `;
@@ -44,8 +51,11 @@ const SAVE_MUTATION = `
  * single round-trip.
  *
  * @param {string} customerId  GID of the customer being viewed
- * @returns {Promise<{ discounts: Array, brands: Array, needsPlan: boolean }>}
- *   needsPlan: billed app without an active plan — the card must not allow edits
+ * @returns {Promise<{ discounts: Array, brands: Array, needsPlan: boolean,
+ *   brandLimit: number }>}
+ *   needsPlan:  billed app without an active plan — the card must not allow edits
+ *   brandLimit: how many of `brands` (in order) get discounts at checkout;
+ *               Infinity when there's no limit
  * @throws {Error} on transport / GraphQL errors
  */
 export async function loadCustomerBrandData(customerId) {
@@ -62,12 +72,15 @@ export async function loadCustomerBrandData(customerId) {
 
   const install = result.data?.currentAppInstallation;
   const billed = BILLED_APP_CLIENT_IDS.includes(install?.app?.apiKey);
-  const active = (install?.activeSubscriptions ?? []).some((s) => s.status === 'ACTIVE');
+  const activeSubs = (install?.activeSubscriptions ?? []).filter((s) => s.status === 'ACTIVE');
+  const freeOnly =
+    activeSubs.length > 0 && activeSubs.every((s) => FREE_PLAN_NAME.test(s.name ?? ''));
 
   return {
     discounts: safeParseArray(discountsRaw),
     brands: safeParseArray(brandsRaw),
-    needsPlan: billed && !active,
+    needsPlan: billed && activeSubs.length === 0,
+    brandLimit: billed && freeOnly ? FREE_PLAN_BRAND_LIMIT : Infinity,
   };
 }
 

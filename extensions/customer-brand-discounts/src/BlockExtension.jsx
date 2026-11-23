@@ -81,7 +81,8 @@ function BrandDiscountsBlock() {
     let cancelled = false;
     (async () => {
       try {
-        const { discounts, brands, needsPlan } = await loadCustomerBrandData(customerId);
+        const { discounts, brands, needsPlan, brandLimit } =
+          await loadCustomerBrandData(customerId);
         if (cancelled) return;
         if (needsPlan) {
           setState({ status: 'needsPlan' });
@@ -89,8 +90,9 @@ function BrandDiscountsBlock() {
         }
         setState({
           status: 'loaded',
-          rows: joinAndSort(discounts, brands),
+          rows: joinAndSort(discounts, brands, brandLimit),
           brands,
+          brandLimit,
         });
       } catch (err) {
         if (cancelled) return;
@@ -102,12 +104,13 @@ function BrandDiscountsBlock() {
     };
   }, [customerId]);
 
-  // Brands available for picking — registered brands minus those the customer
-  // already has assigned (whether stale or not).
+  // Brands available for picking — registered brands the plan covers (free
+  // plan: the first few) minus those the customer already has assigned.
   const availableBrands = useMemo(() => {
     if (state.status !== 'loaded') return [];
     const used = new Set(state.rows.map((r) => r.brand_tag));
     return state.brands
+      .slice(0, state.brandLimit)
       .filter((b) => b?.tag && !used.has(b.tag))
       .slice()
       .sort((a, b) =>
@@ -154,7 +157,7 @@ function BrandDiscountsBlock() {
 
       setState({
         ...state,
-        rows: joinAndSort(newDiscounts, state.brands),
+        rows: joinAndSort(newDiscounts, state.brands, state.brandLimit),
       });
       clearAdd();
       shopify?.toast?.show?.('Brand discount added');
@@ -196,7 +199,7 @@ function BrandDiscountsBlock() {
 
       setState({
         ...state,
-        rows: joinAndSort(newDiscounts, state.brands),
+        rows: joinAndSort(newDiscounts, state.brands, state.brandLimit),
       });
       clearEdit();
       shopify?.toast?.show?.('Brand discount updated');
@@ -228,7 +231,7 @@ function BrandDiscountsBlock() {
 
       setState({
         ...state,
-        rows: joinAndSort(newDiscounts, state.brands),
+        rows: joinAndSort(newDiscounts, state.brands, state.brandLimit),
       });
       clearRemove();
       shopify?.toast?.show?.('Brand discount removed');
@@ -299,8 +302,19 @@ function BrandDiscountsBlock() {
           {!anyModeActive &&
             state.rows.length > 0 &&
             availableBrands.length === 0 && (
-              <s-text tone="subdued">All registered brands are already assigned.</s-text>
+              <s-text tone="subdued">
+                {state.brands.length > state.brandLimit
+                  ? 'All brands on the free plan are already assigned.'
+                  : 'All registered brands are already assigned.'}
+              </s-text>
             )}
+
+          {state.brands.length > state.brandLimit && (
+            <s-text tone="subdued">
+              The free plan gives discounts on {state.brandLimit} brands. Upgrade in
+              Vendtier for more.
+            </s-text>
+          )}
         </s-stack>
       )}
     </s-admin-block>
@@ -513,11 +527,12 @@ function RowActions({
 
   // Default actions. Edit is hidden for stale rows (the brand no longer
   // exists in the registry, so editing the percentage would be meaningless —
-  // function won't apply it anyway). Remove is allowed for stale rows; that
-  // is the only way to clean them out.
+  // function won't apply it anyway) and for brands the free plan doesn't
+  // cover. Remove is always allowed; for stale rows it is the only way to
+  // clean them out.
   return (
     <s-stack direction="inline">
-      {!row.stale && (
+      {!row.stale && !row.offPlan && (
         <s-button variant="tertiary" onClick={() => onStartEdit(row)}>
           Edit
         </s-button>
@@ -530,6 +545,9 @@ function RowActions({
 }
 
 function BrandCell({ row }) {
+  if (row.offPlan) {
+    return <s-text tone="subdued">{row.display_name} (no discount on the free plan)</s-text>;
+  }
   if (!row.stale) {
     return <s-text>{row.display_name}</s-text>;
   }
@@ -604,12 +622,15 @@ function EditableAddRow({
  * - Falls back to brand_tag as display_name when stale.
  * - Sorts alphabetically by display_name (case-insensitive).
  * - Filters out entries missing brand_tag entirely (defensive).
+ * - Marks offPlan the registered brands beyond the plan's brand limit (free
+ *   plan), which don't get discounts at checkout.
  */
-function joinAndSort(discounts, brands) {
+function joinAndSort(discounts, brands, brandLimit = Infinity) {
   const brandByTag = new Map();
   for (const b of brands) {
     if (b?.tag) brandByTag.set(b.tag, b);
   }
+  const coveredTags = new Set(brands.slice(0, brandLimit).map((b) => b?.tag));
 
   return discounts
     .filter((d) => d?.brand_tag)
@@ -620,6 +641,7 @@ function joinAndSort(discounts, brands) {
         percentage: Number(d.percentage),
         display_name: brand?.display_name ?? d.brand_tag,
         stale: !brand,
+        offPlan: !!brand && !coveredTags.has(d.brand_tag),
       };
     })
     .sort((a, b) =>

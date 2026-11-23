@@ -11,24 +11,32 @@ import {
   Box,
 } from '@shopify/polaris';
 import { loadBillingStatus } from '../api/billing';
-import { pauseBrandDiscounts, resumeBrandDiscounts } from '../api/brandList';
+import { pauseBrandDiscounts, resumeBrandDiscounts, setBrandLimit } from '../api/brandList';
 
 /**
  * Plan gate for the public (App Store) app.
  *
  * - No active plan: shows a "choose a plan" screen instead of the app and
  *   switches the store's brand discounts off, so they stop at checkout.
- * - Active plan: switches back on any discounts it paused, then shows the app.
- * - App not billed (the customer's custom app): shows the app straight away.
+ * - Active plan: switches back on any discounts it paused, sets the plan's
+ *   brand limit (free plan: the first FREE_PLAN_BRAND_LIMIT brands), then
+ *   shows the app.
+ * - App not billed (the customer's custom app): shows the app straight away,
+ *   with no brand limit.
  *
  * Discounts are only switched off when the store is known to have no plan —
  * never when the check itself fails.
  */
 
-// Shopify's plan page for this store, or null when the app isn't billed.
-// Lets pages offer "Manage plan" so merchants can switch plans in-app.
-const PlanUrlContext = createContext(null);
-export const usePlanUrl = () => useContext(PlanUrlContext);
+// The store's plan, for pages:
+//   planUrl:    Shopify's plan page for this store, or null when the app
+//               isn't billed. Lets pages offer "Manage plan" in-app.
+//   free:       the store is on the free plan
+//   brandLimit: brands that get discounts at checkout (Infinity = no limit)
+const NO_PLAN = { planUrl: null, free: false, brandLimit: Infinity };
+const PlanContext = createContext(NO_PLAN);
+export const usePlan = () => useContext(PlanContext);
+export const usePlanUrl = () => useContext(PlanContext).planUrl;
 
 export default function BillingGate({ children }) {
   const [state, setState] = useState({ status: 'checking' });
@@ -44,17 +52,26 @@ export default function BillingGate({ children }) {
     }
 
     if (!billing.required) {
-      setState({ status: 'ok' });
+      setBrandLimit(Infinity);
+      setState({ status: 'ok', plan: NO_PLAN });
       return;
     }
 
     if (billing.active) {
+      // Set before the app renders: the Brands page's first load self-heals
+      // the discounts' brand lists against this limit.
+      setBrandLimit(billing.brandLimit);
+      const plan = {
+        planUrl: billing.planUrl,
+        free: billing.free,
+        brandLimit: billing.brandLimit,
+      };
       try {
         await resumeBrandDiscounts();
-        setState({ status: 'ok', planUrl: billing.planUrl });
+        setState({ status: 'ok', plan });
       } catch (err) {
-        // Paying merchant: never block the app over this; just say so.
-        setState({ status: 'ok', planUrl: billing.planUrl, resumeError: err });
+        // Merchant with a plan: never block the app over this; just say so.
+        setState({ status: 'ok', plan, resumeError: err });
       }
       return;
     }
@@ -75,7 +92,7 @@ export default function BillingGate({ children }) {
 
   if (state.status === 'ok') {
     return (
-      <PlanUrlContext.Provider value={state.planUrl ?? null}>
+      <PlanContext.Provider value={state.plan}>
         {state.resumeError && (
           <Box padding="400">
             <Banner tone="warning" title="Some brand discounts couldn't be switched back on">
@@ -87,7 +104,7 @@ export default function BillingGate({ children }) {
           </Box>
         )}
         {children}
-      </PlanUrlContext.Provider>
+      </PlanContext.Provider>
     );
   }
 
@@ -126,7 +143,8 @@ export default function BillingGate({ children }) {
           </Text>
           <Text as="p">
             Vendtier needs an active plan. Pick one to set up your brands and
-            give customers their brand discounts.
+            give customers their brand discounts. The free plan covers up to
+            two brands.
           </Text>
           {state.paused > 0 && (
             <Text as="p" tone="subdued">

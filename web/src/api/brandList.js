@@ -49,6 +49,10 @@
 // discounts off and back on for public-app billing (see billing.js), keeping a
 // record ($app:brand-discount.billing_paused_discounts on the shop) of which
 // ones the app switched off.
+//
+// Free plan: `setBrandLimit` caps how many brands go into input_variables
+// (the first N in brand_list order). brand_list itself always keeps every
+// brand, so an upgrade restores them on the next sync or self-heal.
 // =============================================================================
 
 import { gql, assertNoUserErrors } from './graphql';
@@ -265,9 +269,12 @@ export async function selfHealBrandRegistry() {
     return { discountCount: 0, healed: false };
   }
 
+  // Compared against the brands the current plan allows, so a plan change
+  // (free <-> premium) reads as drift and rewrites the discounts' tag lists.
+  const applied = brandsAtCheckout(brands);
   const expected = canonicalBrandsJson(
-    brands.map((b) => b.tag),
-    brands.map((b) => b.collection_id)
+    applied.map((b) => b.tag),
+    applied.map((b) => b.collection_id)
   );
   const drift = brandDiscounts.some((d) => {
     const raw = d.inputVariables?.value;
@@ -476,10 +483,27 @@ async function discoverBrandDiscounts() {
 
 // The function's input variables for a brand list. Arrays stay index-aligned
 // (brandTags[i] and brandCollectionIds[i] are the same brand).
+// How many brands get discounts at checkout. The free plan (public app) allows
+// only the first few registered brands; BillingGate sets this from the store's
+// plan before the Brands page loads (see web/src/api/billing.js). The shop's
+// brand_list always keeps every brand, so upgrading restores them all.
+let brandLimit = Infinity;
+
+/** @param {number} limit  Infinity for no limit */
+export function setBrandLimit(limit) {
+  brandLimit = limit;
+}
+
+/** The brands that get discounts at checkout under the current plan. */
+export function brandsAtCheckout(brands) {
+  return brands.slice(0, brandLimit);
+}
+
 function inputVariablesFor(brands) {
+  const applied = brandsAtCheckout(brands);
   return JSON.stringify({
-    brandTags: brands.map((b) => b.tag),
-    brandCollectionIds: brands.map((b) => b.collection_id),
+    brandTags: applied.map((b) => b.tag),
+    brandCollectionIds: applied.map((b) => b.collection_id),
   });
 }
 

@@ -4,6 +4,22 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
+## [Unreleased] — Free plan (public app)
+
+### Added
+- Free plan for up to 2 brands (Shopify App Pricing, alongside
+  `premium-plan`). A store is on it when its active subscription's name
+  contains "free". Only the first 2 registered brands go into the discount's
+  `input_variables`; the registry keeps every brand, so upgrading restores
+  them on the next Brands page load and downgrading trims them the same way.
+  Brands page: "Free plan: N of 2 brands used", **Upgrade for more brands**
+  in place of **Add brand** at the limit, and a label on brands beyond it.
+  Customer card: offers only covered brands and labels assigned ones that
+  aren't. The customer's custom app is unaffected (not billed). Tested
+  against a simulated Admin API (20 checks: plan detection, cap at checkout,
+  upgrade, downgrade, delete). Customer card bundle 25.4 KB (limit 64 KB).
+  Needs the Free plan created in the Partner Dashboard (SETUP §9).
+
 ## 2026-11-19 — API 2026-10 and review request (both apps)
 
 Released as public `vendtier-wholesale-by-brand-10` (published on the App
