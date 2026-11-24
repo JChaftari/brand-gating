@@ -64,6 +64,12 @@ const KEY_BRAND_LIST = 'brand_list';
 const NS_DISCOUNT = '$app:brand-discount';
 const KEY_INPUT_VARIABLES = 'input_variables';
 
+// Customer-tag tiers (Premium): shop metafield, source of truth for the UI.
+// Shape: [{ tag, discounts: [{ brand_tag, percentage }] }]. Copied into each
+// discount's input_variables (tierTags + tiers) by the same atomic writes
+// as the brand list.
+const KEY_TIERS = 'tiers';
+
 // Matches the `handle` in extensions/brand-discount/shopify.extension.toml.
 // Identifies our function among those installed on the shop, and is the
 // functionHandle used when creating the discount.
@@ -72,6 +78,14 @@ const FUNCTION_HANDLE = 'brand-discount';
 const DISCOUNT_TITLE = 'Brand discounts';
 
 // ---- queries / mutations ---------------------------------------------------
+
+const READ_TIERS_QUERY = `
+  query LoadTiers {
+    shop {
+      tiers: metafield(namespace: "${NS_SHOP}", key: "${KEY_TIERS}") { value }
+    }
+  }
+`;
 
 const READ_BRAND_LIST_QUERY = `
   query LoadBrandList {
@@ -203,22 +217,91 @@ export async function syncBrandList(nextBrandList) {
   const normalized = nextBrandList.map(normalizeBrand);
   validateBrandList(normalized);
 
-  const inputVariablesValue = inputVariablesFor(normalized);
-
-  // Discovery + shop ID in parallel — both are reads, both safe to fan out.
-  const [shopId, brandDiscounts] = await Promise.all([
+  // Reads in parallel — all safe to fan out.
+  const [shopId, brandDiscounts, tiers] = await Promise.all([
     getShopId(),
     discoverBrandDiscounts(),
+    loadTiers(),
   ]);
 
-  const metafields = [
-    {
+  await writeRegistry({
+    shopMetafield: {
       ownerId: shopId,
       namespace: NS_SHOP,
       key: KEY_BRAND_LIST,
       type: 'json',
       value: JSON.stringify(normalized),
     },
+    brandDiscounts,
+    inputVariablesValue: inputVariablesFor(normalized, tiers),
+    label: 'brand list sync',
+  });
+
+  return { brands: normalized, syncedDiscountCount: brandDiscounts.length };
+}
+
+/**
+ * Load the customer-tag tiers from the shop. Returns [] if unset or
+ * unparseable.
+ *
+ * @returns {Promise<Array<Tier>>}
+ */
+export async function loadTiers() {
+  const data = await gql(READ_TIERS_QUERY);
+  const raw = data.shop.tiers?.value;
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(normalizeTier).filter((t) => t.tag) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Atomic write of the customer-tag tiers: the shop's tiers metafield plus
+ * every brand discount's input_variables, in one metafieldsSet call (the same
+ * way syncBrandList writes the brand list).
+ *
+ * @param {Array<Tier>} nextTiers
+ * @returns {Promise<Array<Tier>>} the saved, normalized tiers
+ * @throws {Error} on validation failure (no write attempted)
+ */
+export async function syncTiers(nextTiers) {
+  if (!Array.isArray(nextTiers)) {
+    throw new TypeError('syncTiers: nextTiers must be an array');
+  }
+  const normalized = nextTiers.map(normalizeTier);
+  validateTiers(normalized);
+
+  const [shopId, brandDiscounts, brands] = await Promise.all([
+    getShopId(),
+    discoverBrandDiscounts(),
+    loadBrandList(),
+  ]);
+
+  await writeRegistry({
+    shopMetafield: {
+      ownerId: shopId,
+      namespace: NS_SHOP,
+      key: KEY_TIERS,
+      type: 'json',
+      value: JSON.stringify(normalized),
+    },
+    brandDiscounts,
+    inputVariablesValue: inputVariablesFor(brands, normalized),
+    label: 'tiers sync',
+  });
+
+  return normalized;
+}
+
+// One metafieldsSet: a shop-level registry metafield plus the derived
+// input_variables on every brand discount. Atomic, and checked for a full
+// write.
+async function writeRegistry({ shopMetafield, brandDiscounts, inputVariablesValue, label }) {
+  const metafields = [
+    shopMetafield,
     ...brandDiscounts.map((d) => ({
       ownerId: d.id,
       namespace: NS_DISCOUNT,
@@ -230,17 +313,15 @@ export async function syncBrandList(nextBrandList) {
 
   const expectedCount = metafields.length;
   const data = await gql(SET_MUTATION, { metafields });
-  assertNoUserErrors(data.metafieldsSet, 'metafieldsSet (brand list sync)');
+  assertNoUserErrors(data.metafieldsSet, `metafieldsSet (${label})`);
 
   const written = data.metafieldsSet.metafields ?? [];
   if (written.length !== expectedCount) {
     throw new Error(
-      `metafieldsSet (brand list sync): expected ${expectedCount} metafields written, got ${written.length}. ` +
+      `metafieldsSet (${label}): expected ${expectedCount} metafields written, got ${written.length}. ` +
         'Server state may be inconsistent — investigate before retrying.'
     );
   }
-
-  return { brands: normalized, syncedDiscountCount: brandDiscounts.length };
 }
 
 /**
@@ -259,9 +340,10 @@ export async function syncBrandList(nextBrandList) {
  *   healed: true iff a sync was performed during this call.
  */
 export async function selfHealBrandRegistry() {
-  const [brands, brandDiscounts] = await Promise.all([
+  const [brands, brandDiscounts, tiers] = await Promise.all([
     loadBrandList(),
     discoverBrandDiscounts(),
+    loadTiers(),
   ]);
 
   // Zero discounts → caller surfaces a banner. Nothing to heal.
@@ -269,22 +351,17 @@ export async function selfHealBrandRegistry() {
     return { discountCount: 0, healed: false };
   }
 
-  // Compared against the brands the current plan allows, so a plan change
-  // (free <-> premium) reads as drift and rewrites the discounts' tag lists.
-  const applied = brandsAtCheckout(brands);
-  const expected = canonicalBrandsJson(
-    applied.map((b) => b.tag),
-    applied.map((b) => b.collection_id)
-  );
+  // Compared against what the current plan allows (brand limit, tiers on or
+  // off), so a plan change (free <-> premium) reads as drift and rewrites the
+  // discounts' config.
+  const expected = canonicalConfigJson(JSON.parse(inputVariablesFor(brands, tiers)));
   const drift = brandDiscounts.some((d) => {
     const raw = d.inputVariables?.value;
     if (!raw) return true; // missing
     try {
-      const parsed = JSON.parse(raw);
-      // Discounts configured before brandCollectionIds existed have no ids,
-      // so they read as drifted and get rewritten with both lists.
-      const actual = canonicalBrandsJson(parsed.brandTags, parsed.brandCollectionIds);
-      return actual !== expected;
+      // Discounts configured before brandCollectionIds or tiers existed lack
+      // those keys, so they read as drifted and get rewritten in full.
+      return canonicalConfigJson(JSON.parse(raw)) !== expected;
     } catch {
       return true; // malformed
     }
@@ -311,7 +388,7 @@ export async function selfHealBrandRegistry() {
  * @throws {GraphQLError} on transport / GraphQL / userErrors response
  */
 export async function createBrandDiscount() {
-  const brands = await loadBrandList();
+  const [brands, tiers] = await Promise.all([loadBrandList(), loadTiers()]);
   const data = await gql(CREATE_DISCOUNT_MUTATION, {
     discount: {
       title: DISCOUNT_TITLE,
@@ -328,7 +405,7 @@ export async function createBrandDiscount() {
           namespace: NS_DISCOUNT,
           key: KEY_INPUT_VARIABLES,
           type: 'json',
-          value: inputVariablesFor(brands),
+          value: inputVariablesFor(brands, tiers),
         },
       ],
     },
@@ -497,25 +574,60 @@ export function brandsAtCheckout(brands) {
   return brands.slice(0, brandLimit);
 }
 
-// The function's input variables for a brand list (only the brands the plan
-// covers). Arrays stay index-aligned (brandTags[i] and brandCollectionIds[i]
-// are the same brand).
-function inputVariablesFor(brands) {
+// Whether customer-tag tiers apply at checkout (Premium, and the customer's
+// custom app). BillingGate sets it from the store's plan alongside the brand
+// limit. Off: tiers stay saved on the shop but aren't sent to the function.
+let tiersEnabled = true;
+
+/** @param {boolean} enabled */
+export function setTiersEnabled(enabled) {
+  tiersEnabled = enabled;
+}
+
+// The function's input variables (only what the plan covers): the brands
+// (brandTags[i] and brandCollectionIds[i] are the same brand, index-aligned)
+// and the customer-tag tiers, each limited to those brands. tierTags feeds the
+// function's hasTags query; tiers carries the percentages.
+function inputVariablesFor(brands, tiers = []) {
   const applied = brandsAtCheckout(brands);
+  const appliedTags = new Set(applied.map((b) => b.tag));
+  const appliedTiers = tiersEnabled
+    ? tiers
+        .map((t) => ({
+          tag: t.tag,
+          discounts: t.discounts.filter((d) => appliedTags.has(d.brand_tag)),
+        }))
+        .filter((t) => t.tag && t.discounts.length > 0)
+    : [];
   return JSON.stringify({
     brandTags: applied.map((b) => b.tag),
     brandCollectionIds: applied.map((b) => b.collection_id),
+    tierTags: appliedTiers.map((t) => t.tag),
+    tiers: appliedTiers,
   });
 }
 
-// Stable string representation of the brand set (tag + collection pairs),
-// used for drift comparison. Sorted so brand order doesn't matter; pairing is
-// preserved because the function maps collections to tags by index.
-function canonicalBrandsJson(tags, collectionIds) {
-  const t = Array.isArray(tags) ? tags : [];
-  const c = Array.isArray(collectionIds) ? collectionIds : [];
-  const pairs = t.map((tag, i) => `${tag}|${c[i] ?? ''}`);
-  return JSON.stringify(pairs.sort());
+// Stable string form of a discount's config, for drift comparison. Order
+// doesn't matter (brands and tiers sorted); the brand ↔ collection pairing is
+// kept because the function maps collections to tags by index.
+function canonicalConfigJson(config) {
+  const t = Array.isArray(config?.brandTags) ? config.brandTags : [];
+  const c = Array.isArray(config?.brandCollectionIds) ? config.brandCollectionIds : [];
+  const pairs = t.map((tag, i) => `${tag}|${c[i] ?? ''}`).sort();
+  const tiers = (Array.isArray(config?.tiers) ? config.tiers : [])
+    .map((tier) =>
+      [
+        String(tier?.tag ?? '').toLowerCase(),
+        ...(Array.isArray(tier?.discounts) ? tier.discounts : [])
+          .map((d) => `${d?.brand_tag}=${Number(d?.percentage)}`)
+          .sort(),
+      ].join(',')
+    )
+    .sort();
+  const tierTags = (Array.isArray(config?.tierTags) ? config.tierTags : [])
+    .map((s) => String(s).toLowerCase())
+    .sort();
+  return JSON.stringify({ pairs, tiers, tierTags });
 }
 
 // ---- normalization & validation --------------------------------------------
@@ -562,5 +674,51 @@ function validateBrandList(list) {
       throw new Error(`Duplicate brand tag in list: "${b.tag}"`);
     }
     seenTags.add(b.tag);
+  }
+}
+
+/**
+ * A customer-tag tier (Premium): every customer with `tag` gets these brand
+ * discounts unless their own customer page sets that brand.
+ *
+ * @typedef {Object} Tier
+ * @property {string} tag         Shopify customer tag, as the merchant typed it
+ * @property {Array<{brand_tag: string, percentage: number}>} discounts
+ */
+
+function normalizeTier(t) {
+  if (!t || typeof t !== 'object') {
+    throw new TypeError('Tier entry must be an object');
+  }
+  const discounts = Array.isArray(t.discounts) ? t.discounts : [];
+  return {
+    tag: typeof t.tag === 'string' ? t.tag.trim() : '',
+    discounts: discounts
+      .map((d) => ({
+        brand_tag: typeof d?.brand_tag === 'string' ? d.brand_tag : '',
+        percentage: Number(d?.percentage),
+      }))
+      .filter((d) => d.brand_tag),
+  };
+}
+
+// Throws a merchant-readable message for the first problem found.
+export function validateTiers(list) {
+  const seen = new Set();
+  for (const t of list) {
+    if (!t.tag) throw new Error('Enter a customer tag.');
+    if (t.tag.length > 255) throw new Error('Customer tags can be at most 255 characters.');
+    if (t.tag.includes(',')) throw new Error('A customer tag can’t contain a comma.');
+    const key = t.tag.toLowerCase();
+    if (seen.has(key)) throw new Error(`There's already a tier for the tag "${t.tag}".`);
+    seen.add(key);
+    if (t.discounts.length === 0) {
+      throw new Error(`Give the "${t.tag}" tier a percentage for at least one brand.`);
+    }
+    for (const d of t.discounts) {
+      if (!Number.isFinite(d.percentage) || d.percentage <= 0 || d.percentage > 100) {
+        throw new Error('Percentages must be more than 0 and at most 100.');
+      }
+    }
   }
 }

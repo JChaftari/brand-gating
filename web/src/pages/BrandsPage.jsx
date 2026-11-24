@@ -21,6 +21,7 @@ import AddBrandModal from '../components/AddBrandModal';
 import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
 import SetupGuide from '../components/SetupGuide';
+import TiersCard from '../components/TiersCard';
 import { usePlan } from '../components/BillingGate';
 import { maybeRequestReview } from '../api/reviews';
 
@@ -32,7 +33,7 @@ export default function BrandsPage() {
   const { brands, loading, error, discountCount, replace, createDiscount } = useBrandList();
   // planUrl is null for the customer's custom app (not billed). On the free
   // plan only the first brandLimit brands get discounts at checkout.
-  const { planUrl, free, brandLimit } = usePlan();
+  const { planUrl, free, brandLimit, tiersEnabled } = usePlan();
   const atLimit = brands.length >= brandLimit;
   const openPlanPage = useCallback(() => window.open(planUrl, '_top'), [planUrl]);
 
@@ -220,6 +221,16 @@ export default function BrandsPage() {
             brandLimit={brandLimit}
             onEdit={openEditModal}
             onDelete={openDeleteModal}
+          />
+        )}
+
+        {!loading && !error && (
+          <TiersCard
+            brands={brands}
+            enabled={tiersEnabled}
+            billed={!!planUrl}
+            onUpgrade={openPlanPage}
+            onToast={setToast}
           />
         )}
       </BlockStack>

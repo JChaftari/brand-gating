@@ -23,6 +23,7 @@ let cachedShopId = null;
 const LOAD_QUERY = `
   query LoadCustomerBrandData($customerId: ID!) {
     customer(id: $customerId) {
+      tags
       brandDiscounts: metafield(namespace: "$app:brand-discount", key: "brand_discounts") {
         id
         value
@@ -31,6 +32,9 @@ const LOAD_QUERY = `
     shop {
       id
       brandList: metafield(namespace: "$app:brand-discount", key: "brand_list") {
+        value
+      }
+      tiers: metafield(namespace: "$app:brand-discount", key: "tiers") {
         value
       }
     }
@@ -56,10 +60,13 @@ const SAVE_MUTATION = `
  *
  * @param {string} customerId  GID of the customer being viewed
  * @returns {Promise<{ discounts: Array, brands: Array, needsPlan: boolean,
- *   brandLimit: number }>}
+ *   brandLimit: number, tierDiscounts: Array }>}
  *   needsPlan:  billed app without an active plan — the card must not allow edits
  *   brandLimit: how many of `brands` (in order) get discounts at checkout;
  *               Infinity when there's no limit
+ *   tierDiscounts: [{ brand_tag, percentage, tag }] — the best tier discount
+ *               per brand from the customer's tags (Premium; [] on the free
+ *               plan), before the customer's own discounts override them
  * @throws {Error} on transport / GraphQL errors
  */
 export async function loadCustomerBrandData(customerId) {
@@ -81,11 +88,32 @@ export async function loadCustomerBrandData(customerId) {
   const freeOnly =
     activeSubs.length > 0 && activeSubs.every((s) => FREE_PLAN_NAME.test(s.name ?? ''));
 
+  const onFreePlan = billed && freeOnly;
+  const customerTags = new Set(
+    (result.data?.customer?.tags ?? []).map((t) => String(t).toLowerCase())
+  );
+  // Same rule as the checkout function: best percentage per brand across the
+  // tiers whose tag the customer has.
+  const bestTier = new Map(); // brand_tag → { percentage, tag }
+  if (!onFreePlan) {
+    for (const tier of safeParseArray(result.data?.shop?.tiers?.value)) {
+      if (typeof tier?.tag !== 'string' || !customerTags.has(tier.tag.toLowerCase())) continue;
+      for (const d of Array.isArray(tier.discounts) ? tier.discounts : []) {
+        const pct = Number(d?.percentage);
+        if (!d?.brand_tag || !(pct > 0 && pct <= 100)) continue;
+        if (pct > (bestTier.get(d.brand_tag)?.percentage ?? 0)) {
+          bestTier.set(d.brand_tag, { percentage: pct, tag: tier.tag });
+        }
+      }
+    }
+  }
+
   return {
     discounts: safeParseArray(discountsRaw),
     brands: safeParseArray(brandsRaw),
     needsPlan: billed && activeSubs.length === 0,
-    brandLimit: billed && freeOnly ? FREE_PLAN_BRAND_LIMIT : Infinity,
+    brandLimit: onFreePlan ? FREE_PLAN_BRAND_LIMIT : Infinity,
+    tierDiscounts: [...bestTier].map(([brand_tag, v]) => ({ brand_tag, ...v })),
   };
 }
 

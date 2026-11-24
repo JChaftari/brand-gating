@@ -4,9 +4,27 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
-## [Unreleased] — Setup guide (both apps' code; public app first)
+## [Unreleased] — Setup guide and customer-tag tiers (public app first)
 
 ### Added
+- **Discounts by customer tag (Premium).** A tier gives every customer
+  with a Shopify customer tag the same per-brand percentages, e.g. everyone
+  tagged `gold-dealer` gets 25% on Brand A and 15% on Brand B. Managed in a
+  new "Discounts by customer tag" card on the Brands page (add, edit,
+  delete; percentages per registered brand). Rules at checkout: a
+  customer's own discount for a brand overrides the tier for that brand;
+  several tiers → the best percentage per brand; tag match ignores case.
+  Data: shop metafield `$app:brand-discount.tiers`
+  (`[{tag, discounts:[{brand_tag, percentage}]}]`), copied into every
+  discount's `input_variables` as `tierTags` + `tiers` by the same atomic
+  `metafieldsSet` writes as the brand list (`syncTiers`; `syncBrandList`
+  and self-heal carry them too). The function asks `customer.hasTags` for
+  `$tierTags`. Free plan: tiers stay saved but aren't sent to checkout (the
+  card shows an upgrade button); limited to the brands the plan covers.
+  The customer card shows "From customer tags" discounts, marking any its
+  own rows replace. Tests: 14 function unit tests, the tier fixture run on
+  the built wasm, 23 simulated Admin API checks (free/premium switch, drift,
+  validation); queries validated against API 2026-10. Card bundle 27.1 KB.
 - Setup guide on the Brands page: "Set up Vendtier, about 5 minutes", with
   four steps ticked off as the store completes them: turn on brand
   discounts, add a brand, add products to a brand (any brand's collection

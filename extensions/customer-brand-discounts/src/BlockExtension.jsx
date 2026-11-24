@@ -81,7 +81,7 @@ function BrandDiscountsBlock() {
     let cancelled = false;
     (async () => {
       try {
-        const { discounts, brands, needsPlan, brandLimit } =
+        const { discounts, brands, needsPlan, brandLimit, tierDiscounts } =
           await loadCustomerBrandData(customerId);
         if (cancelled) return;
         if (needsPlan) {
@@ -93,6 +93,7 @@ function BrandDiscountsBlock() {
           rows: joinAndSort(discounts, brands, brandLimit),
           brands,
           brandLimit,
+          tierDiscounts,
         });
       } catch (err) {
         if (cancelled) return;
@@ -308,6 +309,14 @@ function BrandDiscountsBlock() {
                   : 'All registered brands are already assigned.'}
               </s-text>
             )}
+
+          {!anyModeActive && (
+            <TierDiscounts
+              tierDiscounts={state.tierDiscounts}
+              brands={state.brands.slice(0, state.brandLimit)}
+              rows={state.rows}
+            />
+          )}
 
           {state.brands.length > state.brandLimit && (
             <s-text tone="subdued">
@@ -612,6 +621,31 @@ function EditableAddRow({
         </s-stack>
       </s-table-cell>
     </s-table-row>
+  );
+}
+
+/**
+ * Discounts this customer gets from their tags (customer-tag tiers, set on
+ * the Brands page). A discount set in the table above overrides the tier for
+ * that brand, as at checkout.
+ */
+function TierDiscounts({ tierDiscounts, brands, rows }) {
+  const nameByTag = new Map(brands.map((b) => [b.tag, b.display_name]));
+  const own = new Map(rows.map((r) => [r.brand_tag, r.percentage]));
+  const items = (tierDiscounts ?? []).filter((d) => nameByTag.has(d.brand_tag));
+  if (items.length === 0) return null;
+
+  return (
+    <s-stack direction="block">
+      <s-text type="strong">From customer tags</s-text>
+      {items.map((d) => (
+        <s-text key={d.brand_tag} tone={own.has(d.brand_tag) ? 'subdued' : undefined}>
+          {own.has(d.brand_tag)
+            ? `${nameByTag.get(d.brand_tag)}: ${d.percentage}% (tag ${d.tag}), replaced by the ${own.get(d.brand_tag)}% above`
+            : `${nameByTag.get(d.brand_tag)}: ${d.percentage}% (tag ${d.tag})`}
+        </s-text>
+      ))}
+    </s-stack>
   );
 }
 

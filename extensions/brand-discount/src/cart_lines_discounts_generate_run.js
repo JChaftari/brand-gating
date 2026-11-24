@@ -26,51 +26,49 @@ export function cartLinesDiscountsGenerateRun(input) {
     return { operations: [] };
   }
 
-  const rawJson = customer.brandDiscounts?.value;
-  if (!rawJson) {
-    return { operations: [] };
-  }
-
-  /** @type {Array<{brand_tag: string, percentage: number}>} */
-  let brandDiscounts;
+  // The discount's config (input_variables): brand tags, their collections
+  // (brandTags[i] ↔ brandCollectionIds[i]) and customer-tag tiers. Missing or
+  // malformed → empty → products match on tags only, and no tiers apply.
+  /** @type {{ brandTags?: string[], brandCollectionIds?: string[],
+   *   tiers?: Array<{ tag: string, discounts: Array<{brand_tag: string, percentage: number}> }> }} */
+  let config = {};
   try {
-    brandDiscounts = JSON.parse(rawJson);
+    config = JSON.parse(input.discount.brandConfig?.value ?? '{}') ?? {};
   } catch (_) {
-    return { operations: [] };
+    config = {};
   }
 
-  if (!Array.isArray(brandDiscounts) || brandDiscounts.length === 0) {
-    return { operations: [] };
+  // The customer's own discounts take priority over tier discounts for the
+  // same brand: the merchant set them for this customer specifically.
+  const ownByTag = bestPercentByBrand(parseJsonArray(customer.brandDiscounts?.value));
+
+  // Tier discounts: every tier whose tag the customer has; the best
+  // percentage per brand when several tiers cover the same brand.
+  const customerTierTags = new Set();
+  for (const match of customer.tierMatches ?? []) {
+    if (match?.hasTag) customerTierTags.add(match.tag.toLowerCase());
   }
+  const tierEntries = [];
+  for (const tier of Array.isArray(config.tiers) ? config.tiers : []) {
+    if (typeof tier?.tag !== 'string' || !customerTierTags.has(tier.tag.toLowerCase())) continue;
+    if (Array.isArray(tier.discounts)) tierEntries.push(...tier.discounts);
+  }
+  const tierByTag = bestPercentByBrand(tierEntries);
 
   /** @type {Map<string, number>} */
-  const discountByTag = new Map();
-  for (const entry of brandDiscounts) {
-    const tag = entry?.brand_tag;
-    const pct = Number(entry?.percentage);
-    if (!tag || !Number.isFinite(pct) || pct <= 0) continue;
-    const existing = discountByTag.get(tag) ?? 0;
-    if (pct > existing) discountByTag.set(tag, pct);
-  }
+  const discountByTag = new Map(tierByTag);
+  for (const [tag, pct] of ownByTag) discountByTag.set(tag, pct);
 
   if (discountByTag.size === 0) {
     return { operations: [] };
   }
 
-  // Map each brand collection back to its brand tag, from the discount's
-  // input_variables (brandTags[i] ↔ brandCollectionIds[i]). Missing or
-  // malformed config → empty map → products match on tags only.
   /** @type {Map<string, string>} */
   const tagByCollectionId = new Map();
-  try {
-    const config = JSON.parse(input.discount.brandConfig?.value ?? '{}');
-    const tags = Array.isArray(config.brandTags) ? config.brandTags : [];
-    const ids = Array.isArray(config.brandCollectionIds) ? config.brandCollectionIds : [];
-    for (let i = 0; i < Math.min(tags.length, ids.length); i++) {
-      if (tags[i] && ids[i]) tagByCollectionId.set(ids[i], tags[i]);
-    }
-  } catch (_) {
-    // Fall through with an empty map.
+  const tags = Array.isArray(config.brandTags) ? config.brandTags : [];
+  const ids = Array.isArray(config.brandCollectionIds) ? config.brandCollectionIds : [];
+  for (let i = 0; i < Math.min(tags.length, ids.length); i++) {
+    if (tags[i] && ids[i]) tagByCollectionId.set(ids[i], tags[i]);
   }
 
   const candidates = [];
@@ -132,4 +130,31 @@ export function cartLinesDiscountsGenerateRun(input) {
       },
     ],
   };
+}
+
+/** JSON array from a metafield value; anything else → []. */
+function parseJsonArray(raw) {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+/**
+ * brand tag → highest valid percentage among the entries.
+ * @param {Array<{brand_tag?: string, percentage?: number}>} entries
+ * @returns {Map<string, number>}
+ */
+function bestPercentByBrand(entries) {
+  const byTag = new Map();
+  for (const entry of entries) {
+    const tag = entry?.brand_tag;
+    const pct = Number(entry?.percentage);
+    if (!tag || !Number.isFinite(pct) || pct <= 0 || pct > 100) continue;
+    if (pct > (byTag.get(tag) ?? 0)) byTag.set(tag, pct);
+  }
+  return byTag;
 }

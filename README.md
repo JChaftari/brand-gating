@@ -49,6 +49,7 @@ merchant's own `custom` fields):
 | Shop | `$app:brand-discount.brand_list` | `json` | Rich brand registry — `[{tag, display_name, collection_id, image_url}]`. Source of truth for the admin UI. |
 | Discount | `$app:brand-discount.input_variables` | `json` | Per-discount input variables for the function — `{brandTags: [...], brandCollectionIds: [...]}` (index-aligned). Function reads this via `[extensions.input.variables]` in the toml. Synced from `brand_list` automatically. |
 | Customer | `$app:brand-discount.brand_discounts` | `json` | Per-customer discount assignments — `[{brand_tag, percentage}]`. Edited via the customer-detail card. |
+| Shop | `$app:brand-discount.tiers` | `json` | Customer-tag tiers (Premium) — `[{tag, discounts:[{brand_tag, percentage}]}]`. Edited on the Brands page; copied into each discount's `input_variables` as `tierTags` + `tiers`. A customer's own `brand_discounts` override a tier for the same brand. |
 
 The `syncBrandList` helper in `web/src/api/brandList.js` is the **only**
 supported way to mutate the registry. It writes the shop metafield + every

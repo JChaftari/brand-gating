@@ -13,12 +13,25 @@
 # belongs to a brand if it has the brand's tag OR is in the brand's collection.
 # brandTags[i] and brandCollectionIds[i] describe the same brand; the JS reads
 # that metafield (discount.brandConfig) to map a collection back to its tag.
-query RunInput($brandTags: [String!] = [], $brandCollectionIds: [ID!] = []) {
+#
+# $tierTags (same metafield, same rules) lists the customer tags that have
+# tier discounts (Premium: "discounts by customer tag"). The JS reads each
+# tier's percentages from discount.brandConfig.tiers and applies the tiers
+# whose tag the customer has.
+query RunInput(
+  $brandTags: [String!] = []
+  $brandCollectionIds: [ID!] = []
+  $tierTags: [String!] = []
+) {
   cart {
     buyerIdentity {
       customer {
         brandDiscounts: metafield(namespace: "$app:brand-discount", key: "brand_discounts") {
           value
+        }
+        tierMatches: hasTags(tags: $tierTags) {
+          tag
+          hasTag
         }
       }
     }

@@ -1,0 +1,81 @@
+{
+  "payload": {
+    "export": "cart-lines-discounts-generate-run",
+    "target": "cart.lines.discounts.generate.run",
+    "input": {
+      "cart": {
+        "buyerIdentity": {
+          "customer": {
+            "brandDiscounts": {
+              "value": "[{\"brand_tag\":\"brand-a\",\"percentage\":10}]"
+            },
+            "tierMatches": [
+              { "tag": "gold-dealer", "hasTag": true }
+            ]
+          }
+        },
+        "lines": [
+          {
+            "id": "gid://shopify/CartLine/0",
+            "merchandise": {
+              "__typename": "ProductVariant",
+              "product": {
+                "brandTagMatches": [
+                  { "tag": "brand-a", "hasTag": true },
+                  { "tag": "brand-b", "hasTag": false }
+                ],
+                "brandCollectionMatches": [
+                  { "collectionId": "gid://shopify/Collection/1", "isMember": false },
+                  { "collectionId": "gid://shopify/Collection/2", "isMember": false }
+                ]
+              }
+            }
+          },
+          {
+            "id": "gid://shopify/CartLine/1",
+            "merchandise": {
+              "__typename": "ProductVariant",
+              "product": {
+                "brandTagMatches": [
+                  { "tag": "brand-a", "hasTag": false },
+                  { "tag": "brand-b", "hasTag": false }
+                ],
+                "brandCollectionMatches": [
+                  { "collectionId": "gid://shopify/Collection/1", "isMember": false },
+                  { "collectionId": "gid://shopify/Collection/2", "isMember": true }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "discount": {
+        "discountClasses": ["PRODUCT"],
+        "brandConfig": {
+          "value": "{\"brandTags\":[\"brand-a\",\"brand-b\"],\"brandCollectionIds\":[\"gid://shopify/Collection/1\",\"gid://shopify/Collection/2\"],\"tierTags\":[\"gold-dealer\"],\"tiers\":[{\"tag\":\"gold-dealer\",\"discounts\":[{\"brand_tag\":\"brand-a\",\"percentage\":25},{\"brand_tag\":\"brand-b\",\"percentage\":15}]}]}"
+        }
+      }
+    },
+    "output": {
+      "operations": [
+        {
+          "productDiscountsAdd": {
+            "candidates": [
+              {
+                "message": "Brand discount 10% off",
+                "targets": [{ "cartLine": { "id": "gid://shopify/CartLine/0" } }],
+                "value": { "percentage": { "value": 10 } }
+              },
+              {
+                "message": "Brand discount 15% off",
+                "targets": [{ "cartLine": { "id": "gid://shopify/CartLine/1" } }],
+                "value": { "percentage": { "value": 15 } }
+              }
+            ],
+            "selectionStrategy": "ALL"
+          }
+        }
+      ]
+    }
+  }
+}

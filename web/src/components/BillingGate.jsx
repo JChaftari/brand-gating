@@ -11,7 +11,12 @@ import {
   Box,
 } from '@shopify/polaris';
 import { loadBillingStatus } from '../api/billing';
-import { pauseBrandDiscounts, resumeBrandDiscounts, setBrandLimit } from '../api/brandList';
+import {
+  pauseBrandDiscounts,
+  resumeBrandDiscounts,
+  setBrandLimit,
+  setTiersEnabled,
+} from '../api/brandList';
 
 /**
  * Plan gate for the public (App Store) app.
@@ -33,7 +38,8 @@ import { pauseBrandDiscounts, resumeBrandDiscounts, setBrandLimit } from '../api
 //               isn't billed. Lets pages offer "Manage plan" in-app.
 //   free:       the store is on the free plan
 //   brandLimit: brands that get discounts at checkout (Infinity = no limit)
-const NO_PLAN = { planUrl: null, free: false, brandLimit: Infinity };
+//   tiersEnabled: customer-tag tiers apply at checkout (not on the free plan)
+const NO_PLAN = { planUrl: null, free: false, brandLimit: Infinity, tiersEnabled: true };
 const PlanContext = createContext(NO_PLAN);
 export const usePlan = () => useContext(PlanContext);
 export const usePlanUrl = () => useContext(PlanContext).planUrl;
@@ -53,6 +59,7 @@ export default function BillingGate({ children }) {
 
     if (!billing.required) {
       setBrandLimit(Infinity);
+      setTiersEnabled(true);
       setState({ status: 'ok', plan: NO_PLAN });
       return;
     }
@@ -61,10 +68,12 @@ export default function BillingGate({ children }) {
       // Set before the app renders: the Brands page's first load self-heals
       // the discounts' brand lists against this limit.
       setBrandLimit(billing.brandLimit);
+      setTiersEnabled(!billing.free);
       const plan = {
         planUrl: billing.planUrl,
         free: billing.free,
         brandLimit: billing.brandLimit,
+        tiersEnabled: !billing.free,
       };
       try {
         await resumeBrandDiscounts();
