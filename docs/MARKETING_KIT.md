@@ -147,8 +147,10 @@ Pace: 3–5 a day in the first week, then about 10, each one personalized
 > customer's discount for each brand on their customer page, and it applies
 > automatically at checkout, with no codes.
 >
-> It takes about 5 minutes to set up and is free for up to two brands;
-> beyond that it's $19.99 a month. If you'd like a hand, just reply and we'll
+> It takes about 5 minutes to set up and is free for up to two brands.
+> Premium ($19.99 a month) adds unlimited brands and discounts by customer
+> tag, so every [dealer/salon/stockist] you tag, say, [gold-dealer] gets the
+> same brand discounts at once. If you'd like a hand, just reply and we'll
 > walk you through it by email, or on a quick call if you prefer.
 >
 > https://apps.shopify.com/vendtier-wholesale-by-brand

@@ -129,6 +129,19 @@ with realistic brand and product names.
    different brand at a different percentage on another line.
    [Checkout showing different brand discounts on two items]
 
+Added 24 November 2026 for customer-tag tiers (Premium), rendered from the
+real app code with sample data inside the admin frame of screenshot 1
+(files in `listing-assets/`, not in git):
+
+6. **Brands page with tiers** — `6-brands-and-customer-tag-tiers.png`: the
+   brand table plus the "Discounts by customer tag" card with three tiers.
+   [Brands page with discounts by customer tag for dealer tiers]
+7. **Editing a tier** — `7-editing-a-tier.png`: the Edit tier dialog with a
+   percentage per brand. [Editing a customer tag tier with a discount per brand]
+
+Suggested order on the listing (6 shown): 6, 3, 4, 7, 5, 2. Screenshot 6
+replaces 1 (it shows the same table plus the tiers card); 1 can be removed.
+
 **Feature media** (listing header): one 1600 × 900 image, such as screenshot 3
 cropped to the card, or a short video. No Shopify logo, little text.
 
