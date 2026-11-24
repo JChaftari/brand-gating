@@ -139,8 +139,9 @@ real app code with sample data inside the admin frame of screenshot 1
 7. **Editing a tier** — `7-editing-a-tier.png`: the Edit tier dialog with a
    percentage per brand. [Editing a customer tag tier with a discount per brand]
 
-Suggested order on the listing (6 shown): 6, 3, 4, 7, 5, 2. Screenshot 6
-replaces 1 (it shows the same table plus the tiers card); 1 can be removed.
+Live order on the listing since 24 November 2026: 6, 3, 4, 7, 5, 2 (6 is
+the maximum; 6 replaced 1, which shows the same table without the tiers
+card).
 
 **Feature media** (listing header): one 1600 × 900 image, such as screenshot 3
 cropped to the card, or a short video. No Shopify logo, little text.
