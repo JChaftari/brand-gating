@@ -92,12 +92,14 @@ Plan cards on the listing (display names and features, set 24 November 2026):
 |---|---|
 | Up to 2 brands | Everything in Free |
 | Unlimited customers | Unlimited brands |
-| Each customer's own discount per brand | Priority email support |
-| Applied automatically, no codes | Setup help from our team |
+| Each customer's own discount per brand | Discounts by customer tag |
+| Applied automatically, no codes | Priority email support |
+| | Setup help from our team |
 
-Once customer-tag tiers are released, add "Discounts by customer tag" to
-the Premium card. "Priority email support" and "Setup help from our team"
-are commitments: answer Premium merchants within one business day.
+("Discounts by customer tag" added 24 November 2026, when tiers shipped in
+`vendtier-wholesale-by-brand-12`.) "Priority email support" and "Setup help
+from our team" are commitments: answer Premium merchants within one
+business day.
 
 Must match the plans configured in Shopify exactly (rule 4.2.1).
 

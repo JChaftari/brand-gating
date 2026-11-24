@@ -4,7 +4,15 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
-## [Unreleased] — Setup guide and customer-tag tiers (public app first)
+## 2026-11-24 — Setup guide and customer-tag tiers (public app)
+
+Released as public `vendtier-wholesale-by-brand-12`. Verified live on
+`brand-gating-fresh`: created a `gold-dealer` tier (Northridge Boards 25%,
+Powder & Pine 15%), tagged a customer with no own discounts on those brands;
+the customer card listed both under "From customer tags", and an admin
+draft order gave The Complete Snowboard $699.95 → $524.97 and Selling Plans
+Ski Wax $24.95 → $21.21. Test tier, tag and draft removed afterwards. The
+setup guide wasn't shown there because that store has finished every step.
 
 ### Added
 - **Discounts by customer tag (Premium).** A tier gives every customer
