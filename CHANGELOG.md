@@ -4,6 +4,28 @@ All notable changes to the brand-gating app. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are release-to-store,
 not tag dates.
 
+## [Unreleased] — Setup guide (both apps' code; public app first)
+
+### Added
+- Setup guide on the Brands page: "Set up Vendtier, about 5 minutes", with
+  four steps ticked off as the store completes them: turn on brand
+  discounts, add a brand, add products to a brand (any brand's collection
+  has products or a product carries its tag), give a customer their brand
+  discounts. The next step is expanded with its button. It disappears when
+  all four are done, or for good when the merchant clicks Hide (shop flag
+  `$app:brand-discount.setup_guide_hidden`). While it shows, it replaces the
+  "Brand discounts are off" banner.
+- The customer card records step 4 when it saves a customer's first brand
+  discount (shop flag `$app:brand-discount.customer_discounts_set`, written
+  in the same `metafieldsSet`). An order that used the brand discount also
+  counts. Tested against a simulated Admin API (12 checks); query validated
+  against API 2026-10. Customer card bundle 25.6 KB.
+
+### Changed
+- App Store listing: the paid plan's card is now "Premium" with features
+  (unlimited brands, per-customer discount on each brand, applied
+  automatically at checkout), matching the Free card.
+
 ## [Unreleased] — Free plan (public app)
 
 ### Added

@@ -481,8 +481,6 @@ async function discoverBrandDiscounts() {
     }));
 }
 
-// The function's input variables for a brand list. Arrays stay index-aligned
-// (brandTags[i] and brandCollectionIds[i] are the same brand).
 // How many brands get discounts at checkout. The free plan (public app) allows
 // only the first few registered brands; BillingGate sets this from the store's
 // plan before the Brands page loads (see web/src/api/billing.js). The shop's
@@ -499,6 +497,9 @@ export function brandsAtCheckout(brands) {
   return brands.slice(0, brandLimit);
 }
 
+// The function's input variables for a brand list (only the brands the plan
+// covers). Arrays stay index-aligned (brandTags[i] and brandCollectionIds[i]
+// are the same brand).
 function inputVariablesFor(brands) {
   const applied = brandsAtCheckout(brands);
   return JSON.stringify({

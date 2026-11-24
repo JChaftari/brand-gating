@@ -17,6 +17,9 @@ const BILLED_APP_CLIENT_IDS = ['f9f32ac3ca8e90585fc52b8fda97b2d1'];
 const FREE_PLAN_BRAND_LIMIT = 2;
 const FREE_PLAN_NAME = /\bfree\b/i;
 
+// The shop's GID, from the last load; saves use it to record setup progress.
+let cachedShopId = null;
+
 const LOAD_QUERY = `
   query LoadCustomerBrandData($customerId: ID!) {
     customer(id: $customerId) {
@@ -26,6 +29,7 @@ const LOAD_QUERY = `
       }
     }
     shop {
+      id
       brandList: metafield(namespace: "$app:brand-discount", key: "brand_list") {
         value
       }
@@ -67,6 +71,7 @@ export async function loadCustomerBrandData(customerId) {
     throw new Error(`GraphQL: ${result.errors.map((e) => e.message).join('; ')}`);
   }
 
+  cachedShopId = result.data?.shop?.id ?? null;
   const discountsRaw = result.data?.customer?.brandDiscounts?.value;
   const brandsRaw = result.data?.shop?.brandList?.value;
 
@@ -94,19 +99,27 @@ export async function loadCustomerBrandData(customerId) {
  * @throws {Error} on transport / GraphQL / userErrors
  */
 export async function saveCustomerBrandDiscounts(customerId, discounts) {
-  const result = await shopify.query(SAVE_MUTATION, {
-    variables: {
-      metafields: [
-        {
-          ownerId: customerId,
-          namespace: '$app:brand-discount',
-          key: 'brand_discounts',
-          type: 'json',
-          value: JSON.stringify(discounts),
-        },
-      ],
+  const metafields = [
+    {
+      ownerId: customerId,
+      namespace: '$app:brand-discount',
+      key: 'brand_discounts',
+      type: 'json',
+      value: JSON.stringify(discounts),
     },
-  });
+  ];
+  // Marks the Brands page's setup guide step "Give a customer their brand
+  // discounts" as done (see web/src/api/setup.js). Same atomic call.
+  if (discounts.length > 0 && cachedShopId) {
+    metafields.push({
+      ownerId: cachedShopId,
+      namespace: '$app:brand-discount',
+      key: 'customer_discounts_set',
+      type: 'boolean',
+      value: 'true',
+    });
+  }
+  const result = await shopify.query(SAVE_MUTATION, { variables: { metafields } });
 
   if (result.errors?.length) {
     throw new Error(`GraphQL: ${result.errors.map((e) => e.message).join('; ')}`);

@@ -20,6 +20,7 @@ import { useBrandList } from '../hooks/useBrandList';
 import AddBrandModal from '../components/AddBrandModal';
 import EditBrandModal from '../components/EditBrandModal';
 import DeleteBrandModal from '../components/DeleteBrandModal';
+import SetupGuide from '../components/SetupGuide';
 import { usePlan } from '../components/BillingGate';
 import { maybeRequestReview } from '../api/reviews';
 
@@ -57,6 +58,10 @@ export default function BrandsPage() {
   const [postAddBanner, setPostAddBanner] = useState(null);
   const [activating, setActivating] = useState(false);
   const [activateError, setActivateError] = useState(null);
+  // While the setup guide shows, its first step replaces the "Brand discounts
+  // are off" banner.
+  // null while the guide loads.
+  const [guideVisible, setGuideVisible] = useState(null);
 
   // Create the store's brand discount. Shopify's discount-type picker sends
   // merchants who choose this app's discount here, so this is the only way a
@@ -144,7 +149,19 @@ export default function BrandsPage() {
           </Banner>
         )}
 
-        {!loading && discountCount === 0 && (
+        {!loading && !error && (
+          <SetupGuide
+            brands={brands}
+            discountCount={discountCount}
+            onActivate={handleActivateDiscount}
+            activating={activating}
+            activateError={activateError}
+            onAddBrand={openAddModal}
+            onVisibleChange={setGuideVisible}
+          />
+        )}
+
+        {!loading && discountCount === 0 && guideVisible === false && (
           <Banner
             tone="warning"
             title="Brand discounts are off"
