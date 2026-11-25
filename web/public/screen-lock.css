@@ -1,0 +1,26 @@
+/* Phones and tablets: a screen's height is measured once (--vt-screen, set by the inline script in each page's head)
+   and kept while the browser's toolbars slide in and out. Chrome on iPhone resizes the page's viewport as its bars
+   hide and show, so sections sized in vh/svh/lvh changed height mid-scroll and the page jumped. */
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) {
+  /* !important: the kit's own phone rule (lvh) is more specific than any selector a page can add */
+  main > :is(section, .section), footer.closing {
+    height: auto !important;
+    min-height: calc(var(--hm, var(--h, 1)) * var(--vt-screen, 100svh)) !important;
+  }
+  main > :is(section, .section) > :is(.wrap, .container), footer.closing > .wrap { height: auto; }
+  main > :is(.hero, .section--hero), main > section.art-head { height: auto !important; min-height: var(--vt-screen, 100svh) !important; }
+  .hero--centred .hero__window { min-height: 240px !important; }
+  /* the hero's own screen measures (layout.css) */
+  :root {
+    --ly-screen: calc(var(--vt-screen, 100svh) - var(--ly-nav));
+    --ly-fit: calc(var(--vt-screen, 100svh) - var(--padt, 120px) - var(--padb, 72px) - var(--bar, 0px));
+    --ly-hero-h: calc(var(--vt-screen, 100svh) - var(--nav, 72px) - var(--hgap, 48px) - var(--hpadb, 64px) - var(--bar, 0px));
+  }
+}
+
+/* the kit picks the hero's top gap by the screen's height (layout.css, under 700px tall); here it follows the
+   locked height instead, so it never switches while the toolbars slide */
+@media (max-width: 639px) {
+  :root { --hgap: 40px; }
+  :root.vt-short { --hgap: 24px; }
+}

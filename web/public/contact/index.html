@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en" data-type="software" data-radius="soft" data-buttons="tonal" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact the Vendtier team</title>
+<meta name="description" content="Email the Vendtier team about setup, billing or per-brand wholesale discounts on Shopify.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contact the Vendtier team">
+<meta property="og:description" content="Email the Vendtier team about setup, billing or per-brand discounts.">
+<meta property="og:image" content="https://brand-gating.pages.dev/img/customer-card.png">
+<meta property="og:url" content="https://brand-gating.pages.dev/contact/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/vendtier/icon-64.png" type="image/png">
+<link rel="apple-touch-icon" href="/vendtier/icon-180.png">
+<meta name="theme-color" content="#fbf8f2">
+<link rel="canonical" href="https://brand-gating.pages.dev/contact/">
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/kit/system.css">
+<link rel="stylesheet" href="/kit/ui/cards.css">
+<link rel="stylesheet" href="/kit/motion/motion.css">
+<link rel="stylesheet" href="/kit/layout/layout.css">
+<style>:root {
+  --p-bg: #fbf8f2; --p-surface: #f3ecdf; --p-ink: #17233b; --p-muted: #5e6677;
+  --p-accent: #f2b33d; --p-accent-ink: #111111; --p-action: #17233b; --p-action-ink: #fbf8f2;
+  --p-inv-bg: #17233b; --p-inv-surface: #243047; --p-inv-ink: #fbf8f2; --p-inv-muted: #9ca0a9;
+  --p-inv-accent: #f2b33d; --p-inv-accent-ink: #111111; --p-inv-action: #f2b33d; --p-inv-action-ink: #111111;
+  --font-display: "Geist", system-ui, sans-serif; --font-text: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500; --display-tracking: -0.035em; --display-tracking-xl: -0.045em; }</style>
+<style>
+  /* a wide but short window: sections grow past one screen instead of running into the next (the kit does
+     this from 640 to 1279; at 1440x900 every section still fits its one screen) */
+  @media (min-width: 1280px) {
+    main > :is(section, .section):not(.hero, .section--hero), footer.closing { height: auto; min-height: calc(var(--h, 1) * 100vh); min-height: calc(var(--h, 1) * 100svh); display: flex; flex-direction: column; }
+    main > :is(section, .section):not(.hero, .section--hero) > .wrap, footer.closing > .wrap { flex: 1 0 auto; height: auto; min-height: 0; }
+  }
+  .nav__logo .vt-logo { width: 28px; height: 28px; border-radius: 7px; flex: none; }
+</style>
+<link rel="stylesheet" href="/article.css">
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<style>.vt-email { font: 500 clamp(22px, 2.2vw, 30px)/1.2 var(--font-display); letter-spacing: -0.01em; user-select: all; overflow-wrap: anywhere; }</style>
+<script>
+  // phones and tablets: one screen's height, measured at load and when the width changes (a rotation), never while
+  // the toolbars slide during a scroll (screen-lock.css)
+  (function () {
+    var w = 0, r = document.documentElement, set = function () { if (innerWidth !== w) { w = innerWidth; r.style.setProperty('--vt-screen', innerHeight + 'px'); r.classList.toggle('vt-short', innerHeight <= 700); } };
+    set(); addEventListener('resize', set); addEventListener('orientationchange', function () { w = 0; setTimeout(set, 250); });
+  })();
+</script>
+<link rel="stylesheet" href="/screen-lock.css">
+</head>
+<body>
+<header class="nav nav--centre">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">Skip to content</a>
+    <a class="nav__logo" href="/vendtier/"><img class="vt-logo" src="/vendtier/icon-64.png" width="28" height="28" alt="">Vendtier</a>
+    <nav class="nav__links" aria-label="Main">
+      <div class="nav__item"><a class="nav__link" href="/vendtier/#customers">Customers</a></div>
+      <div class="nav__item"><a class="nav__link" href="/vendtier/#tiers">Tags</a></div>
+      <div class="nav__item"><a class="nav__link" href="/vendtier/#pricing">Pricing</a></div>
+      <div class="nav__item">
+        <a class="nav__link" href="/guides/wholesale-discount-per-brand-shopify/">Guides <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <div class="menu-col span-4">
+              <p class="t-label">Guides</p>
+              <a href="/guides/wholesale-discount-per-brand-shopify/">Set up per-brand discounts<span>Step by step in Shopify admin</span></a>
+              <a href="/compare/vendtier-vs-wholesale-apps/">Vendtier and wholesale apps<span>What Vendtier covers, and what not</span></a>
+            </div>
+            <div class="menu-col span-4">
+              <p class="t-label">Help</p>
+              <a href="/vendtier/#faq">Questions<span>Plans, checkout, draft orders, data</span></a>
+              <a href="/contact/" aria-current="page">Contact<span>Email the Vendtier team</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="section art-head" data-enter aria-labelledby="contact-h">
+    <div class="wrap">
+      <div class="grid fill">
+        <div class="span-6 stack-6">
+          <p class="t-label muted">Contact</p>
+          <h1 id="contact-h">Email the Vendtier team</h1>
+          <p class="t-lead">Questions about setup, billing or how discounts apply at checkout: write to us and a person on the team replies. Premium stores get priority, and we can walk you through setup.</p>
+          <p class="vt-email" id="vt-email">vendtiersupport@gmail.com</p>
+          <div class="btn-row">
+            <button class="btn btn--primary" type="button" data-copy="vendtiersupport@gmail.com">Copy the email address</button>
+            <a class="btn btn--secondary" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=vendtiersupport@gmail.com&amp;su=Vendtier%20question" target="_blank" rel="noopener">Write in Gmail</a>
+          </div>
+          <p class="t-small muted">Or <a class="link" href="mailto:vendtiersupport@gmail.com?subject=Vendtier%20question">open your email app</a>. Please include your store's myshopify.com address.</p>
+        </div>
+        <div class="frame frame--split frame--fill frame--lit span-6 start-7">
+          <div class="vt-whole"><img src="/img/tier-editor-modal.png" width="618" height="616" alt="Vendtier\'s tier editor in Shopify admin: the gold-dealer tag with a percentage for each brand" fetchpriority="high"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <div class="footer__legal">
+      <span>&copy; 2026 Chaftari Development &nbsp; <a href="/vendtier/">Vendtier</a> &nbsp; <a href="/guides/wholesale-discount-per-brand-shopify/">Setup guide</a> &nbsp; <a href="/privacy">Privacy</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    var label = b.textContent;
+    b.addEventListener('click', function () {
+      var text = b.getAttribute('data-copy');
+      var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = label; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { selectEmail(); });
+      } else { selectEmail(); }
+    });
+  });
+  function selectEmail() {
+    var el = document.getElementById('vt-email'), r = document.createRange();
+    r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+</script>
+<script type="module" src="/kit/system.js"></script>
+<script type="module" src="/kit/motion/motion.js"></script>
+</body>
+</html>

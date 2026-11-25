@@ -1,0 +1,42 @@
+/* Vendtier inner pages (guide, comparison): the long-form column on the kit's system.css tokens */
+/* the head: the words on the left, the product's own screen on the right, one screen */
+.art-head h1 { font-size: clamp(38px, 4.2vw, 60px); line-height: 1.04; }
+.art-head .t-lead { color: var(--ink); }
+.art-head .vt-whole { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--s-6); }
+.art-head .vt-whole img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 24px 60px -28px rgb(0 0 0 / .45); }
+.art { padding-top: var(--s-9); padding-bottom: var(--s-10); row-gap: var(--s-9); }
+@media (max-width: 1023px) { .art > .art-body { grid-column: 1 / -1; } }
+.art-toc { position: sticky; top: calc(var(--nav-h, 72px) + var(--s-6)); align-self: start; display: grid; gap: var(--s-3); font-size: var(--t-small); }
+.art-toc a { color: var(--muted); text-decoration: none; }
+.art-toc a:hover { color: var(--ink); }
+@media (max-width: 1023px) { .art-toc { display: none; } }
+.art-body { display: grid; gap: var(--s-5); font-size: 18px; line-height: 1.65; }
+.art-body h2 { font-size: clamp(28px, 3vw, 36px); line-height: 1.15; margin-top: var(--s-8); scroll-margin-top: calc(var(--nav-h, 72px) + var(--s-6)); }
+.art-body h2:first-child { margin-top: 0; }
+.art-body h3 { font: 500 20px/1.35 var(--font-text); margin-top: var(--s-4); }
+.art-body ol, .art-body ul:not(.checks) { display: grid; gap: var(--s-3); padding-left: 1.4em; }
+.art-body ol li::marker { color: var(--accent); font-weight: 500; }
+.art-body p, .art-body li { max-width: 68ch; }
+.art-body .shot { margin: var(--s-3) 0; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--line), 0 24px 60px -32px rgb(0 0 0 / .35); }
+.art-body .shot img { display: block; width: 100%; height: auto; }
+.art-note { padding: var(--s-5) var(--s-6); border-radius: 12px; background: var(--surface); font-size: 16px; }
+.art-note strong { font-weight: 500; }
+.art-table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.45; }
+.art-table th, .art-table td { text-align: left; vertical-align: top; padding: var(--s-4) var(--s-3); border-bottom: 1px solid var(--line); }
+.art-table thead th { font-weight: 500; border-bottom: 1px solid var(--line-strong, var(--ink)); }
+.art-table th[scope="row"] { font-weight: 400; color: var(--muted); width: 34%; }
+.art-table .is-us { background: color-mix(in srgb, var(--accent) 6%, transparent); color: var(--ink); font-weight: 500; }
+@media (max-width: 639px) {
+  .art-table, .art-table tbody, .art-table tr, .art-table th, .art-table td { display: block; width: auto; }
+  .art-table thead { display: none; }
+  .art-table tr { padding: var(--s-4) 0; border-bottom: 1px solid var(--line); }
+  .art-table th, .art-table td { border: 0; padding: var(--s-1) 0; }
+  .art-table td::before { content: attr(data-col) ": "; color: var(--muted); font-weight: 400; }
+}
+/* the head never shrinks below its content: at any width a short screen makes it taller instead of running the
+   words or the picture into the article under it */
+main > section.art-head { height: auto; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; }
+main > section.art-head > .wrap { flex: 1 0 auto; height: auto; min-height: 0; }
+main > section.art-head > .wrap > .fill { flex: 1 0 auto; min-height: auto; }
+@media (min-width: 1024px) { main > section.art-head .frame--fill { min-height: 420px; } }
+@media (max-width: 1023px) { main > section.art-head .frame--fill { flex: none; height: auto; min-height: 0; aspect-ratio: 4 / 3; } }

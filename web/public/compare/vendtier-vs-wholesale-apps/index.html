@@ -1,115 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-type="software" data-radius="soft" data-buttons="tonal" data-motion>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vendtier vs. all-in-one Shopify wholesale apps: which do you need?</title>
-  <meta name="description" content="An honest comparison: what Vendtier does (per-customer, per-brand discounts at checkout), what all-in-one wholesale apps add, and how to choose for your Shopify store." />
-  <link rel="canonical" href="https://brand-gating.pages.dev/compare/vendtier-vs-wholesale-apps/" />
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="Vendtier vs. all-in-one Shopify wholesale apps" />
-  <meta property="og:description" content="What a focused per-brand discount app does, what all-in-one wholesale apps add, and how to choose." />
-  <meta property="og:url" content="https://brand-gating.pages.dev/compare/vendtier-vs-wholesale-apps/" />
-  <meta property="og:image" content="https://brand-gating.pages.dev/img/brands-and-tiers.png" />
-  <link rel="stylesheet" href="/site.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vendtier vs. all-in-one wholesale apps for Shopify</title>
+<meta name="description" content="Vendtier does one job: each wholesale customer's own discount on each brand, applied at Shopify checkout. Here is what that means next to an all-in-one wholesale app.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vendtier vs. all-in-one wholesale apps for Shopify">
+<meta property="og:description" content="A focused app for per-customer, per-brand wholesale discounts at checkout.">
+<meta property="og:image" content="https://brand-gating.pages.dev/img/brands-and-tiers.png">
+<meta property="og:url" content="https://brand-gating.pages.dev/compare/vendtier-vs-wholesale-apps/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/vendtier/icon-64.png" type="image/png">
+<link rel="apple-touch-icon" href="/vendtier/icon-180.png">
+<meta name="theme-color" content="#fbf8f2">
+<link rel="canonical" href="https://brand-gating.pages.dev/compare/vendtier-vs-wholesale-apps/">
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/kit/system.css">
+<link rel="stylesheet" href="/kit/ui/cards.css">
+<link rel="stylesheet" href="/kit/motion/motion.css">
+<link rel="stylesheet" href="/kit/layout/layout.css">
+<style>:root {
+  --p-bg: #fbf8f2; --p-surface: #f3ecdf; --p-ink: #17233b; --p-muted: #5e6677;
+  --p-accent: #f2b33d; --p-accent-ink: #111111; --p-action: #17233b; --p-action-ink: #fbf8f2;
+  --p-inv-bg: #17233b; --p-inv-surface: #243047; --p-inv-ink: #fbf8f2; --p-inv-muted: #9ca0a9;
+  --p-inv-accent: #f2b33d; --p-inv-accent-ink: #111111; --p-inv-action: #f2b33d; --p-inv-action-ink: #111111;
+  --font-display: "Geist", system-ui, sans-serif; --font-text: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500; --display-tracking: -0.035em; --display-tracking-xl: -0.045em; }</style>
+<style>
+  /* a wide but short window: sections grow past one screen instead of running into the next (the kit does
+     this from 640 to 1279; at 1440x900 every section still fits its one screen) */
+  @media (min-width: 1280px) {
+    main > :is(section, .section):not(.hero, .section--hero), footer.closing { height: auto; min-height: calc(var(--h, 1) * 100vh); min-height: calc(var(--h, 1) * 100svh); display: flex; flex-direction: column; }
+    main > :is(section, .section):not(.hero, .section--hero) > .wrap, footer.closing > .wrap { flex: 1 0 auto; height: auto; min-height: 0; }
+  }
+  .nav__logo .vt-logo { width: 28px; height: 28px; border-radius: 7px; flex: none; }
+</style>
+<link rel="stylesheet" href="/article.css">
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script>
+  // phones and tablets: one screen's height, measured at load and when the width changes (a rotation), never while
+  // the toolbars slide during a scroll (screen-lock.css)
+  (function () {
+    var w = 0, r = document.documentElement, set = function () { if (innerWidth !== w) { w = innerWidth; r.style.setProperty('--vt-screen', innerHeight + 'px'); r.classList.toggle('vt-short', innerHeight <= 700); } };
+    set(); addEventListener('resize', set); addEventListener('orientationchange', function () { w = 0; setTimeout(set, 250); });
+  })();
+</script>
+<link rel="stylesheet" href="/screen-lock.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="wrap">
-      <a class="logo" href="/vendtier/"><span class="logo-mark"><span></span></span>Vendtier</a>
-      <nav class="nav">
-        <a class="hide-sm" href="/vendtier/#how-it-works">How it works</a>
-        <a class="hide-sm" href="/vendtier/#pricing">Pricing</a>
-        <a href="/guides/wholesale-discount-per-brand-shopify/">Guide</a>
-        <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install</a>
-      </nav>
+<header class="nav nav--centre">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">Skip to content</a>
+    <a class="nav__logo" href="/vendtier/"><img class="vt-logo" src="/vendtier/icon-64.png" width="28" height="28" alt="">Vendtier</a>
+    <nav class="nav__links" aria-label="Main">
+      <div class="nav__item"><a class="nav__link" href="/vendtier/#customers">Customers</a></div>
+      <div class="nav__item"><a class="nav__link" href="/vendtier/#tiers">Tags</a></div>
+      <div class="nav__item"><a class="nav__link" href="/vendtier/#pricing">Pricing</a></div>
+      <div class="nav__item">
+        <a class="nav__link" href="/guides/wholesale-discount-per-brand-shopify/" aria-current="page">Guides <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <div class="menu-col span-4">
+              <p class="t-label">Guides</p>
+              <a href="/guides/wholesale-discount-per-brand-shopify/">Set up per-brand discounts<span>Step by step in Shopify admin</span></a>
+              <a href="/compare/vendtier-vs-wholesale-apps/" aria-current="page">Vendtier and wholesale apps<span>What Vendtier covers, and what not</span></a>
+            </div>
+            <div class="menu-col span-4">
+              <p class="t-label">Help</p>
+              <a href="/vendtier/#faq">Questions<span>Plans, checkout, draft orders, data</span></a>
+              <a href="/contact/">Contact<span>Email the Vendtier team</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free</a>
     </div>
-  </header>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
 
-  <main class="article">
-    <div class="wrap narrow">
-      <h1>Vendtier vs. all-in-one wholesale apps: which do you need?</h1>
-      <p class="meta">By the Vendtier team · November 2026</p>
+<main id="top">
+  <section class="section art-head" data-enter aria-labelledby="cmp-h">
+    <div class="wrap">
+      <div class="grid fill">
+        <div class="span-5 stack-6">
+          <p class="t-label muted">Comparison · 4 minutes</p>
+          <h1 id="cmp-h">Vendtier vs. all-in-one wholesale apps for Shopify</h1>
+          <p class="t-lead">Vendtier does one job: each trade customer's own discount on each brand you sell, applied at Shopify checkout. All-in-one wholesale apps cover more ground. This page shows what the narrower focus gets you.</p>
+          <div class="btn-row"><a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free</a></div>
+        </div>
+        <div class="frame frame--split frame--fill frame--lit span-6 start-7">
+          <div class="vt-whole"><img src="/img/brands-full.png" width="967" height="697" alt="Vendtier\'s Brands page: four brands with their tags and collections, and discounts by customer tag" fetchpriority="high"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <p>The Shopify App Store has plenty of wholesale apps. Most are all-in-one B2B suites: registration forms, wholesale price lists, quantity breaks, payment terms and more. Vendtier is deliberately narrower. It does one thing: <strong>each customer's discount on each brand, applied automatically at checkout</strong>.</p>
-      <p>That makes it a great fit for some stores and the wrong tool for others. Here's how to tell which you are.</p>
+  <div class="wrap">
+    <div class="grid art">
+      <nav class="art-toc span-3" aria-label="On this page">
+        <a href="#focus">What Vendtier is built for</a>
+        <a href="#table">Side by side</a>
+        <a href="#limits">Where Vendtier stops</a>
+        <a href="#together">Running it next to another app</a>
+      </nav>
 
-      <h2>What Vendtier does</h2>
-      <ul>
-        <li>A <strong>percentage per brand for each customer</strong>, set on their customer page in Shopify admin.</li>
-        <li><strong>Discounts by customer tag</strong> (Premium): everyone tagged, say, <code>gold-dealer</code> gets the same per-brand rates, and a customer's own rate still wins for that brand.</li>
-        <li>Brands defined by <strong>collection or product tag</strong>, so it fits how you already organize products.</li>
-        <li>Applied by a <strong>Shopify discount function</strong> in the standard checkout and on draft orders. No theme code, no discount codes, works on every Shopify plan.</li>
-        <li>Combines with your order and shipping discounts.</li>
-      </ul>
+      <article class="art-body span-8 start-5">
+        <h2 id="focus">What Vendtier is built for</h2>
+        <p>Stores that sell several brands to dealers, salons or stockists usually agree terms brand by brand: 25% on one brand, 15% on another, because each brand's margin differs. Vendtier stores exactly that, one number per customer per brand.</p>
+        <ul>
+          <li><strong>Per-brand rates are the core feature.</strong> Each customer's percentages sit on their own page in Shopify admin, on the Brand Discounts card.</li>
+          <li><strong>Groups by customer tag.</strong> On Premium, a tag such as <code>gold-dealer</code> gives everyone the same brand rates, and a customer's own rate still wins for that brand.</li>
+          <li><strong>Shopify's own checkout.</strong> The discount is a Shopify discount function, so it works on every plan, on draft orders, and without any theme code.</li>
+          <li><strong>Five minutes to set up.</strong> Turn on brand discounts, add your brands, type a percentage on a customer. That's the whole setup.</li>
+          <li><strong>A free plan that stays free.</strong> Two brands and unlimited customers at $0; Premium is $19.99 a month for unlimited brands and tiers.</li>
+        </ul>
+        <figure class="shot"><img src="/img/brands-and-tiers.png" width="1600" height="900" loading="lazy" alt="Vendtier's Brands page in Shopify admin with four brands and tiers by customer tag"></figure>
 
-      <h2>What Vendtier doesn't do</h2>
-      <p>If you need any of these, an all-in-one wholesale app, or Shopify's own B2B features if your plan includes them, is likely a better fit:</p>
-      <ul>
-        <li>Wholesale <strong>registration and approval forms</strong> for new trade customers.</li>
-        <li>Showing <strong>wholesale prices on product pages</strong> before checkout.</li>
-        <li><strong>Quantity breaks</strong> or volume pricing ("10% off 12+ units").</li>
-        <li><strong>Net payment terms</strong>, invoicing or minimum order rules.</li>
-        <li>Quick-order forms or bulk ordering.</li>
-      </ul>
-
-      <h2>Side by side</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th></th><th>Vendtier</th><th>Typical all-in-one wholesale app</th></tr></thead>
+        <h2 id="table">Side by side</h2>
+        <table class="art-table">
+          <thead><tr><th scope="col"><span class="sr-only">Feature</span></th><th scope="col" class="is-us">Vendtier</th><th scope="col">Typical all-in-one app</th></tr></thead>
           <tbody>
-            <tr><td>Different % per brand for each customer</td><td class="yes">Core feature</td><td>Often possible through price lists or rules per customer and collection; varies by app</td></tr>
-            <tr><td>Same per-brand rates for a group</td><td class="yes">Tiers by customer tag (Premium)</td><td>Usually by customer tag or group</td></tr>
-            <tr><td>Wholesale prices shown on the storefront</td><td class="no">No, applied at checkout</td><td>Usually</td></tr>
-            <tr><td>Registration forms, quantity breaks, net terms</td><td class="no">No</td><td>Usually, often on higher plans</td></tr>
-            <tr><td>Setup</td><td>About 5 minutes, all in Shopify admin</td><td>Varies; more settings to configure</td></tr>
-            <tr><td>Changes to your theme</td><td class="yes">None</td><td>Some add theme code or app blocks</td></tr>
-            <tr><td>Price</td><td>Free for 2 brands, then $19.99/month</td><td>Varies widely</td></tr>
+            <tr><th scope="row">A different % per brand for each customer</th><td class="is-us" data-col="Vendtier">The core feature, set on the customer's page</td><td data-col="Typical all-in-one app">Often built from price lists or rules per customer and collection</td></tr>
+            <tr><th scope="row">The same brand rates for a group</th><td class="is-us" data-col="Vendtier">Tiers by customer tag (Premium)</td><td data-col="Typical all-in-one app">Usually by tag or group</td></tr>
+            <tr><th scope="row">Applied without the customer doing anything</th><td class="is-us" data-col="Vendtier">Yes, at checkout and on draft orders</td><td data-col="Typical all-in-one app">Usually</td></tr>
+            <tr><th scope="row">Changes to your theme</th><td class="is-us" data-col="Vendtier">None</td><td data-col="Typical all-in-one app">Often app blocks or theme code</td></tr>
+            <tr><th scope="row">Setup</th><td class="is-us" data-col="Vendtier">About 5 minutes in Shopify admin</td><td data-col="Typical all-in-one app">More settings to work through</td></tr>
+            <tr><th scope="row">Price</th><td class="is-us" data-col="Vendtier">Free for 2 brands, then $19.99 a month</td><td data-col="Typical all-in-one app">Varies, often higher for the full feature set</td></tr>
           </tbody>
         </table>
-      </div>
-      <p class="muted">"Typical" describes what's common across popular wholesale apps; individual apps differ, so check the features of any app you're considering.</p>
+        <p class="t-small muted">"Typical" describes what is common across wholesale apps on the Shopify App Store; each app differs.</p>
 
-      <h2>Choose Vendtier if…</h2>
-      <ul>
-        <li>You sell <strong>several brands</strong> to trade customers and their rates differ by brand.</li>
-        <li>You already know who your wholesale customers are, and they <strong>sign in</strong> to order.</li>
-        <li>You're tired of <strong>discount codes per customer</strong> or fixing draft order prices by hand.</li>
-        <li>You want something you can set up today, without changing your theme.</li>
-      </ul>
+        <h2 id="limits">Where Vendtier stops</h2>
+        <p>Vendtier sets discounts and nothing else. It has no trade sign-up forms, doesn't show wholesale prices on product pages before checkout, and has no quantity breaks, minimum orders or payment terms. Customers need to be signed in at checkout so Shopify knows who they are.</p>
 
-      <h2>Choose an all-in-one app if…</h2>
-      <ul>
-        <li>You need trade sign-up forms, quantity breaks or payment terms.</li>
-        <li>Your customers must see their wholesale price on the product page before they add to cart.</li>
-        <li>Your customers get the same rate on every brand, so per-brand rates don't matter to you.</li>
-      </ul>
+        <h2 id="together">Running it next to another app</h2>
+        <p>Vendtier's discount is a product discount. Shopify doesn't stack two product discounts on the same item, so if another app also discounts products, let Vendtier handle the brand rates and keep the other app's product discounts off those items. Order and shipping discounts combine with Vendtier as usual.</p>
 
-      <div class="callout">
-        <strong>Using both?</strong> Vendtier's discount is a product discount. Shopify doesn't stack two product discounts on the same item, so if another app also discounts products, decide which one handles brand rates.
-      </div>
-
-      <section class="final-cta">
-        <h2>Try Vendtier free on two brands</h2>
-        <p class="muted">See whether per-brand discounts fit how you sell. No theme changes, nothing to undo.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install Vendtier</a>
-          <a class="btn btn-ghost" href="/guides/wholesale-discount-per-brand-shopify/">Read the guide</a>
+        <div class="art-note">
+          <p><strong>Try Vendtier free on two brands.</strong> No theme changes and nothing to undo. If you'd like a hand, email the Vendtier team and we'll set it up with you.</p>
+          <div class="btn-row" style="margin-top: var(--s-4)">
+            <a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free</a>
+            <a class="btn btn--secondary" href="/guides/wholesale-discount-per-brand-shopify/">Read the setup guide</a>
+          </div>
         </div>
-      </section>
+      </article>
     </div>
-  </main>
+  </div>
+</main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      <span>© 2026 Chaftari Development · Vendtier: Wholesale by Brand</span>
-      <span>
-        <a href="/vendtier/">Vendtier</a> ·
-        <a href="/guides/wholesale-discount-per-brand-shopify/">Guide</a> ·
-        <a href="/privacy">Privacy</a> ·
-        <a href="mailto:vendtiersupport@gmail.com">Support</a>
-      </span>
+<footer class="footer" id="contact">
+  <div class="wrap">
+    <div class="footer__legal">
+      <span>&copy; 2026 Chaftari Development &nbsp; <a href="/vendtier/">Vendtier</a> &nbsp; <a href="/guides/wholesale-discount-per-brand-shopify/">Setup guide</a> &nbsp; <a href="/privacy">Privacy</a> &nbsp; <a href="/contact/">Contact</a></span>
     </div>
-  </footer>
+  </div>
+</footer>
+
+<script type="module" src="/kit/system.js"></script>
+<script type="module" src="/kit/motion/motion.js"></script>
 </body>
 </html>

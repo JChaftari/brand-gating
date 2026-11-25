@@ -1,194 +1,447 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-type="software" data-radius="soft" data-ground="sand" data-buttons="tonal" data-motion>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vendtier – Wholesale discounts by brand for Shopify</title>
-  <meta name="description" content="Give each wholesale customer their own discount on each brand you sell, or a whole group by customer tag. Applied automatically at Shopify checkout, no discount codes. Free for up to two brands." />
-  <link rel="canonical" href="https://brand-gating.pages.dev/vendtier/" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Vendtier – Wholesale discounts by brand for Shopify" />
-  <meta property="og:description" content="Each wholesale customer gets their own discount on each brand, applied automatically at checkout. No codes." />
-  <meta property="og:url" content="https://brand-gating.pages.dev/vendtier/" />
-  <meta property="og:image" content="https://brand-gating.pages.dev/img/brands-and-tiers.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <link rel="stylesheet" href="/site.css" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Vendtier: Wholesale by Brand",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Shopify",
-    "url": "https://apps.shopify.com/vendtier-wholesale-by-brand",
-    "description": "Per-customer, per-brand wholesale discounts for Shopify, applied automatically at checkout.",
-    "offers": [
-      { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
-      { "@type": "Offer", "name": "Premium", "price": "19.99", "priceCurrency": "USD" }
-    ],
-    "publisher": { "@type": "Organization", "name": "Chaftari Development" }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vendtier: wholesale discounts by brand for Shopify stores</title>
+<meta name="description" content="Give each trade customer their own percentage on each brand you sell. Vendtier applies it at Shopify checkout with no codes. Free for up to two brands.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vendtier: wholesale discounts by brand for Shopify stores">
+<meta property="og:description" content="Each trade customer gets their own discount on each brand, applied at Shopify checkout with no codes.">
+<meta property="og:image" content="https://brand-gating.pages.dev/img/brands-and-tiers.png">
+<meta property="og:url" content="https://brand-gating.pages.dev/vendtier/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/vendtier/icon-64.png" type="image/png">
+<link rel="apple-touch-icon" href="/vendtier/icon-180.png">
+<meta name="theme-color" content="#fbf8f2">
+<link rel="canonical" href="https://brand-gating.pages.dev/vendtier/">
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/kit/system.css">
+<link rel="stylesheet" href="/kit/ui/cards.css">
+<link rel="stylesheet" href="/kit/motion/motion.css">
+<link rel="stylesheet" href="/kit/backgrounds/backgrounds.css">
+<link rel="stylesheet" href="/kit/layout/layout.css">
+<link rel="stylesheet" href="/kit/icons/icon.css">
+<style>:root {
+  --p-bg: #fbf8f2; --p-surface: #f3ecdf; --p-ink: #17233b; --p-muted: #5e6677;
+  --p-accent: #f2b33d; --p-accent-ink: #111111; --p-action: #17233b; --p-action-ink: #fbf8f2;
+  --p-inv-bg: #17233b; --p-inv-surface: #243047; --p-inv-ink: #fbf8f2; --p-inv-muted: #9ca0a9;
+  --p-inv-accent: #f2b33d; --p-inv-accent-ink: #111111; --p-inv-action: #f2b33d; --p-inv-action-ink: #111111;
+  --font-display: "Geist", system-ui, sans-serif; --font-text: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500; --display-tracking: -0.035em; --display-tracking-xl: -0.045em; }</style>
+<style>
+  /* a wide but short window: sections grow past one screen instead of running into the next (the kit does
+     this from 640 to 1279; at 1440x900 every section still fits its one screen) */
+  @media (min-width: 1280px) {
+    main > :is(section, .section):not(.hero, .section--hero), footer.closing { height: auto; min-height: calc(var(--h, 1) * 100vh); min-height: calc(var(--h, 1) * 100svh); display: flex; flex-direction: column; }
+    main > :is(section, .section):not(.hero, .section--hero) > .wrap, footer.closing > .wrap { flex: 1 0 auto; height: auto; min-height: 0; }
   }
-  </script>
+  /* a block that fills the screen under the heading never shrinks below its own content (the kit lets it, so in a
+     short window a tall list ran out of its section into the next one) */
+  /* a short screen: the hero grows to hold its window instead of running it into the next section */
+  @media (min-width: 640px) and (max-height: 760px) {
+    main > section.hero { height: auto; min-height: 100vh; min-height: 100svh; }
+  }
+  @media (min-width: 640px) {
+    main > :is(section, .section):not(.hero, .section--hero) > .wrap > .fill { flex: 1 0 auto; min-height: auto; }
+    #setup .grid.fill > .frame--fill { min-height: 460px; }
+  }
+  .nav__logo .vt-logo { width: 28px; height: 28px; border-radius: 7px; flex: none; }
+</style>
+<link rel="stylesheet" href="/kit/ui/base.css">
+<link rel="stylesheet" href="/kit/ui/checklist/fragment.css">
+<link rel="stylesheet" href="/kit/ui/notify/fragment.css">
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script src="/kit/backgrounds/backgrounds.js"></script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="/kit/moments/moments.js">
+<link rel="modulepreload" href="/kit/moments/lib.js">
+<link rel="modulepreload" href="/kit/moments/word-highlight/moment.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Vendtier: Wholesale by Brand",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Shopify",
+  "url": "https://apps.shopify.com/vendtier-wholesale-by-brand",
+  "description": "Per-customer, per-brand wholesale discounts for Shopify, applied automatically at checkout.",
+  "offers": [
+    { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
+    { "@type": "Offer", "name": "Premium", "price": "19.99", "priceCurrency": "USD" }
+  ],
+  "publisher": { "@type": "Organization", "name": "Chaftari Development" }
+}
+</script>
+<!-- page CSS: inside the visuals only -->
+<style>
+  /* the hero window: a wholesale order at checkout, each line with its brand discount */
+  .vt-win { background: var(--u-bg, #fff); color: var(--ink); border-radius: 12px; overflow: hidden; text-align: left;
+            font: 400 14px/1.4 var(--font-text); box-shadow: 0 0 0 1px rgb(0 0 0 / .07), 0 24px 60px -28px rgb(0 0 0 / .45); }
+  .vt-win__bar { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 14px; border-bottom: 1px solid rgb(0 0 0 / .07); font-size: 13px; color: var(--muted); }
+  .vt-win__bar b { color: var(--ink); font-weight: 500; }
+  .vt-win__dots { display: flex; gap: 6px; } .vt-win__dots i { width: 10px; height: 10px; border-radius: 50%; background: #dcdfe2; }
+  .vt-win__sp { flex: 1; }
+  .vt-win__body { display: grid; grid-template-columns: 220px 1fr; min-height: 400px; }
+  .vt-who { padding: 16px 14px; border-right: 1px solid rgb(0 0 0 / .07); display: grid; align-content: start; gap: 10px; font-size: 13px; }
+  .vt-who__name { font-weight: 500; font-size: 14px; }
+  .vt-who__tag { display: inline-flex; width: fit-content; padding: 2px 8px; border-radius: 999px; background: #fbecc8; color: #17233b; font: 500 12px/1.5 var(--font-mono); }
+  .vt-who dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; margin: 6px 0 0; color: var(--muted); }
+  .vt-who dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .vt-lines { padding: 8px 18px 16px; }
+  .vt-line { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid rgb(0 0 0 / .06); }
+  .vt-line__name { font-weight: 500; }
+  .vt-line__brand { grid-column: 1; color: var(--muted); font-size: 13px; }
+  .vt-line__was { color: var(--muted); text-decoration: line-through; font-variant-numeric: tabular-nums; font-size: 13px; }
+  .vt-line__now { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .vt-line__off { grid-column: 1; justify-self: start; padding: 1px 8px; border-radius: 999px; background: #e8f5ec; color: #17683a; font-size: 12px; font-weight: 500; letter-spacing: .02em; text-transform: uppercase; }
+  .vt-total { display: flex; justify-content: space-between; padding: 14px 0 0; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .vt-total span:first-child { color: var(--muted); font-weight: 400; }
+  @media (max-width: 639px) {
+    .vt-win__body { grid-template-columns: 1fr; }
+    .vt-line:nth-of-type(3), .vt-total { display: none; }
+    .vt-who { display: none; }
+    .vt-win__bar .vt-win__right { display: none; }
+  }
+  /* the toggles pane reads as percentages */
+  #customers .ui-tg__label b { font-weight: 600; color: var(--ink); margin-left: 6px; font-variant-numeric: tabular-nums; }
+  /* app-frame recipe */
+  .app.ui { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); margin-top: var(--s-7); background: var(--u-bg); border: 1px solid var(--u-border); border-radius: var(--u-r); box-shadow: var(--u-shadow); }
+  .app > .app__pane { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+  .app > .app__pane + .app__pane { border-left: 1px solid var(--u-line); }
+  .app > .app__pane > .ui-panel { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
+  .app > .app__pane::after { content: ""; position: absolute; inset: auto 0 0 0; height: 64px; background: linear-gradient(transparent, var(--u-bg)); pointer-events: none; }
+  @media (min-width: 1024px) and (max-width: 1279px) { .app.ui { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); } }
+  @media (max-width: 1023px) {
+    .app.ui { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+    .app > .app__pane--list { max-height: 252px; }
+    .app > .app__pane--list::after { display: none; }
+    .app .ui-win__side { display: none; }
+    .app .ui-win__body { grid-template-columns: minmax(0, 1fr); }
+    .app > .app__pane + .app__pane { border-left: 0; border-top: 1px solid var(--u-line); }
+  }
+  @media (max-width: 639px) {
+    .app.ui { grid-template-rows: minmax(0, 1fr); }
+    .app > .app__pane--list { display: none; }
+    .app > .app__pane + .app__pane { border-top: 0; }
+  }
+  #setup .vt-steps { display: flex; flex-direction: column; gap: var(--s-5); }
+  #setup .vt-hint { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3); color: var(--muted); font-size: var(--t-small); }
+  #setup .vt-hint--tap { display: none; }
+  @media (hover: none) { #setup .vt-hint--hover { display: none; } #setup .vt-hint--tap { display: inline; } }
+  #setup .vt-tabs { display: grid; gap: var(--s-3); }
+  #setup .vt-tabs > li { display: grid; grid-template-columns: 36px minmax(0, 1fr) 20px; column-gap: var(--s-4); row-gap: var(--s-1); align-items: start;
+    padding: var(--s-4) var(--s-5); border: 1px solid transparent; border-radius: 14px; cursor: pointer;
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  #setup .vt-tabs > li:first-child { padding-top: var(--s-4); }
+  #setup .vt-tabs > li:hover { background: var(--surface); }
+  #setup .vt-tabs > li:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  #setup .vt-tabs > li.vt-on { background: #fff; border-color: var(--line); box-shadow: 0 14px 34px -22px rgb(23 35 59 / .45); }
+  #setup .vt-tabs .rows__name { grid-column: 2; font-size: var(--t-card); }
+  #setup .vt-tabs .rows__name::after { display: none; }
+  #setup .vt-tabs > li > p { grid-column: 2; color: var(--muted); }
+  #setup .vt-tabs > li.vt-on > p { color: var(--ink); }
+  #setup .vt-n { grid-row: 1 / span 2; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 999px;
+    border: 1px solid var(--line-strong); font: 500 15px/1 var(--font-text); color: var(--muted); transition: inherit; }
+  #setup .vt-tabs > li.vt-on .vt-n { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  #setup .vt-go { grid-column: 3; grid-row: 1; align-self: center; color: var(--muted); opacity: 0; transform: translateX(-4px); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+  #setup .vt-tabs > li:hover .vt-go { opacity: .6; transform: none; }
+  #setup .vt-tabs > li.vt-on .vt-go { opacity: 1; transform: none; color: var(--ink); }
+  @media (max-width: 1023px) { #setup .vt-go { display: none; } #setup .vt-tabs > li { grid-template-columns: 36px minmax(0, 1fr); } }
+  #setup .frame > .vt-whole { position: absolute; inset: var(--s-6); display: grid; place-items: center; container-type: size; }
+  #setup .frame > .vt-whole[hidden] { display: none; }
+  .vt-whole img { max-width: 100cqw; max-height: 100cqh; width: auto; height: auto; border-radius: 10px; box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 24px 60px -28px rgb(0 0 0 / .45); }
+  /* a tablet or phone: the list, then the picture in a square frame under it */
+  @media (max-width: 1023px) {
+    #setup .grid.fill > .frame--fill { flex: none; height: auto; min-height: 0; aspect-ratio: 1 / 1; }
+    #setup .frame > .vt-whole { inset: var(--s-4); }
+  }
+  .vt-panel { padding: var(--s-5); border-radius: var(--r-lg, 16px); background: var(--surface); }
+  .vt-panel img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 20px 50px -26px rgb(0 0 0 / .35); }
+  .vt-shot { margin: var(--s-7) 0 0; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 30px 70px -36px rgb(0 0 0 / .35); }
+  .vt-shot img { display: block; width: 100%; height: auto; }
+  /* Geist's tall capitals need a little more line box than the kit's .86 */
+  #codes .t-label { margin-bottom: var(--s-5); }
+  .vt-close .section-head--split { align-items: end; }
+  .vt-close__words { display: grid; gap: var(--s-4); }
+  .vt-close__icon { width: 72px; height: 72px; border-radius: 18px; margin-bottom: var(--s-3); box-shadow: 0 18px 40px -24px rgb(23 35 59 / .6); }
+  .hero--centred .hero__lead { color: var(--ink); }
+  #pricing .ui-note__ico img { width: 18px; height: 20px; }
+  /* a small phone: the tag section takes two screens so its picture never runs into the steps */
+  @media (max-width: 379px) { #tiers { --hm: 2; } }
+</style>
+<script>
+  // phones and tablets: one screen's height, measured at load and when the width changes (a rotation), never while
+  // the toolbars slide during a scroll (screen-lock.css)
+  (function () {
+    var w = 0, r = document.documentElement, set = function () { if (innerWidth !== w) { w = innerWidth; r.style.setProperty('--vt-screen', innerHeight + 'px'); r.classList.toggle('vt-short', innerHeight <= 700); } };
+    set(); addEventListener('resize', set); addEventListener('orientationchange', function () { w = 0; setTimeout(set, 250); });
+  })();
+</script>
+<link rel="stylesheet" href="/screen-lock.css">
 </head>
 <body>
-  <header class="site-header">
+<!-- type: software
+     deal: hero centred, nav nav-centre, close close-word, footer footer-statement, rhythm dark-band,
+     buttons tonal, mark arc, ground sand; palette white-link-blue (a clean admin-tool white with
+     Shopify-admin-like blue links, which fits a merchant tool), type geist; effect painterly-landscape
+     in the hero window
+     moments: word-highlight (#codes, its own statement section) -->
+
+<header class="nav nav--centre">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">Skip to content</a>
+    <a class="nav__logo" href="#top"><img class="vt-logo" src="/vendtier/icon-64.png" width="28" height="28" alt="">Vendtier</a>
+    <nav class="nav__links" aria-label="Main">
+      <div class="nav__item"><a class="nav__link" href="#customers">Customers</a></div>
+      <div class="nav__item"><a class="nav__link" href="#tiers">Tags</a></div>
+      <div class="nav__item"><a class="nav__link" href="#pricing">Pricing</a></div>
+      <div class="nav__item">
+        <a class="nav__link" href="/guides/wholesale-discount-per-brand-shopify/">Guides <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <div class="menu-col span-4">
+              <p class="t-label">Guides</p>
+              <a href="/guides/wholesale-discount-per-brand-shopify/">Set up per-brand discounts<span>Step by step in Shopify admin</span></a>
+              <a href="/compare/vendtier-vs-wholesale-apps/">Vendtier and wholesale apps<span>What Vendtier covers, and what not</span></a>
+            </div>
+            <div class="menu-col span-4">
+              <p class="t-label">Help</p>
+              <a href="#faq">Questions<span>Plans, checkout, draft orders, data</span></a>
+              <a href="/contact/">Contact<span>Email the Vendtier team</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero hero--centred" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text">
+      <div class="hero__c">
+        <a class="pill" href="#pricing"><span>Free for up to 2 brands</span><span class="muted">See the plans</span></a>
+        <h1 id="hero-h" aria-label="Shopify wholesale discounts by brand">Shopify wholesale discounts by brand</h1>
+        <p class="hero__lead">Give each trade customer their own percentage on each brand you sell. Vendtier applies it at checkout, line by line, with no codes to hand out.</p>
+        <div class="btn-row"><a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free</a><a class="btn btn--secondary" href="#customers">See it on a customer</a></div>
+      </div>
+      <div class="hero__window" data-fx="painterly-landscape" data-fx-seed="7" role="img" aria-label="A wholesale order at Shopify checkout where each line gets the customer's discount for its brand: 25% on one brand, 15% on another">
+        <div class="ly-piece vt-win" aria-hidden="true">
+          <div class="vt-win__bar"><span class="vt-win__dots"><i></i><i></i><i></i></span><span><b>Saltmarsh Cycles</b> · signed in at checkout</span><span class="vt-win__sp"></span><span class="vt-win__right">Customer tag: gold-dealer</span></div>
+          <div class="vt-win__body">
+            <div class="vt-who">
+              <span class="vt-who__name">Brand Discounts</span>
+              <span class="vt-who__tag">set in Shopify admin</span>
+              <dl><dt>Corvane</dt><dd>25%</dd><dt>Brisk Tyre Co.</dt><dd>15%</dd><dt>Halvard Lights</dt><dd>10%</dd></dl>
+            </div>
+            <div class="vt-lines" data-ly-steps="900">
+              <div class="vt-line"><span class="vt-line__name">Corvane carbon crankset × 4</span><span class="vt-line__was">$1,160.00</span><span class="vt-line__now">$870.00</span><span class="vt-line__brand">Corvane</span><span class="vt-line__off" data-step>Brand discount 25% off (−$290.00)</span></div>
+              <div class="vt-line"><span class="vt-line__name">Brisk 700×28 tyre × 20</span><span class="vt-line__was">$900.00</span><span class="vt-line__now">$765.00</span><span class="vt-line__brand">Brisk Tyre Co.</span><span class="vt-line__off" data-step>Brand discount 15% off (−$135.00)</span></div>
+              <div class="vt-line"><span class="vt-line__name">Halvard rear light × 12</span><span class="vt-line__was">$420.00</span><span class="vt-line__now">$378.00</span><span class="vt-line__brand">Halvard Lights</span><span class="vt-line__off" data-step>Brand discount 10% off (−$42.00)</span></div>
+              <div class="vt-total" data-step><span>Subtotal after brand discounts</span><span>$2,013.00</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="section" id="customers" aria-labelledby="customers-h">
     <div class="wrap">
-      <a class="logo" href="/vendtier/"><span class="logo-mark"><span></span></span>Vendtier</a>
-      <nav class="nav">
-        <a class="hide-sm" href="#how-it-works">How it works</a>
-        <a class="hide-sm" href="#pricing">Pricing</a>
-        <a href="/guides/wholesale-discount-per-brand-shopify/">Guide</a>
-        <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install</a>
-      </nav>
+      <div class="grid">
+        <h2 class="span-5" id="customers-h">Each customer's discount on each brand</h2>
+        <p class="span-6 start-7 t-lead">Open a customer in Shopify admin and set a percentage per brand on the Brand Discounts card. Change it when their terms change; the next checkout follows. <a class="link" href="#setup">See the setup</a></p>
+      </div>
+      <figure class="vt-shot">
+        <img src="/img/customer-page.png" width="1120" height="376" alt="A customer page in Shopify admin with Vendtier's Brand Discounts card: Driftline 15%, Glacier Gear 10%, Northridge Boards 20%, Powder &amp; Pine 5%" loading="lazy">
+      </figure>
     </div>
-  </header>
+  </section>
 
-  <main>
-    <div class="hero">
-      <div class="wrap">
-        <span class="eyebrow">For Shopify stores that sell wholesale</span>
-        <h1>A different wholesale discount for each customer, on each brand.</h1>
-        <p class="lede">Your dealers, salons and stockists rarely get the same terms on every brand. Vendtier lets you set each customer's discount per brand, or a whole group's by customer tag, and applies it automatically at checkout. No discount codes to hand out.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install free on the Shopify App Store</a>
-          <a class="btn btn-ghost" href="/guides/wholesale-discount-per-brand-shopify/">Read the guide</a>
+  <section class="section statement" id="codes" data-moment="word-highlight" aria-label="Why there are no codes">
+    <div class="wrap">
+      <p class="t-label">Why no codes</p>
+      <p class="mo-wh__text">Discount codes get shared, forgotten and typed wrong, and twenty dealers on five brands can mean a hundred of them. With Vendtier a signed-in customer opens checkout and every line already shows <strong>their price</strong> for its brand.</p>
+    </div>
+  </section>
+
+  <section class="section ground-inverse" id="tiers" aria-labelledby="tiers-h">
+    <div class="wrap">
+      <div class="grid fill">
+        <div class="span-5 stack-6">
+          <h2 id="tiers-h">Discounts by customer tag for whole groups</h2>
+          <p class="t-lead">Make a tier for a customer tag such as gold-dealer, with a percentage per brand. Everyone with the tag gets those prices.</p>
+          <ul class="checks">
+            <li>A customer's own discount still wins</li>
+            <li>Two tiers: the better rate per brand</li>
+            <li>Part of Premium, $19.99 a month</li>
+          </ul>
+          <a class="link" href="#pricing">Compare the plans</a>
         </div>
-        <p class="fineprint">Free for up to two brands. Works on every Shopify plan. Sets up in about 5 minutes.</p>
-        <figure class="shot">
-          <img src="/img/brands-and-tiers.png" width="1600" height="900" alt="Vendtier's Brands page in Shopify admin with four brands and discounts by customer tag for dealer tiers" />
-        </figure>
+        <div class="frame frame--split frame--fill frame--lit span-6 start-7">
+          <div class="stage stage--fade-b">
+            <div class="at-rise fit" style="--fit-max:540px;--ax:max(24px, 50% - 270px);--ay:56px">
+              <img class="ui" src="/img/tier-editor-modal.png" width="618" height="616" alt="Vendtier's tier editor: the gold-dealer customer tag with 25%, 20% and 15% on three brands" loading="lazy" style="width:100%;height:auto;border-radius:12px;box-shadow:0 24px 60px -28px rgb(0 0 0 / .6)">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <section class="section-alt" id="how-it-works">
-      <div class="wrap">
-        <h2>How it works</h2>
-        <p class="muted">Three steps, all inside your Shopify admin.</p>
-        <div class="grid-3">
-          <div class="card">
-            <div class="step-num">1</div>
-            <h3>Register your brands</h3>
-            <p class="muted">Add each brand you sell. Vendtier creates a collection for it. A product counts toward a brand when it's in that collection or carries the brand's tag.</p>
-          </div>
-          <div class="card">
-            <div class="step-num">2</div>
-            <h3>Set the discounts</h3>
-            <p class="muted">On any customer's page, give them a percentage for each brand. Or give everyone with a customer tag, like gold-dealer, the same brand discounts in one go.</p>
-          </div>
-          <div class="card">
-            <div class="step-num">3</div>
-            <h3>They check out as usual</h3>
-            <p class="muted">When a signed-in customer checks out, each item gets their discount for its brand. It also works on draft orders you create for them.</p>
-          </div>
+  <section class="section" id="setup" style="--hm: 2" aria-labelledby="setup-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="setup-h">Set up Vendtier in 3 steps</h2><p class="vt-hint"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2.5v8.2l2.2-2 1.6 3.6 1.6-.7-1.6-3.5h3z" fill="currentColor"/></svg><span class="vt-hint--hover">Point at a step to see its screen in Shopify admin.</span><span class="vt-hint--tap">Tap a step to see its screen in Shopify admin.</span></p></div>
+      <div class="grid fill" data-peek>
+        <div class="span-5 vt-steps">
+          <ul class="rows vt-tabs">
+            <li data-peek-to="brands" tabindex="0" role="button" aria-pressed="true" class="vt-on"><span class="vt-n">1</span><span class="rows__name">Add your brands</span><p>Each brand gets a Shopify collection and a tag. A product counts when it sits in the collection or carries the tag.</p><svg class="vt-go" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+            <li data-peek-to="customer" tabindex="0" role="button" aria-pressed="false"><span class="vt-n">2</span><span class="rows__name">Set each customer's discounts</span><p>On the customer's page, type a percentage per brand on the Brand Discounts card. On Premium, give a whole tag one tier.</p><svg class="vt-go" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+            <li data-peek-to="checkout" tabindex="0" role="button" aria-pressed="false"><span class="vt-n">3</span><span class="rows__name">Let checkout apply them</span><p>A signed-in customer sees each line's brand discount at checkout. Your theme stays as it is.</p><svg class="vt-go" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+          </ul>
+          <a class="link" href="/guides/wholesale-discount-per-brand-shopify/">Read the full setup guide</a>
+        </div>
+        <div class="frame frame--split frame--fill frame--lit span-6 start-7">
+            <div class="vt-whole" data-peek-for="brands"><img src="/img/brands-full.png" width="967" height="697" alt="Vendtier's Brands page: four brands with their tags and Shopify collections, brand discounts switched on, and tiers by customer tag" loading="lazy"></div>
+            <div class="vt-whole" data-peek-for="customer" hidden><img src="/img/customer-full.png" width="792" height="742" alt="A customer page in Shopify admin with Vendtier's Brand Discounts card: Driftline 15%, Glacier Gear 10%, Northridge Boards 20%, Powder &amp; Pine 5%" loading="lazy"></div>
+            <div class="vt-whole" data-peek-for="checkout" hidden><img src="/img/checkout-full.png" width="700" height="760" alt="Shopify checkout with a brand discount on each line: 15%, 20% and 10% off, and the total savings" loading="lazy"></div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section>
-      <div class="wrap">
-        <div class="feature grid-2">
-          <div>
-            <h2>Each customer's terms, right on their page</h2>
-            <p class="muted">A Brand Discounts card sits on the customer page in Shopify admin. Add a brand, type a percentage, save. Change it whenever their terms change, and checkout follows straight away.</p>
+  <section class="section" id="pricing" style="--hm: 2" aria-labelledby="pricing-h">
+    <div class="wrap">
+      <div class="grid">
+          <div class="span-4 stack-6">
+            <h2 id="pricing-h">Pricing</h2>
+            <p class="t-lead">Both plans work on every Shopify plan with unlimited customers, billed on your Shopify invoice.</p>
+            <div class="ui ui-notify" data-ui="notify">
+              <ul class="ui-notify__list" data-notify-list>
+                <li class="ui-note"><span class="ui-note__ico"><img src="/kit/icons/shopify.svg" alt="" width="18" height="20"></span><span class="ui-note__text"><span class="ui-note__title">Vendtier Premium approved<time>now</time></span><span class="ui-note__body">$19.99 a month after a 14-day trial</span></span></li>
+              </ul>
+            </div>
+            <a class="link" href="#faq">Read the questions</a>
           </div>
-          <figure class="shot"><img src="/img/customer-card.png" width="1600" height="900" loading="lazy" alt="Customer page in Shopify admin with a card listing that customer's discount for each brand" /></figure>
-        </div>
-
-        <div class="feature grid-2">
-          <figure class="shot"><img src="/img/tier-editor.png" width="1600" height="900" loading="lazy" alt="Editing a customer tag tier with a separate percentage for each brand" /></figure>
-          <div>
-            <h2>Whole groups at once, by customer tag</h2>
-            <p class="muted">Dozens of dealers on the same terms? Create a tier for a Shopify customer tag and give it a percentage per brand. Everyone with that tag gets those discounts. A discount set on one customer's page still takes priority for that brand. <strong>Premium</strong></p>
-          </div>
-        </div>
-
-        <div class="feature grid-2">
-          <div>
-            <h2>Applied automatically, no codes</h2>
-            <p class="muted">The discount runs inside Shopify's own checkout, so nothing is added to your theme and there's nothing for customers to type. Each line shows the discount for its brand. Your order and shipping discounts still combine with it.</p>
-          </div>
-          <figure class="shot"><img src="/img/checkout.png" width="1600" height="900" loading="lazy" alt="Shopify checkout showing a different brand discount on two items" /></figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-alt">
-      <div class="wrap">
-        <h2>Built for stores that sell many brands wholesale</h2>
-        <div class="grid-3">
-          <div class="card"><h3>Distributors</h3><p class="muted">Dealers or stockists who get a better rate on some brands than on others, because each brand's margin is different.</p></div>
-          <div class="card"><h3>Multi-brand retailers with trade accounts</h3><p class="muted">Salons, workshops, gyms or cafés buying across several brands on trade terms.</p></div>
-          <div class="card"><h3>Teams tired of discount codes</h3><p class="muted">No more one code per customer per brand, or editing draft orders by hand to get the price right.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="pricing">
-      <div class="wrap">
-        <h2>Pricing</h2>
-        <p class="muted">Billed through Shopify. Change or cancel from the app at any time.</p>
-        <div class="plans">
-          <div class="plan">
+          <article class="card card--plan span-4 start-5">
             <h3>Free</h3>
-            <div class="price">$0</div>
-            <ul>
+            <p class="t-small muted">For a store with one or two wholesale brands</p>
+            <p class="price"><span class="t-stat">$0</span></p>
+            <a class="btn btn--secondary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Start on Free</a>
+            <ul class="checks">
               <li>Up to 2 brands</li>
-              <li>Unlimited customers</li>
               <li>Each customer's own discount per brand</li>
-              <li>Applied automatically, no codes</li>
+              <li>Applied at checkout, no codes</li>
+              <li>Works on draft orders</li>
+              <li>Help by email</li>
             </ul>
-          </div>
-          <div class="plan featured">
+          </article>
+          <article class="card card--plan is-featured span-4 start-9">
             <h3>Premium</h3>
-            <div class="price">$19.99 <small>/ month</small></div>
-            <div class="muted">or $199.99 a year · 14-day free trial</div>
-            <ul>
+            <p class="t-small muted">For many brands and groups of dealers</p>
+            <p class="price"><span class="t-stat">$19.99</span><span class="muted">a month, or $199.99 a year</span></p>
+            <a class="btn btn--primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Start the 14-day trial</a>
+            <ul class="checks">
               <li>Everything in Free</li>
               <li>Unlimited brands</li>
               <li>Discounts by customer tag</li>
               <li>Priority email support</li>
-              <li>Setup help from our team</li>
+              <li>Setup help from the Vendtier team</li>
+            </ul>
+          </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" style="--hm: 2" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <div class="span-5 stack-6">
+          <h2 id="faq-h">Questions</h2>
+          <p class="t-lead">Something not covered here? We answer by email.</p>
+          <a class="link" href="/contact/">Email the Vendtier team</a>
+          <div class="ui ui-panel ui-checks" data-ui="checklist" data-ui-loop>
+            <div class="ui-checks__head"><div class="ui-title">Works with your Shopify store</div><span class="ui-spacer"></span><div class="ui-meta" data-checks-count>4 of 4</div></div>
+            <div class="ui-checks__bar"><i data-checks-bar style="--k:1"></i></div>
+            <ul class="ui-checks__list">
+              <li class="ui-check is-done"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">Every Shopify plan, Basic to Plus</span></li>
+              <li class="ui-check is-done"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">Shopify checkout, no theme code</span></li>
+              <li class="ui-check is-done"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">Draft orders</span></li>
+              <li class="ui-check is-done"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">Order and shipping discounts</span></li>
             </ul>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="section-alt" id="faq">
-      <div class="wrap narrow">
-        <h2>Questions</h2>
-        <details><summary>Do I need Shopify Plus?</summary><p>No. Vendtier works on every Shopify plan. It uses Shopify's discount functions, which run in the standard checkout.</p></details>
-        <details><summary>Does it change my theme or storefront?</summary><p>No. Nothing is added to your theme. Signed-in customers see their brand discount at checkout.</p></details>
-        <details><summary>How does Vendtier know a product's brand?</summary><p>Each brand you register gets a Shopify collection and a tag. A product counts toward the brand if it's in that collection or carries the tag, so you can use whichever fits how you already organize products.</p></details>
-        <details><summary>What if a customer has their own discount and is also in a tier?</summary><p>Their own discount wins for that brand. Tier discounts fill in the brands you haven't set for them individually. If they're in several tiers, they get the best percentage for each brand.</p></details>
-        <details><summary>Does it work with draft orders?</summary><p>Yes. Create a draft order for the customer, choose Add discount and tick "Apply all eligible automatic discounts", and their brand discounts apply.</p></details>
-        <details><summary>Does it combine with my other discounts?</summary><p>It combines with order discounts and shipping discounts. Like any product discount, it doesn't stack with another product discount on the same item.</p></details>
-        <details><summary>What data does Vendtier store?</summary><p>Only your brands and each customer's brand percentages, stored in your own Shopify store. It doesn't read customer names, emails, phone numbers or addresses. See the <a href="/privacy">privacy policy</a>.</p></details>
-      </div>
-    </section>
-
-    <section class="final-cta">
-      <div class="wrap">
-        <h2>Try it on your store today</h2>
-        <p class="muted">Free for up to two brands. If you'd like a hand, email us and we'll walk you through setup.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install from the Shopify App Store</a>
-          <a class="btn btn-ghost" href="mailto:vendtiersupport@gmail.com">Email the Vendtier team</a>
+        <div class="faq span-6 start-7">
+          <div class="faq__item"><h3>Do I need Shopify Plus?</h3><p>No. Vendtier works in the standard checkout on every plan.</p></div>
+          <div class="faq__item"><h3>Does it work on draft orders?</h3><p>Yes. Pick the customer, choose Add discount and tick "Apply all eligible automatic discounts".</p></div>
+          <div class="faq__item"><h3>Does it stack with my other discounts?</h3><p>It combines with order and shipping discounts, but not with a second product discount on the same item.</p></div>
+          <div class="faq__item"><h3>What doesn't Vendtier do?</h3><p>It sets discounts only: no sign-up forms, minimum orders or payment terms. Customers sign in to check out.</p></div>
+          <div class="faq__item"><h3>What data does it store?</h3><p>Your brands and each customer's percentages, in your own store. No names, emails or addresses. <a class="link" href="/privacy">Read the privacy policy</a></p></div>
         </div>
       </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="wrap">
-      <span>© 2026 Chaftari Development · Vendtier: Wholesale by Brand</span>
-      <span>
-        <a href="/guides/wholesale-discount-per-brand-shopify/">Guide</a> ·
-        <a href="/compare/vendtier-vs-wholesale-apps/">Compare</a> ·
-        <a href="/privacy">Privacy</a> ·
-        <a href="mailto:vendtiersupport@gmail.com">Support</a>
-      </span>
     </div>
-  </footer>
+  </section>
+</main>
+
+<footer class="footer closing footer--statement" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta vt-close">
+      <div class="section-head--split">
+        <div class="vt-close__words">
+          <img class="vt-close__icon" src="/vendtier/icon-180.png" width="72" height="72" alt="">
+          <h2 id="close-h">Set up brand discounts in five minutes</h2>
+          <p class="t-lead">Free for up to 2 brands. Premium starts with a 14-day trial.</p>
+        </div>
+        <a class="btn btn--primary btn--xl" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Get Vendtier free<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+      </div>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href="#top"><img class="vt-logo" src="/vendtier/icon-64.png" width="28" height="28" alt="">Vendtier</a>
+          <p class="footer__lede">Per-brand wholesale discounts, applied at Shopify checkout.</p>
+        </div>
+        <div class="span-2 footer__col"><h3>Customers</h3><ul><li><a href="#customers">Per customer</a></li><li><a href="#setup">Setup</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Tags</h3><ul><li><a href="#tiers">Tiers by tag</a></li><li><a href="#codes">No codes</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Pricing</h3><ul><li><a href="#pricing">Plans</a></li><li><a href="#faq">Questions</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Guides</h3><ul><li><a href="/guides/wholesale-discount-per-brand-shopify/">Setup guide</a></li><li><a href="/contact/">Contact</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 Chaftari Development</span><a href="/privacy">Privacy</a>
+        <div class="socials"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // the setup steps: mark the one whose screen is on show (the kit marks it from 1024 only), at every width
+  (function () {
+    var root = document.querySelector('#setup [data-peek]'); if (!root) return;
+    var rows = root.querySelectorAll('[data-peek-to]'), pics = root.querySelectorAll('[data-peek-for]');
+    var sync = function () {
+      var on = [].find.call(pics, function (p) { return !p.hidden; }); if (!on) return;
+      rows.forEach(function (r) { var is = r.dataset.peekTo === on.dataset.peekFor; r.classList.toggle('vt-on', is); r.setAttribute('aria-pressed', is ? 'true' : 'false'); });
+    };
+    var mo = new MutationObserver(sync); pics.forEach(function (p) { mo.observe(p, { attributes: true, attributeFilter: ['hidden'] }); });
+    rows.forEach(function (r) { r.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); r.click(); } }); });
+    sync();
+  })();
+</script>
+<script type="module" src="/kit/system.js"></script>
+<script type="module" src="/kit/motion/motion.js"></script>
+<script type="module" src="/kit/layout/layout.js"></script>
 </body>
 </html>
