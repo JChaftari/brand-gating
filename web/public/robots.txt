@@ -3,6 +3,8 @@ Allow: /vendtier/
 Allow: /guides/
 Allow: /compare/
 Allow: /privacy
+Allow: /contact/
+Allow: /setup-guide
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /review/
