@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="shopify-api-key" content="%SHOPIFY_API_KEY%" />
     <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
-    <title>Brand Gating</title>
+    <script>
+      // People opening the site directly (not inside Shopify admin) see the
+      // product page instead of an app that can't run outside Shopify.
+      if (window.top === window.self && !/[?&](host|shop|embedded|hmac)=/.test(location.search)) {
+        location.replace('/vendtier/');
+      }
+    </script>
+    <title>Vendtier</title>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How to give wholesale customers a different discount per brand on Shopify</title>
+  <meta name="description" content="Three ways to give each wholesale customer their own discount on each brand in Shopify: discount codes, B2B price lists, or an app. What each takes, and when each makes sense." />
+  <link rel="canonical" href="https://brand-gating.pages.dev/guides/wholesale-discount-per-brand-shopify/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to give wholesale customers a different discount per brand on Shopify" />
+  <meta property="og:description" content="Discount codes, B2B price lists or an app: what each takes, and when each makes sense." />
+  <meta property="og:url" content="https://brand-gating.pages.dev/guides/wholesale-discount-per-brand-shopify/" />
+  <meta property="og:image" content="https://brand-gating.pages.dev/img/customer-card.png" />
+  <link rel="stylesheet" href="/site.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to give wholesale customers a different discount per brand on Shopify",
+    "datePublished": "2026-11-25",
+    "author": { "@type": "Organization", "name": "The Vendtier team" },
+    "publisher": { "@type": "Organization", "name": "Chaftari Development" }
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="/vendtier/"><span class="logo-mark"><span></span></span>Vendtier</a>
+      <nav class="nav">
+        <a class="hide-sm" href="/vendtier/#how-it-works">How it works</a>
+        <a class="hide-sm" href="/vendtier/#pricing">Pricing</a>
+        <a href="/compare/vendtier-vs-wholesale-apps/">Compare</a>
+        <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="article">
+    <div class="wrap narrow">
+      <h1>How to give wholesale customers a different discount per brand on Shopify</h1>
+      <p class="meta">By the Vendtier team · November 2026 · 6 minute read</p>
+
+      <p>If you sell several brands to trade customers, their terms probably differ by brand. A dealer might get 25% on one brand but only 10% on another, because your margin on each brand is different. Some customers negotiate their own rates. Others are on a standard tier, like "gold dealer".</p>
+      <p>Shopify can handle discounts by customer and discounts by product, but not a table of "this customer, this brand, this percentage" out of the box. Here are the three ways stores usually solve it, what each takes, and when each makes sense.</p>
+
+      <div class="callout">
+        <strong>Short version:</strong> for a handful of customers and brands, discount codes work. If your plan includes Shopify's B2B features and your terms are one rate per customer, B2B price lists fit well. For many customers with different rates per brand, an app that stores the rates and applies them at checkout saves the most work.
+      </div>
+
+      <h2>Before you start: group products by brand</h2>
+      <p>Every option needs Shopify to know which products belong to which brand. The simplest way is one collection per brand, either an automated collection ("Vendor is equal to Brand A") or a manual one. Product tags work too. Set this up first, because each method below targets "the products of brand X".</p>
+
+      <h2>Option 1: Discount codes per customer and brand</h2>
+      <p>Shopify's built-in discount codes can be limited to specific customers and to specific collections. So you can create a code like <code>ACME-GOLD25</code> that takes 25% off the Brand A collection, only for one customer.</p>
+      <ol>
+        <li>Go to <strong>Discounts → Create discount → Amount off products</strong>.</li>
+        <li>Choose <strong>Discount code</strong>, set the percentage, and under <strong>Applies to</strong> pick the brand's collection.</li>
+        <li>Under <strong>Eligibility</strong>, choose specific customers (or a customer segment) and pick the customer.</li>
+        <li>Check the combination settings if the customer will use more than one code in an order.</li>
+        <li>Send the code to the customer and remind them to enter it at checkout.</li>
+      </ol>
+      <p><strong>Good for:</strong> a few customers and a few brands, or a one-off deal.</p>
+      <p><strong>Watch out for:</strong> you need one code per customer per brand, so 20 customers on 5 brands is up to 100 codes. Customers have to remember to enter them, and every change in terms means editing or replacing codes.</p>
+
+      <h2>Option 2: Shopify B2B catalogs and price lists</h2>
+      <p>If your Shopify plan includes B2B features, you can set up your trade customers as companies and give each company location a catalog with a price list. A price list can lower prices by a percentage, or set fixed prices for specific products.</p>
+      <p><strong>Good for:</strong> customers who get one rate across everything, and stores already using B2B company accounts, payment terms and B2B checkout.</p>
+      <p><strong>Watch out for:</strong> a price list's percentage adjustment applies to the whole catalog. To give one company 25% on Brand A and 10% on Brand B, you'd set fixed prices product by product, or split brands into separate catalogs and keep them in sync. Check that your plan includes these B2B features before relying on them.</p>
+
+      <h2>Option 3: An app that stores rates per customer and brand</h2>
+      <p>A discount app can keep a table of each customer's rate for each brand and apply it automatically at checkout, using Shopify's discount functions. This is what we built Vendtier for. Here's how it works in practice:</p>
+      <ol>
+        <li><strong>Install Vendtier</strong> from the Shopify App Store. It's free for up to two brands.</li>
+        <li>Click <strong>Turn on brand discounts</strong> on the Brands page.</li>
+        <li><strong>Add your brands.</strong> Each gets a collection. Products count toward a brand when they're in that collection or carry its tag.</li>
+        <li>Open a customer, add the <strong>Brand Discounts</strong> block to the page, and <strong>set a percentage for each brand</strong>.</li>
+        <li>Optional, on Premium: create a <strong>tier for a customer tag</strong>, like <code>gold-dealer</code>, so everyone with that tag gets the same brand discounts.</li>
+      </ol>
+      <figure class="shot"><img src="/img/customer-card.png" width="1600" height="900" loading="lazy" alt="Vendtier card on a Shopify customer page with a discount for each brand" /></figure>
+      <p>When that customer checks out, signed in, each item gets their discount for its brand, with nothing to type. It also applies to draft orders you create for them. A rate set on a customer's own page overrides their tier for that brand.</p>
+      <p><strong>Good for:</strong> many customers with different rates per brand, terms that change often, and teams who don't want to manage codes.</p>
+      <p><strong>Watch out for:</strong> customers need to be signed in at checkout, so the store knows who they are. Like any product discount, it doesn't stack with another product discount on the same item.</p>
+
+      <h2>Side by side</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Discount codes</th><th>B2B price lists</th><th>Vendtier</th></tr></thead>
+          <tbody>
+            <tr><td>Different % per brand for one customer</td><td>One code per brand</td><td>Fixed prices per product, or separate catalogs</td><td class="yes">Yes, a % per brand</td></tr>
+            <tr><td>Applied without the customer doing anything</td><td class="no">No, they enter a code</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><td>Same terms for a whole group</td><td>Customer segments</td><td>Shared catalog</td><td class="yes">Tiers by customer tag (Premium)</td></tr>
+            <tr><td>Where you change a customer's terms</td><td>Each code</td><td>Their catalog / price list</td><td>Their customer page</td></tr>
+            <tr><td>Cost</td><td class="yes">Included</td><td>Depends on your plan</td><td>Free for 2 brands, then $19.99/month</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Which should you choose?</h2>
+      <ul>
+        <li><strong>Under five trade customers, one or two brands:</strong> start with discount codes.</li>
+        <li><strong>One rate per customer across all brands, and B2B features on your plan:</strong> use price lists.</li>
+        <li><strong>Many customers, rates that differ by brand:</strong> use an app like Vendtier. Try it free on two brands to see whether it fits.</li>
+      </ul>
+
+      <section class="final-cta">
+        <h2>Set up per-brand wholesale discounts in about 5 minutes</h2>
+        <p class="muted">Free for up to two brands. Questions? Email us and we'll walk you through it.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://apps.shopify.com/vendtier-wholesale-by-brand">Install Vendtier</a>
+          <a class="btn btn-ghost" href="/vendtier/">See how it works</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Chaftari Development · Vendtier: Wholesale by Brand</span>
+      <span>
+        <a href="/vendtier/">Vendtier</a> ·
+        <a href="/compare/vendtier-vs-wholesale-apps/">Compare</a> ·
+        <a href="/privacy">Privacy</a> ·
+        <a href="mailto:vendtiersupport@gmail.com">Support</a>
+      </span>
+    </div>
+  </footer>
+</body>
+</html>

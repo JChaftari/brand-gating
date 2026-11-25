@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /vendtier/
+Allow: /guides/
+Allow: /compare/
+Allow: /privacy
+Disallow: /api/
+Disallow: /webhooks/
+Disallow: /review/
+
+Sitemap: https://brand-gating.pages.dev/sitemap.xml
