@@ -33,3 +33,7 @@ web/dist
 
 # Listing screenshots and screencast (uploaded to the Partner Dashboard / YouTube, not versioned)
 listing-assets/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+# Agent skills (restore with: npx skills install, from skills-lock.json)
+.claude/skills/
