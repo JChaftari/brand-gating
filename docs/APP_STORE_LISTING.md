@@ -107,6 +107,17 @@ Must match the plans configured in Shopify exactly (rule 4.2.1).
 
 `https://brand-gating.pages.dev/privacy` (served from `web/public/privacy.html`).
 
+### Resources links (set 26 November 2026)
+
+- **Developer website:** `https://brand-gating.pages.dev/vendtier/`
+- **FAQ:** `https://brand-gating.pages.dev/vendtier/#faq`
+- **Tutorial:** `https://brand-gating.pages.dev/setup-guide` — a 301 (`web/public/_redirects`) to
+  `/guides/wholesale-discount-per-brand-shopify/`. The listing rejects any URL containing "Shopify",
+  so the guide's own address can't go in this field.
+- Changelog and Additional app documentation: empty (no pages for them yet).
+
+Saving these fields updates the live listing directly; no review step.
+
 ---
 
 ## Screenshots
