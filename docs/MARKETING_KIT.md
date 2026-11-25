@@ -335,16 +335,24 @@ Shopify
 Show the problem first (a cart with two brands and the discount codes
 alternative), then the setup, then the checkout result.
 
-### Website pages (later)
+### Website (live since 25 November 2026)
 
-The site at `brand-gating.pages.dev` only serves the privacy policy today.
-Pages worth adding, in this order:
+Static pages in `web/public/`, deployed with the app's Cloudflare Pages site.
+Opening `brand-gating.pages.dev/` directly (outside Shopify admin) redirects
+to the product page; inside admin the app loads as before.
 
-1. A one-page overview with the tutorial video.
-2. "Per-brand wholesale discounts on Shopify: your options" (Shopify's
-   built-in discounts, discount codes, apps), stated fairly.
-3. Honest comparison pages against the largest wholesale apps, limited to
-   facts from their public listings.
+- Product page: <https://brand-gating.pages.dev/vendtier/>
+- Guide: <https://brand-gating.pages.dev/guides/wholesale-discount-per-brand-shopify/>
+  (discount codes vs. B2B price lists vs. an app)
+- Comparison: <https://brand-gating.pages.dev/compare/vendtier-vs-wholesale-apps/>
+  (honest: what Vendtier doesn't do)
+- `sitemap.xml`, `robots.txt`
+
+Use the guide link in community answers and replies; it helps more than
+the App Store link when someone is still comparing options. Next: add the
+tutorial video once recorded, and submit the sitemap in Google Search
+Console and Bing Webmaster Tools. A branded address (free `vendtier.pages.dev`
+as a separate Cloudflare project, or a paid domain) can come later.
 
 ### First customer (custom app)
 
